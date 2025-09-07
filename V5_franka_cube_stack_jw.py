@@ -9,7 +9,7 @@ from datetime import datetime
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--headless", action="store_true", help="Run without UI")
-    p.add_argument("--logdir", type=Path, default=Path("./00_my_envs/Franka_Cube_Stacking_JW/logs"), help="Directory for JSON logs")
+    p.add_argument("--logdir", type=Path, default=Path("./00_my_envs/Franka_Cube_Stacking/logs"), help="Directory for JSON logs")
     p.add_argument("--cam_freq", type=int, default=20, help="Camera frequency (Hz)")
     p.add_argument("--cam_res", type=str, default="256x256", help="Camera resolution WxH, e.g. 640x480")
     return p.parse_args()
@@ -116,6 +116,7 @@ def quat_mul(q1, q2):
         w1*y2 - x1*z2 + y1*w2 + z1*x2,
         w1*z2 + x1*y2 - y1*x2 + z1*w2,
     ], dtype=float)
+
 
 ## Visualisieren der Erlaubten Zone, Domain-Randomization: Plattenfarbe
 def _get_or_create_color_material(stage, name, rgba=(1.0, 0.0, 0.0, 1.0), mat_root="/World/Looks"):
@@ -537,6 +538,7 @@ def build_world(cam_freq: int, cam_res: tuple[int, int]):
     )
 
     return world, task, robot, controller
+
 
 ## Main Simulation Loop
 def main():

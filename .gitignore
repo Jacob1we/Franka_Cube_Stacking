@@ -19,7 +19,6 @@ logs/
 cache/
 outputs/
 checkpoints/
-*.usd
 *.usda
 *.usdc
 *.usdz
