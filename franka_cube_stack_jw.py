@@ -49,13 +49,19 @@ from pxr import UsdGeom, UsdShade, Gf, Sdf
 SEED = 11
 Problemseeds =  [ 10, 11, 12, 14]
 
+NUM_SCENES = 3
+# Basisposition/Orientierung der Seitenkamera pro Szene
+SIDE_CAM_BASE_POS = np.array([0.48, -3.6, 1.8])
+SIDE_CAM_EULER = np.array([0.0, 22.5, 90.0])  # deg
+SCENE_SPACING = 2.0  # m
+
 SCENE_WIDTH  = 0.60  # cm
 SCENE_LENGTH = 0.75  # cm
 FRANKA_BASE_CLEARANCE = 0.3 # cm
 FORWARD_AXIS = 'x'  # bei Bedarf 'y' wählen, falls Franka in deiner Szene nach +Y „schaut“
 CUBE_SIDE = 0.05  # für Mindestabstand und Würfelgröße
 MIN_DIST = 1.5 * CUBE_SIDE  # Optional: verhindert Überschneidungen der Startwürfel
-PLANE_LIFT = 0.00
+PLANE_LIFT = 0.001
 MAX_TRIES = 200
 RAND_CUBE_ROTATION = True # Master-Schalter
 ROTATION_MODE = "yaw"               # "yaw" | "xyz"
@@ -262,7 +268,6 @@ def sample_points_in_front_rectangle_local(
     base_quat_local: np.ndarray,
     width: float,
     length: float,
-    z_levels = None,
     min_dist: float = None,
     max_tries: int = MAX_TRIES,
     base_clearance: float = FRANKA_BASE_CLEARANCE,
@@ -280,8 +285,7 @@ def sample_points_in_front_rectangle_local(
     assert n >= 1, "n muss >= 1 sein"
     assert width  > 0.0 and length > 0.0, "width und length müssen > 0 sein"
     assert base_clearance >= 0.0, "base_clearance darf nicht negativ sein"
-    if z_levels is not None:
-        assert len(z_levels) == n, "z_levels muss Länge n haben (oder None sein)"
+    z = float(base_pos_local[2])  # Z-Höhe (im lokalen Frame) für alle Punkte
 
     # RNG initialisieren (deterministisch bei gesetztem seed)
     rng = np.random.default_rng(seed)
@@ -311,8 +315,6 @@ def sample_points_in_front_rectangle_local(
 
     # Für jeden gewünschten Punkt samplen
     for i in range(n):
-        # Z-Höhe bestimmen: explizit vorgegeben oder Z der Basis
-        z = z_levels[i] if z_levels is not None else float(base_pos_local[2])
 
         # Versuche bis zu 'max_tries' eine gültige Position zu finden
         for _ in range(max_tries):
@@ -389,22 +391,14 @@ def randomize_stacking_in_rectangle_existing_task(
     cube_names = task.get_cube_names()
     n_cubes = len(cube_names)
 
-    # 3) Z-Level bestimmen (optional beibehalten)
-    z_levels = None
-    if keep_cubes_z:
-        z_levels = []
-        for name in cube_names:
-            pos_l, _ = task.scene.get_object(name).get_local_pose()
-            z_levels.append(float(pos_l[2]))
 
     # 4) Positions-Sampling (mit Sicherheitszone & min_dist)
     starts_local = sample_points_in_front_rectangle_local(
-        n=n_cubes,
+        n=n_cubes+1,  # +1 für Turmbasis
         base_pos_local=base_pos_local,
         base_quat_local=base_quat_local,
         width=width,
         length=length,
-        z_levels=z_levels,
         min_dist=min_dist,
         max_tries=max_tries,
         base_clearance=base_clearance,  # <— benutze das übergebene Argument (nicht hart FRANKA_BASE_CLEARANCE)
@@ -440,22 +434,22 @@ def randomize_stacking_in_rectangle_existing_task(
         cube.set_local_pose(starts_local[i], new_quat)
     
     # 6) Turmbasis-XY samplen (Z=0 im Task-Frame)
-    target_local = sample_points_in_front_rectangle_local(
-        n=1,
-        base_pos_local=base_pos_local,
-        base_quat_local=base_quat_local,
-        width=width,
-        length=length,
-        z_levels=[0.0],
-        min_dist=min_dist,
-        base_clearance=base_clearance,
-        seed=None if seed is None else seed + 1,
-        forward_axis=forward_axis,
-    )[0]
+    # target_local = sample_points_in_front_rectangle_local(
+    #     n=1,
+    #     base_pos_local=base_pos_local,
+    #     base_quat_local=base_quat_local,
+    #     width=width,
+    #     length=length,
+    #     z_levels=[0.0],
+    #     min_dist=min_dist,
+    #     base_clearance=base_clearance,
+    #     seed=None if seed is None else seed + 1,
+    #     forward_axis=forward_axis,
+    # )[0]
 
     # 7) Ziel in Task-Params schreiben
     task.set_params(
-        stack_target_position=np.array([target_local[0], target_local[1], 0.0], dtype=float)
+        stack_target_position=np.array([starts_local[n_cubes][0], starts_local[n_cubes][1], 0.0], dtype=float)
     )
 
     # log.info(f"{n_cubes} Startpositionen :{ np.round(starts_local[:n_cubes],3)}")
@@ -467,7 +461,7 @@ def randomize_stacking_in_rectangle_existing_task(
     log.info(f"Min. Distanz zwischen den Würfeln {cube_min_dist:.3f} m")
 
     for j in range(n_cubes):
-        dist = np.linalg.norm(starts_local[j][:2] - target_local[:2])
+        dist = np.linalg.norm(starts_local[j][:2] - starts_local[n_cubes][:2])
         log.info(f"Distanz Würfel {j} zum Turm-Ziel: {dist:.3f} m")
         if dist < min_dist:
             log.warning(f"Würfel {j} zu nah am Turm-Ziel: {dist:.3f} m < {min_dist:.3f} m")
@@ -506,92 +500,113 @@ def ensure_logger_running(world: World, robot, logger, log_func_ref_container: d
 log.info("Data Logging-Funktionen erfolgreich definiert.")
 
 ## Build World
-def build_world(cam_freq: int, cam_res: tuple[int, int]):
+def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM_SCENES):
     world = World(stage_units_in_meters=1.0)
     world.scene.add_default_ground_plane()
 
-    cube_size = [CUBE_SIDE] * 3
-    log.info(f"Cube size for stacking task: {cube_size}")
-    task = Stacking(cube_size=cube_size)
-    world.add_task(task)
-    world.reset()  # instantiate prims / initialize timeline
+    # cube_size = [CUBE_SIDE] * 3
+    # log.info(f"Cube size for stacking task: {cube_size}")
 
-    # Robot + Controller
-    robot_name = task.get_params()["robot_name"]["value"]
-    robot = world.scene.get_object(robot_name)
+    # task = Stacking(cube_size=cube_size, offset=offset)
+    # world.add_task(task)
+    # world.reset()  # instantiate prims / initialize timeline
+
+    # # Robot + Controller
+    # robot_name = task.get_params()["robot_name"]["value"]
+    # robot = world.scene.get_object(robot_name)
 
     stage = omni.usd.get_context().get_stage()
 
-    # Lege/aktualisiere die erlaubte Fläche (50 cm breit, 80 cm lang)
-    # forward_axis='x' falls Franka in deiner Szene nach +X schaut; sonst 'y'
-    add_or_update_allowed_area_plane(
-        stage=stage,
-        robot_obj=robot,
-        width= SCENE_WIDTH,
-        length = SCENE_LENGTH,
-        forward_axis='x',
-        lift = PLANE_LIFT,
-        prim_path="/World/AllowedAreaPlane",
-        material_pool_named_rgba=ALLOWED_AREA_MATS,  # <- Pool aktivieren
-        material_seed=None  # oder z.B. SEED für reproduzierbar
-    )
-    
+    stage = omni.usd.get_context().get_stage()
 
-    randomize_stacking_in_rectangle_existing_task(
-        task=task,
-        robot_obj=robot,
-        width=SCENE_WIDTH,
-        length=SCENE_LENGTH,
-        keep_cubes_z=True,
-        min_dist=MIN_DIST,
-        base_clearance=FRANKA_BASE_CLEARANCE,   # Sicherheitszone
-        seed=SEED,
-        forward_axis=FORWARD_AXIS,
-        randomize_rotation = RAND_CUBE_ROTATION,
-        rotation_mode = ROTATION_MODE,
-        yaw_range_deg = YAW_RANGE,
-        keep_cubes_rot = KEEP_CUBES_ROTATED,
-        max_tries= MAX_TRIES
-    )
+    tasks = []
+    robots = []
+    ctrls = []
+    cameras = []
 
-    # Camera
-    Side_Camera = Camera(
-        prim_path="/World/camera",
-        position=np.array([0.48, -3.6, 1.8]),
-        frequency=cam_freq,
-        resolution=cam_res,
-        orientation=rot_utils.euler_angles_to_quats(np.array([0.0, 22.5, 90.0]), degrees=True),
-    )
+    # --- alle Szenen anlegen ---
+    for i in range(num_scenes):
+        offset = i * np.array([0.0, SCENE_SPACING, 0.0])
+        
+        cube_size = [CUBE_SIDE] * 3
+        log.info(f"[Scene {i}] Cube size for stacking task: {cube_size}")
 
-    # Light
-    prim_utils.create_prim(
-        "/World/Distant_Light",
-        "DistantLight",
-        position=np.array([1.0, 1.0, 1.0]),
-        attributes={"inputs:intensity": 500, "inputs:color": (1.0, 1.0, 1.0)},
-    )
+        task_name = f"stacking_task_{i}"
 
-    controller = StackingController(
-        name="stacking_controller",
-        gripper=robot.gripper,
-        robot_articulation=robot,
-        picking_order_cube_names=task.get_cube_names(),
-        robot_observation_name=robot_name,
-    )
+        task = Stacking(name = task_name, cube_size=cube_size, offset=offset)
+        world.add_task(task)
+        tasks.append(task)
 
-    return world, task, robot, controller, Side_Camera
+    world.reset() # instantiate prims / initialize timeline
+
+    for i, task in enumerate(tasks):
+        offset = i * np.array([0.0, SCENE_SPACING, 0.0])
+
+        # Robot
+        robot_name = task.get_params()["robot_name"]["value"]
+        robot = world.scene.get_object(robot_name)
+        robots.append(robot)
+
+        # Allowed Area Plane (eindeutiger Pfad je Szene)
+        add_or_update_allowed_area_plane(
+            stage=stage,
+            robot_obj=robot,
+            width=SCENE_WIDTH,
+            length=SCENE_LENGTH,
+            forward_axis=FORWARD_AXIS,   # 'x' oder 'y' je nach Szene/Robot
+            lift=PLANE_LIFT,
+            prim_path=f"/World/AllowedAreaPlane_{i}",
+            material_pool_named_rgba=ALLOWED_AREA_MATS,
+            material_seed=None
+        )
+
+        # Kamera (eindeutiger Pfad je Szene)
+        cam = Camera(
+            prim_path=f"/World/camera_{i}",
+            position=SIDE_CAM_BASE_POS + offset,
+            frequency=cam_freq,
+            resolution=cam_res,
+            orientation=rot_utils.euler_angles_to_quats(SIDE_CAM_EULER, degrees=True),
+        )
+        cameras.append(cam)
+
+        # Licht (eindeutiger Pfad je Szene)
+        prim_utils.create_prim(
+            f"/World/Distant_Light_{i}",
+            "DistantLight",
+            position=np.array([1.0, 1.0, 1.0]) + offset,
+            attributes={"inputs:intensity": 500, "inputs:color": (1.0, 1.0, 1.0)},
+        )
+
+        # Controller
+        ctrl = StackingController(
+            name=f"stacking_controller_{i}",
+            gripper=robot.gripper,
+            robot_articulation=robot,
+            picking_order_cube_names=task.get_cube_names(),
+            robot_observation_name=robot_name,
+        )
+        ctrls.append(ctrl)
+
+    return world, tasks, robots, ctrls, cameras
 
 
 ## Main Simulation Loop
 def main():
+    # Seeds pro Szene
     current_seed = SEED
-    world, task, robot, ctrl, side_cam = build_world(ARGS.cam_freq, (W, H))
-    art = robot.get_articulation_controller()
-    logger = world.get_data_logger()
-    side_cam.initialize()
-    log_cb_holder = {}
+    scene_seeds = [current_seed + i*100 for i in range(NUM_SCENES)]
 
-    ensure_logger_running(world, robot, logger, log_cb_holder)
+    world, tasks, robots, ctrls, cams = build_worlds(ARGS.cam_freq, (W, H), NUM_SCENES)
+
+    for cam in cams:
+        cam.initialize()
+
+    arts = [r.get_articulation_controller() for r in robots]
+
+    logger = world.get_data_logger()
+    log_cb_holder = {}
+    ensure_logger_running(world, robots[0], logger, log_cb_holder)  # Callback an einen Robot binden reicht
 
     reset_needed = False
     last_saved_path = None
@@ -613,24 +628,21 @@ def main():
 
                     # Reset logger for next episode and re-register callback
                     logger.reset()
-                    ensure_logger_running(world, robot, logger, log_cb_holder)
+                    ensure_logger_running(world, robots[0], logger, log_cb_holder)
                     last_saved_path = save_path
 
-                    # rgba = side_cam.get_rgba()[:, :, :3]
-                    rgba = side_cam.get_rgba()
-                    # rgba = np.array(rgba)
-
-                    # rgb = rgba[..., :3]
-                    # # imsave akzeptiert float [0..1] oder uint8
-                    # if rgb.dtype != np.uint8:
-                    #     rgb = np.clip(rgb, 0, 1)
-
-                    image_path = f"{ARGS.logdir}/00_Screenshots/Episode_{current_seed:03d}.png"
-                    plt.imsave(image_path,rgba)
+                    for i, cam in enumerate(cams):
+                        try:
+                            rgba = cam.get_rgba()  # (H, W, 4)
+                            image_path = f"{ARGS.logdir}/00_Screenshots/Scene{i:02d}_Episode_{scene_seeds[i]:03d}.png"
+                            plt.imsave(image_path, rgba)
+                        except Exception as e:
+                            log.warning(f"[Scene {i}] Screenshot fehlgeschlagen: {e}")
                     
                     # Reset sim episode
                     world.reset()
-                    ctrl.reset()
+                    for ctrl in ctrls:
+                        ctrl.reset()
 
                     world.step(render=False)
 
@@ -639,33 +651,39 @@ def main():
                     log.info("---------------------------------------------------")
                     log.info("Resetting episode. Next Seed: %03d", current_seed)
 
-                    randomize_stacking_in_rectangle_existing_task(
-                        task=task,
-                        robot_obj=robot,
-                        width=SCENE_WIDTH,
-                        length=SCENE_LENGTH,
-                        keep_cubes_z=True,
-                        min_dist=MIN_DIST,
-                        base_clearance=FRANKA_BASE_CLEARANCE,
-                        seed=current_seed,
-                        forward_axis=FORWARD_AXIS,
-                        randomize_rotation=RAND_CUBE_ROTATION,
-                        rotation_mode=ROTATION_MODE,
-                        yaw_range_deg=YAW_RANGE,
-                        keep_cubes_rot=KEEP_CUBES_ROTATED,
-                        max_tries=MAX_TRIES
-                    )
+                    # Seeds erhöhen & Szenen neu randomisieren
+                    for i, (task, robot) in enumerate(zip(tasks, robots)):
+                        scene_seeds[i] += 1
+                        log.info("---------------------------------------------------")
+                        log.info(f"[Scene {i}] Resetting episode. Next Seed: {scene_seeds[i]:03d}")
+
+                        randomize_stacking_in_rectangle_existing_task(
+                            task=task,
+                            robot_obj=robot,
+                            width=SCENE_WIDTH,
+                            length=SCENE_LENGTH,
+                            keep_cubes_z=True,
+                            min_dist=MIN_DIST,
+                            base_clearance=FRANKA_BASE_CLEARANCE,
+                            seed=scene_seeds[i],
+                            forward_axis=FORWARD_AXIS,
+                            randomize_rotation=RAND_CUBE_ROTATION,
+                            rotation_mode=ROTATION_MODE,
+                            yaw_range_deg=YAW_RANGE,
+                            keep_cubes_rot=KEEP_CUBES_ROTATED,
+                            max_tries=MAX_TRIES
+                        )
 
                     reset_needed = False
 
-                # Controller step
+                # Controller-Schritt für alle Szenen
                 obs = world.get_observations()
-                act = ctrl.forward(observations=obs)
-                art.apply_action(act)
-                # log.info("action: %s", act)
-                # log.info("controller done: %s", ctrl.is_done())
+                for art, ctrl in zip(arts, ctrls):
+                    act = ctrl.forward(observations=obs)
+                    art.apply_action(act)
 
-            if ctrl.is_done():
+
+            if all(ctrl.is_done() for ctrl in ctrls):
                 reset_needed = True
 
     except KeyboardInterrupt:
