@@ -14,6 +14,7 @@ def parse_args():
     p.add_argument("--logdir", type=Path, default=Path("./00_my_envs/Franka_Cube_Stacking/logs"), help="Directory for JSON logs")
     p.add_argument("--cam_freq", type=int, default=20, help="Camera frequency (Hz)")
     p.add_argument("--cam_res", type=str, default="256x256", help="Camera resolution WxH, e.g. 640x480")
+    p.add_argument("--scenes", type=int, default=4, help="Number of Scenes")
     return p.parse_args()
 
 ARGS = parse_args()
@@ -49,11 +50,12 @@ from pxr import UsdGeom, UsdShade, Gf, Sdf
 SEED = 11
 Problemseeds =  [ 10, 11, 12, 14]
 
-NUM_SCENES = 3
+NUM_SCENES = ARGS.scenes
 # Basisposition/Orientierung der Seitenkamera pro Szene
-SIDE_CAM_BASE_POS = np.array([0.48, -3.6, 1.8])
-SIDE_CAM_EULER = np.array([0.0, 22.5, 90.0])  # deg
-SCENE_SPACING = 2.0  # m
+SIDE_CAM_BASE_POS = np.array([2.4, -3.2, 2.2]) # m  [0.48, -3.6, 1.8]
+SIDE_CAM_EULER = np.array([60, 29, 15])  # deg  [0.0, 22.5, 90.0]
+SCENE_SPACING = 5.0  # m
+ROBOTS_PER_LANE = np.round(np.sqrt(NUM_SCENES)).astype(int) # Für Lichtplatzierung und Positionierung der Szenen
 
 SCENE_WIDTH  = 0.60  # cm
 SCENE_LENGTH = 0.75  # cm
@@ -142,6 +144,29 @@ def quat_mul(q1, q2):
         w1*y2 - x1*z2 + y1*w2 + z1*x2,
         w1*z2 + x1*y2 - y1*x2 + z1*w2,
     ], dtype=float)
+
+def get_allowed_area_center_world(robot_obj,
+                                  width: float = SCENE_WIDTH,
+                                  length: float = SCENE_LENGTH,
+                                  forward_axis: str = FORWARD_AXIS,
+                                  lift: float = PLANE_LIFT) -> np.ndarray:
+    """
+    Mittelpunkt des Rechtecks, das du in add_or_update_allowed_area_plane erzeugst:
+    - hintere Kante geht durch die Basis
+    - Vorwärtsrichtung = fwd (aus Basisquat)
+    - Center liegt bei Basis + 0.5*length * fwd (seitlich genau mittig)
+    - z = Basis.z + lift
+    """
+    base_pos_w, base_quat_w = robot_obj.get_world_pose()  # quat: [w,x,y,z]
+    R = quat_to_rot(base_quat_w)
+    if forward_axis == 'x':
+        fwd = R[:, 0] / (np.linalg.norm(R[:, 0]) + 1e-12)
+    else:
+        fwd = R[:, 1] / (np.linalg.norm(R[:, 1]) + 1e-12)
+
+    center = base_pos_w + 0.5 * length * fwd
+    center = np.array([center[0], center[1], base_pos_w[2] + lift], dtype=float)
+    return center
 
 log.info("Helper functions erfolgreich definiert.")
 
@@ -466,6 +491,68 @@ def randomize_stacking_in_rectangle_existing_task(
         if dist < min_dist:
             log.warning(f"Würfel {j} zu nah am Turm-Ziel: {dist:.3f} m < {min_dist:.3f} m")
 
+def add_scene_light(i: int,
+                    scene_offset: np.ndarray,
+                    rng: np.random.Generator,
+                    kind: str = "rect",
+                    width: float = SCENE_WIDTH,
+                    length: float = SCENE_LENGTH):
+    """
+    Erzeugt ein zufälliges Licht für eine Szene.
+
+    Args:
+        i: Szenenindex (für eindeutigen Prim-Pfad).
+        scene_offset: Offset der Szene (np.array([x,y,z])).
+        rng: np.random.Generator (für reproduzierbare Randoms).
+        kind: "rect" oder "sphere".
+        width: Breite der Szene (Allowed-Area).
+        length: Länge der Szene (Allowed-Area).
+    """
+    half_w = width / 2.0
+    half_l = length / 2.0
+
+    # --- zufällige Position innerhalb der Szene ---
+    px = rng.uniform(-0.8 * half_w, 0.8 * half_w)
+    py = rng.uniform(-0.8 * half_l, 0.8 * half_l)
+    pz = rng.uniform(0.8, 3.0)  # leicht variabel in der Höhe
+    light_pos = scene_offset + np.array([px, py, pz])
+
+    if kind == "rect":
+        # Grundausrichtung nach unten
+        base_euler = np.array([-90.0, 0.0, 0.0])
+        # zufällige Variationen
+        yaw = rng.uniform(-180, 180)
+        roll = rng.uniform(-10, 10)
+        pitch = rng.uniform(-20, 5)
+        euler = base_euler + np.array([pitch, 0.0, yaw]) + np.array([0.0, 0.0, roll])
+        quat = rot_utils.euler_angles_to_quats(euler.tolist(), degrees=True)
+
+        prim_utils.create_prim(
+            f"/World/SceneLight_{i}",
+            "RectLight",
+            position=light_pos,
+            orientation=quat,
+            attributes={
+                "inputs:intensity": float(rng.uniform(3000.0, 8000.0)),
+                "inputs:width": float(rng.uniform(1.0, 2.5)),
+                "inputs:height": float(rng.uniform(1.0, 2.5)),
+                "inputs:color": (1.0, 1.0, 1.0),
+            },
+        )
+    elif kind == "sphere":
+        prim_utils.create_prim(
+            f"/World/SceneLight_{i}",
+            "SphereLight",
+            position=light_pos,
+            attributes={
+                "inputs:intensity": float(rng.uniform(5500.0, 7000.0)),
+                "inputs:radius": float(rng.uniform(0.4, 0.6)),
+                "inputs:color": (1.0, 1.0, 1.0),
+            },
+        )
+    else:
+        raise ValueError(f"Unsupported light kind: {kind}")
+
 log.info("Domain-Randomization-Funktionen erfolgreich definiert.")  
 
 ## Data Logging
@@ -500,22 +587,9 @@ def ensure_logger_running(world: World, robot, logger, log_func_ref_container: d
 log.info("Data Logging-Funktionen erfolgreich definiert.")
 
 ## Build World
-def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM_SCENES):
+def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM_SCENES, seed: int = SEED):
     world = World(stage_units_in_meters=1.0)
     world.scene.add_default_ground_plane()
-
-    # cube_size = [CUBE_SIDE] * 3
-    # log.info(f"Cube size for stacking task: {cube_size}")
-
-    # task = Stacking(cube_size=cube_size, offset=offset)
-    # world.add_task(task)
-    # world.reset()  # instantiate prims / initialize timeline
-
-    # # Robot + Controller
-    # robot_name = task.get_params()["robot_name"]["value"]
-    # robot = world.scene.get_object(robot_name)
-
-    stage = omni.usd.get_context().get_stage()
 
     stage = omni.usd.get_context().get_stage()
 
@@ -524,23 +598,66 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
     ctrls = []
     cameras = []
 
+    x_offset = 0
+    y_offset = 0
+    
     # --- alle Szenen anlegen ---
     for i in range(num_scenes):
-        offset = i * np.array([0.0, SCENE_SPACING, 0.0])
+        
+        scene_offset = np.array([x_offset, y_offset, 0.0]) * SCENE_SPACING
+        log.info(f"--- Baue Szene {i} bei Offset {scene_offset} ---")
+
+        if (i+1)%ROBOTS_PER_LANE == 0 and i > 0:
+                x_offset += 1
+                y_offset = 0 #y_offset - ROBOTS_PER_LANE # also y_offset = 0  
+        else: 
+            y_offset += 1
         
         cube_size = [CUBE_SIDE] * 3
         log.info(f"[Scene {i}] Cube size for stacking task: {cube_size}")
 
         task_name = f"stacking_task_{i}"
 
-        task = Stacking(name = task_name, cube_size=cube_size, offset=offset)
+        task = Stacking(name = task_name, cube_size=cube_size, offset=scene_offset)
         world.add_task(task)
         tasks.append(task)
 
     world.reset() # instantiate prims / initialize timeline
+    
+    # Licht (ein Licht für alle Szenen)
+    # prim_utils.create_prim(
+    #     "/World/Distant_Light_global",
+    #     "DistantLight",
+    #     position=np.array([(ROBOTS_PER_LANE - 1) * SCENE_SPACING / 2, (ROBOTS_PER_LANE - 1) * SCENE_SPACING / 2, 5.0]),
+    #     attributes={"inputs:intensity": 500, "inputs:color": (1.0, 1.0, 1.0)},
+    # )
+
+    # cx = cy = (ROBOTS_PER_LANE - 1) * SCENE_SPACING / 2
+    # prim_utils.create_prim(
+    #     "/World/KeyRect",
+    #     "RectLight",
+    #     position=np.array([cx, cy, 5.0]),
+    #     orientation=rot_utils.euler_angles_to_quats([-90.0, 0.0, 0.0], degrees=True),
+    #     attributes={
+    #         "inputs:intensity": 5000.0,   # RectLight braucht meist höhere Werte
+    #         "inputs:width": 2.0,
+    #         "inputs:height": 2.0,
+    #         "inputs:color": (1.0, 1.0, 1.0),
+    #     },
+    # )
+    
+    x_offset = 0
+    y_offset = 0
 
     for i, task in enumerate(tasks):
-        offset = i * np.array([0.0, SCENE_SPACING, 0.0])
+        
+        scene_offset = np.array([x_offset, y_offset, 0.0]) * SCENE_SPACING
+
+        if (i+1)%ROBOTS_PER_LANE == 0 and i > 0:
+                x_offset += 1
+                y_offset = 0 #y_offset - ROBOTS_PER_LANE # also y_offset = 0  
+        else: 
+            y_offset += 1
 
         # Robot
         robot_name = task.get_params()["robot_name"]["value"]
@@ -561,22 +678,17 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
         )
 
         # Kamera (eindeutiger Pfad je Szene)
+        quat_usd = rot_utils.euler_angles_to_quats(SIDE_CAM_EULER, degrees=True)
+
         cam = Camera(
             prim_path=f"/World/camera_{i}",
-            position=SIDE_CAM_BASE_POS + offset,
+            position=SIDE_CAM_BASE_POS + scene_offset,
             frequency=cam_freq,
             resolution=cam_res,
-            orientation=rot_utils.euler_angles_to_quats(SIDE_CAM_EULER, degrees=True),
         )
-        cameras.append(cam)
-
-        # Licht (eindeutiger Pfad je Szene)
-        prim_utils.create_prim(
-            f"/World/Distant_Light_{i}",
-            "DistantLight",
-            position=np.array([1.0, 1.0, 1.0]) + offset,
-            attributes={"inputs:intensity": 500, "inputs:color": (1.0, 1.0, 1.0)},
-        )
+        cam.set_world_pose(SIDE_CAM_BASE_POS + scene_offset, quat_usd, camera_axes="usd")
+        
+        
 
         # Controller
         ctrl = StackingController(
@@ -588,6 +700,31 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
         )
         ctrls.append(ctrl)
 
+        # --- Zufälliges Licht pro Szene ---
+        sample_seed = seed + i*100
+        rng = np.random.default_rng(sample_seed)
+
+        add_scene_light(i, scene_offset, rng, kind="sphere",
+                        width=SCENE_WIDTH, length=SCENE_LENGTH)
+        
+        # --- Zufälliger Task pro Szene ---
+        randomize_stacking_in_rectangle_existing_task(
+                            task=task,
+                            robot_obj=robot,
+                            width=SCENE_WIDTH,
+                            length=SCENE_LENGTH,
+                            keep_cubes_z=True,
+                            min_dist=MIN_DIST,
+                            base_clearance=FRANKA_BASE_CLEARANCE,
+                            seed=sample_seed,
+                            forward_axis=FORWARD_AXIS,
+                            randomize_rotation=RAND_CUBE_ROTATION,
+                            rotation_mode=ROTATION_MODE,
+                            yaw_range_deg=YAW_RANGE,
+                            keep_cubes_rot=KEEP_CUBES_ROTATED,
+                            max_tries=MAX_TRIES
+                        )
+
     return world, tasks, robots, ctrls, cameras
 
 
@@ -596,8 +733,9 @@ def main():
     # Seeds pro Szene
     current_seed = SEED
     scene_seeds = [current_seed + i*100 for i in range(NUM_SCENES)]
+    stage = omni.usd.get_context().get_stage()
 
-    world, tasks, robots, ctrls, cams = build_worlds(ARGS.cam_freq, (W, H), NUM_SCENES)
+    world, tasks, robots, ctrls, cams = build_worlds(ARGS.cam_freq, (W, H), NUM_SCENES,current_seed)
 
     for cam in cams:
         cam.initialize()
@@ -673,6 +811,22 @@ def main():
                             keep_cubes_rot=KEEP_CUBES_ROTATED,
                             max_tries=MAX_TRIES
                         )
+
+                        add_or_update_allowed_area_plane(
+                            stage=stage,
+                            robot_obj=robot,
+                            width=SCENE_WIDTH,
+                            length=SCENE_LENGTH,
+                            forward_axis=FORWARD_AXIS,   # 'x' oder 'y' je nach Szene/Robot
+                            lift=PLANE_LIFT,
+                            prim_path=f"/World/AllowedAreaPlane_{i}",
+                            material_pool_named_rgba=ALLOWED_AREA_MATS,
+                            material_seed=None
+                        )
+
+                        rng = np.random.default_rng(scene_seeds[i])
+                        add_scene_light(i, 4, rng, kind="sphere",
+                            width=SCENE_WIDTH, length=SCENE_LENGTH)
 
                     reset_needed = False
 
