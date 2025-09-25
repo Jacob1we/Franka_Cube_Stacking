@@ -618,7 +618,7 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
 
         task_name = f"stacking_task_{i}"
 
-        task = Stacking(name = task_name, cube_size=cube_size, offset=scene_offset)
+        task = Stacking(name = task_name, cube_size=cube_size, offset=scene_offset) #, initial_orientations)
         world.add_task(task)
         tasks.append(task)
 
@@ -630,20 +630,6 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
     #     "DistantLight",
     #     position=np.array([(ROBOTS_PER_LANE - 1) * SCENE_SPACING / 2, (ROBOTS_PER_LANE - 1) * SCENE_SPACING / 2, 5.0]),
     #     attributes={"inputs:intensity": 500, "inputs:color": (1.0, 1.0, 1.0)},
-    # )
-
-    # cx = cy = (ROBOTS_PER_LANE - 1) * SCENE_SPACING / 2
-    # prim_utils.create_prim(
-    #     "/World/KeyRect",
-    #     "RectLight",
-    #     position=np.array([cx, cy, 5.0]),
-    #     orientation=rot_utils.euler_angles_to_quats([-90.0, 0.0, 0.0], degrees=True),
-    #     attributes={
-    #         "inputs:intensity": 5000.0,   # RectLight braucht meist höhere Werte
-    #         "inputs:width": 2.0,
-    #         "inputs:height": 2.0,
-    #         "inputs:color": (1.0, 1.0, 1.0),
-    #     },
     # )
     
     x_offset = 0
