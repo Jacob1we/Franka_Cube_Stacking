@@ -39,7 +39,7 @@ log = logging.getLogger("FrankaCubeStacking")
 # --- import Isaac modules that require the app context ---
 from isaacsim.core.api import World
 from isaacsim.robot.manipulators.examples.franka.controllers.stacking_controller import StackingController
-from isaacsim.robot.manipulators.examples.franka.tasks import Stacking
+from isaacsim.robot.manipulators.examples.franka.tasks import Stacking_JW
 from isaacsim.sensors.camera import Camera
 import isaacsim.core.utils.numpy.rotations as rot_utils
 import isaacsim.core.utils.prims as prim_utils
@@ -618,7 +618,7 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
 
         task_name = f"stacking_task_{i}"
 
-        task = Stacking(name = task_name, cube_size=cube_size, offset=scene_offset) #, initial_orientations)
+        task = Stacking_JW(name = task_name, cube_size=cube_size, offset=scene_offset) #, initial_orientations)
         world.add_task(task)
         tasks.append(task)
 
@@ -711,7 +711,7 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
                             max_tries=MAX_TRIES
                         )
 
-    return world, tasks, robots, ctrls, cameras
+    return world, tasks, robots, ctrls, cameras, scene_offset
 
 
 ## Main Simulation Loop
@@ -721,7 +721,7 @@ def main():
     scene_seeds = [current_seed + i*100 for i in range(NUM_SCENES)]
     stage = omni.usd.get_context().get_stage()
 
-    world, tasks, robots, ctrls, cams = build_worlds(ARGS.cam_freq, (W, H), NUM_SCENES,current_seed)
+    world, tasks, robots, ctrls, cams, scene_offset = build_worlds(ARGS.cam_freq, (W, H), NUM_SCENES,current_seed)
 
     for cam in cams:
         cam.initialize()
@@ -797,6 +797,7 @@ def main():
                             keep_cubes_rot=KEEP_CUBES_ROTATED,
                             max_tries=MAX_TRIES
                         )
+                        log.info(f"[Scene {i}] New stacking target position: {task.get_params()['stack_target_position']['value']}")
 
                         add_or_update_allowed_area_plane(
                             stage=stage,
@@ -809,10 +810,13 @@ def main():
                             material_pool_named_rgba=ALLOWED_AREA_MATS,
                             material_seed=None
                         )
+                        log.info(f"[Scene {i}] Updated allowed area plane.")
 
-                        rng = np.random.default_rng(scene_seeds[i])
-                        add_scene_light(i, 4, rng, kind="sphere",
-                            width=SCENE_WIDTH, length=SCENE_LENGTH)
+                        # rng = np.random.default_rng(scene_seeds[i])
+                        # add_scene_light(i, scene_offset, rng, kind="sphere",
+                        #     width=SCENE_WIDTH, length=SCENE_LENGTH
+                        #     )
+                        # log.info(f"[Scene {i}] Added new random light.")
 
                     reset_needed = False
 
