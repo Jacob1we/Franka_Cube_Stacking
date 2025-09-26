@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--headless", action="store_true", help="Run without UI")
-    p.add_argument("--logdir", type=Path, default=Path("./00_my_envs/Franka_Cube_Stacking/logs"), help="Directory for JSON logs")
+    p.add_argument("--logdir", type=Path, default=Path("./logs"), help="Directory for JSON logs")
     p.add_argument("--cam_freq", type=int, default=20, help="Camera frequency (Hz)")
     p.add_argument("--cam_res", type=str, default="256x256", help="Camera resolution WxH, e.g. 640x480")
     p.add_argument("--scenes", type=int, default=4, help="Number of Scenes")
@@ -38,7 +38,7 @@ log = logging.getLogger("FrankaCubeStacking")
 
 # --- import Isaac modules that require the app context ---
 from isaacsim.core.api import World
-from isaacsim.robot.manipulators.examples.franka.controllers.stacking_controller import StackingController
+from isaacsim.robot.manipulators.examples.franka.controllers.stacking_controller_jw import StackingController_JW
 from isaacsim.robot.manipulators.examples.franka.tasks import Stacking_JW
 from isaacsim.sensors.camera import Camera
 import isaacsim.core.utils.numpy.rotations as rot_utils
@@ -51,7 +51,7 @@ SEED = 11
 Problemseeds =  [ 10, 11, 12, 14]
 
 NUM_SCENES = ARGS.scenes
-# Basisposition/Orientierung der Seitenkamera pro Szene
+
 SIDE_CAM_BASE_POS = np.array([2.4, -3.2, 2.2]) # m  [0.48, -3.6, 1.8]
 SIDE_CAM_EULER = np.array([60, 29, 15])  # deg  [0.0, 22.5, 90.0]
 SCENE_SPACING = 5.0  # m
@@ -61,13 +61,15 @@ SCENE_WIDTH  = 0.60  # cm
 SCENE_LENGTH = 0.75  # cm
 FRANKA_BASE_CLEARANCE = 0.3 # cm
 FORWARD_AXIS = 'x'  # bei Bedarf 'y' wählen, falls Franka in deiner Szene nach +Y „schaut“
+PLANE_LIFT = 0.001
+
+N_CUBES = 2
 CUBE_SIDE = 0.05  # für Mindestabstand und Würfelgröße
 MIN_DIST = 1.5 * CUBE_SIDE  # Optional: verhindert Überschneidungen der Startwürfel
-PLANE_LIFT = 0.001
 MAX_TRIES = 200
 RAND_CUBE_ROTATION = True # Master-Schalter
 ROTATION_MODE = "yaw"               # "yaw" | "xyz"
-YAW_RANGE: tuple = (-5.0, 5.0) #(-180.0, 180.0)   # für mode="yaw"
+YAW_RANGE: tuple = (-180.0, 180.0) #(-5.0, 5.0) #(-180.0, 180.0)   # für mode="yaw"
 KEEP_CUBES_ROTATED: bool = False             # vorhandene Ori behalten?
 
 # Material-Pool (Beispiele: Farben + Transparenzen)
@@ -426,7 +428,7 @@ def randomize_stacking_in_rectangle_existing_task(
         length=length,
         min_dist=min_dist,
         max_tries=max_tries,
-        base_clearance=base_clearance,  # <— benutze das übergebene Argument (nicht hart FRANKA_BASE_CLEARANCE)
+        base_clearance=base_clearance,  
         seed=seed,
         forward_axis=forward_axis,
     )
@@ -435,11 +437,16 @@ def randomize_stacking_in_rectangle_existing_task(
     # 5) Startposen + optionale Rotation anwenden (UNABHÄNGIG je Würfel)
     X_positions = []
     Y_positions = []
+    cube_orientations  = []
     for i, name in enumerate(cube_names):
         cube = task.scene.get_object(name)
-        _, current_quat = cube.get_local_pose()
+        current_pos, current_quat = cube.get_local_pose()
         X_positions.append(starts_local[i][0])
         Y_positions.append(starts_local[i][1])
+
+        new_pos = np.array(starts_local[i], dtype=float)
+        if keep_cubes_z:
+            new_pos[2] = float(current_pos[2])
 
         new_quat = current_quat
         if randomize_rotation and not keep_cubes_rot:
@@ -455,33 +462,20 @@ def randomize_stacking_in_rectangle_existing_task(
 
             # additiv zur aktuellen Orientierung (empfohlen)
             new_quat = quat_mul(current_quat, q_delta)
+        
+        cube_orientations.append(np.asarray(new_quat, dtype=float).tolist())
 
-        cube.set_local_pose(starts_local[i], new_quat)
+        cube.set_local_pose(new_pos, new_quat)
+        log.info(f"Würfel {i} '{name}': Startpos {np.round(new_pos,3)}, Ori {np.round(new_quat,3)}")
     
-    # 6) Turmbasis-XY samplen (Z=0 im Task-Frame)
-    # target_local = sample_points_in_front_rectangle_local(
-    #     n=1,
-    #     base_pos_local=base_pos_local,
-    #     base_quat_local=base_quat_local,
-    #     width=width,
-    #     length=length,
-    #     z_levels=[0.0],
-    #     min_dist=min_dist,
-    #     base_clearance=base_clearance,
-    #     seed=None if seed is None else seed + 1,
-    #     forward_axis=forward_axis,
-    # )[0]
-
-    # 7) Ziel in Task-Params schreiben
+    # 6) Ziel in Task-Params schreiben
+    stack_target_xy = np.asarray(starts_local[n_cubes], dtype=float)
     task.set_params(
-        stack_target_position=np.array([starts_local[n_cubes][0], starts_local[n_cubes][1], 0.0], dtype=float)
+        stack_target_position=[float(stack_target_xy[0]), float(stack_target_xy[1]), 0.0],
+        cube_orientation=cube_orientations,  # Länge == n_cubes
     )
 
-    # log.info(f"{n_cubes} Startpositionen :{ np.round(starts_local[:n_cubes],3)}")
-    # log.info(f"Neues Stapel-Ziel: {np.round(task.get_params()['stack_target_position']['value'],3)}")
-    # log.info(f"Erlaubte Zone: X [0.0,{length:.2f}] m und Y: [{-width/2:.2f},{width/2:.2f}] m.")
-
-    # cube_min_dist = np.sqrt(((X_positions)[0]-X_positions[1])**2 + ((Y_positions)[0]-Y_positions[1])**2)
+    #7) Log-Ausgabe und Min-Abstandsprüfung
     cube_min_dist = np.linalg.norm(starts_local[0] - starts_local[1])
     log.info(f"Min. Distanz zwischen den Würfeln {cube_min_dist:.3f} m")
 
@@ -597,6 +591,7 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
     robots = []
     ctrls = []
     cameras = []
+    n_cubes = N_CUBES
 
     x_offset = 0
     y_offset = 0
@@ -618,19 +613,12 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
 
         task_name = f"stacking_task_{i}"
 
-        task = Stacking_JW(name = task_name, cube_size=cube_size, offset=scene_offset) #, initial_orientations)
+        task = Stacking_JW(name = task_name, cube_size=cube_size, offset=scene_offset) #, initial_orientations=[None] * n_cubes,)
         world.add_task(task)
         tasks.append(task)
 
     world.reset() # instantiate prims / initialize timeline
-    
-    # Licht (ein Licht für alle Szenen)
-    # prim_utils.create_prim(
-    #     "/World/Distant_Light_global",
-    #     "DistantLight",
-    #     position=np.array([(ROBOTS_PER_LANE - 1) * SCENE_SPACING / 2, (ROBOTS_PER_LANE - 1) * SCENE_SPACING / 2, 5.0]),
-    #     attributes={"inputs:intensity": 500, "inputs:color": (1.0, 1.0, 1.0)},
-    # )
+    log.info(f"--- Alle {num_scenes} Szenen angelegt. ---")
     
     x_offset = 0
     y_offset = 0
@@ -675,9 +663,8 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
         cam.set_world_pose(SIDE_CAM_BASE_POS + scene_offset, quat_usd, camera_axes="usd")
         
         
-
         # Controller
-        ctrl = StackingController(
+        ctrl = StackingController_JW(
             name=f"stacking_controller_{i}",
             gripper=robot.gripper,
             robot_articulation=robot,
@@ -822,10 +809,11 @@ def main():
 
                 # Controller-Schritt für alle Szenen
                 obs = world.get_observations()
+                log.debug(f"Observations keys: {list(obs.keys())}")
+                log.debug(f"Observations example: {list(obs.values())[0]}")
                 for art, ctrl in zip(arts, ctrls):
                     act = ctrl.forward(observations=obs)
                     art.apply_action(act)
-
 
             if all(ctrl.is_done() for ctrl in ctrls):
                 reset_needed = True
