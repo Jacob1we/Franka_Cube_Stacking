@@ -40,7 +40,9 @@ log = logging.getLogger("FrankaCubeStacking")
 from isaacsim.core.api import World
 # from isaacsim.robot.manipulators.examples.franka.controllers.stacking_controller_jw import StackingController_JW
 # from isaacsim.robot.manipulators.examples.franka.tasks import Stacking_JW
-from Franka_Env_JW import StackingController_JW
+
+# from Franka_Env_JW import StackingController_JW
+from Franka_Env_JW import StackingController as StackingController_JW
 from Franka_Env_JW import Stacking_JW
 
 from isaacsim.sensors.camera import Camera
@@ -586,6 +588,7 @@ log.info("Data Logging-Funktionen erfolgreich definiert.")
 
 ## Build World
 def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM_SCENES, seed: int = SEED):
+    
     world = World(stage_units_in_meters=1.0)
     world.scene.add_default_ground_plane()
 
@@ -813,10 +816,49 @@ def main():
 
                 # Controller-Schritt für alle Szenen
                 obs = world.get_observations()
-                log.info(f"Observations Franka 0: {list(obs.values())[0]}")
-                log.info(f"Observations Franka 0: Cube 0: {list(obs.values())[0]}")
-                for art, ctrl in zip(arts, ctrls):
-                    act = ctrl.forward(observations=obs)
+                # log.info(f"Observations Franka 0: {list(obs.values())[0]}")
+                log.info(f'Observerations: {obs.keys()}')
+                log.info(f'Example \nFranka 0: {list(obs.values())[0]}, \nCube 0: {list(obs.values())[1]} \nCube 1: {list(obs.values())[2]}')
+
+                for i, (art, ctrl) in enumerate(zip(arts, ctrls)):
+                    robot_key = "my_franka" if i == 0 else f"my_franka_{i}"
+                    cube0_key = "cube" if i == 0 else f"cube_{2*i}"
+                    cube1_key = "cube_1" if i == 0 else f"cube_{2*i+1}"
+
+                    pp_obs = {
+                        robot_key: {
+                            "joint_positions": obs[robot_key]["joint_positions"],
+                            "end_effector_position": obs[robot_key]["end_effector_position"],
+                        },
+                        cube0_key: {
+                            "position": obs[cube0_key]["position"],
+                            "orientation": obs[cube0_key]["orientation"],
+                            "target_position": obs[cube0_key]["target_position"],
+                        },
+                        cube1_key: {
+                            "position": obs[cube1_key]["position"],
+                            "orientation": obs[cube1_key]["orientation"],
+                            "target_position": obs[cube1_key]["target_position"],
+                        },
+                    }
+                    log.info("---------------------------------------------------")
+                    log.info(f"Observations Franka {i}: \n{pp_obs}")
+                    
+                    # # genau die Infos extrahieren, die PickPlace.forward braucht
+                    # pick_pos  = obs[cube0_key]["position"]           # oder cube1_key, je nach Ziel
+                    # place_pos = obs[cube0_key]["target_position"]
+                    # q_current = obs[robot_key]["joint_positions"]
+                    # q_target  = obs[cube0_key]["orientation"]        # <-- Würfel-Quaternion direkt übernehmen
+
+                    # # (optional) normieren, damit keine Zahlenfehler crashen
+                    # q_target = q_target / np.linalg.norm(q_target)
+
+                    # act = ctrl._pick_place_controller.forward(
+                    #     observations=pp_obs,
+                    #     end_effector_orientation=np.asarray(q_target, dtype=float),
+                    # )
+                    # art.apply_action(act)
+                    act = ctrl.forward(observations=pp_obs)
                     art.apply_action(act)
 
             if all(ctrl.is_done() for ctrl in ctrls):
