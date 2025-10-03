@@ -38,8 +38,11 @@ log = logging.getLogger("FrankaCubeStacking")
 
 # --- import Isaac modules that require the app context ---
 from isaacsim.core.api import World
-from isaacsim.robot.manipulators.examples.franka.controllers.stacking_controller_jw import StackingController_JW
-from isaacsim.robot.manipulators.examples.franka.tasks import Stacking_JW
+# from isaacsim.robot.manipulators.examples.franka.controllers.stacking_controller_jw import StackingController_JW
+# from isaacsim.robot.manipulators.examples.franka.tasks import Stacking_JW
+from Franka_Env_JW import StackingController_JW
+from Franka_Env_JW import Stacking_JW
+
 from isaacsim.sensors.camera import Camera
 import isaacsim.core.utils.numpy.rotations as rot_utils
 import isaacsim.core.utils.prims as prim_utils
@@ -47,8 +50,9 @@ import numpy as np
 import omni.usd
 from pxr import UsdGeom, UsdShade, Gf, Sdf
 
+
 SEED = 11
-Problemseeds =  [ 10, 11, 12, 14]
+Problemseeds =  [10, 11, 12, 14]
 
 NUM_SCENES = ARGS.scenes
 
@@ -809,8 +813,8 @@ def main():
 
                 # Controller-Schritt für alle Szenen
                 obs = world.get_observations()
-                log.debug(f"Observations keys: {list(obs.keys())}")
-                log.debug(f"Observations example: {list(obs.values())[0]}")
+                log.info(f"Observations Franka 0: {list(obs.values())[0]}")
+                log.info(f"Observations Franka 0: Cube 0: {list(obs.values())[0]}")
                 for art, ctrl in zip(arts, ctrls):
                     act = ctrl.forward(observations=obs)
                     art.apply_action(act)
