@@ -446,15 +446,27 @@ def randomize_stacking_in_rectangle_existing_task(
     cube_orientations  = []
     for i, name in enumerate(cube_names):
         cube = task.scene.get_object(name)
+
+        # Get the Xformable from prim
+        xform = UsdGeom.Xformable(cube.prim)
+        log.info(f"Cube {i} '{name}' Xformable: {xform}")
+        # Gets local transform matrix - used to convert the Xform Ops.
+        pose = omni.usd.get_local_transform_matrix(cube.prim)
+        current_quat_pose = pose.ExtractRotationQuat()
+        log.info(f"Cube {i} '{name}' current_quat_pose: {current_quat_pose}")
+
         current_pos, current_quat = cube.get_local_pose()
+        log.info(f"Cube {i} '{name}' current_quat: {current_quat}")
+
         X_positions.append(starts_local[i][0])
         Y_positions.append(starts_local[i][1])
-
         new_pos = np.array(starts_local[i], dtype=float)
         if keep_cubes_z:
             new_pos[2] = float(current_pos[2])
 
+        # new_quat = current_quat
         new_quat = current_quat
+
         if randomize_rotation and not keep_cubes_rot:
             # eigener RNG je Würfel → unabhängig & reproduzierbar
             local_rng = np.random.default_rng(None if seed is None else seed + 100 + i)
@@ -468,9 +480,8 @@ def randomize_stacking_in_rectangle_existing_task(
 
             # additiv zur aktuellen Orientierung (empfohlen)
             new_quat = quat_mul(current_quat, q_delta)
-        
-        cube_orientations.append(np.asarray(new_quat, dtype=float).tolist())
 
+        cube_orientations.append(np.asarray(new_quat, dtype=float).tolist())
         cube.set_local_pose(new_pos, new_quat)
         log.info(f"Würfel {i} '{name}': Startpos {np.round(new_pos,3)}, Ori {np.round(new_quat,3)}")
     
@@ -478,7 +489,8 @@ def randomize_stacking_in_rectangle_existing_task(
     stack_target_xy = np.asarray(starts_local[n_cubes], dtype=float)
     task.set_params(
         stack_target_position=[float(stack_target_xy[0]), float(stack_target_xy[1]), 0.0],
-        cube_orientation=cube_orientations,  # Länge == n_cubes
+        cube_position = new_pos,
+        cube_orientation=new_quat
     )
 
     #7) Log-Ausgabe und Min-Abstandsprüfung
@@ -852,8 +864,8 @@ def main():
                     art.apply_action(act)
 
                 # log.info(f"Observations Franka 0: {list(obs.values())[0]}")
-                log.info(f'Observerations: {obs.keys()}')
-                log.info(f'Example \nFranka 0: {list(obs.values())[0]}, \nCube 0: {list(obs.values())[1]} \nCube 1: {list(obs.values())[2]}')
+                # log.info(f'Observerations: {obs.keys()}')
+                # log.info(f'Example \nFranka 0: {list(obs.values())[0]}, \nCube 0: {list(obs.values())[1]} \nCube 1: {list(obs.values())[2]}')
 
                 # for i, (art, ctrl) in enumerate(zip(arts, ctrls)):
                 #     robot_key = "my_franka" if i == 0 else f"my_franka_{i}"

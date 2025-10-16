@@ -83,3 +83,12 @@ class Stacking(BaseStacking):
             initial_name="my_franka", is_unique_fn=lambda x: not self.scene.object_exists(x)
         )
         return Franka(prim_path=franka_prim_path, name=franka_robot_name)
+
+    def set_params(
+        self, 
+        cube_name = None, 
+        cube_position = None, 
+        cube_orientation = None, 
+        stack_target_position = None
+        ):
+        return super().set_params(cube_name, cube_position, cube_orientation, stack_target_position)
