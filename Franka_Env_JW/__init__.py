@@ -21,3 +21,4 @@
 from Franka_Env_JW.stacking_controller_jw import StackingController_JW
 from Franka_Env_JW.stacking_controller import StackingController
 from Franka_Env_JW.stacking_jw import Stacking as Stacking_JW
+from Franka_Env_JW.base_stacking_jw import Stacking as Base_Stacking_JW

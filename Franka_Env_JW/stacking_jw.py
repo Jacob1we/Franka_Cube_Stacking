@@ -15,7 +15,9 @@
 from typing import Optional
 
 import numpy as np
-from isaacsim.core.api.tasks import Stacking as BaseStacking
+# from Franka_Env_JW import Base_Stacking_JW as BaseStacking -> Geht nicht, weil ich schon im Paket Franka_Env_JW bin!!
+from .base_stacking_jw import Stacking as BaseStacking
+# from isaacsim.core.api.tasks import Stacking as BaseStacking
 from isaacsim.core.utils.prims import is_prim_path_valid
 from isaacsim.core.utils.stage import get_stage_units
 from isaacsim.core.utils.string import find_unique_string_name
@@ -39,17 +41,32 @@ class Stacking(BaseStacking):
         cube_size: Optional[np.ndarray] = None,
         offset: Optional[np.ndarray] = None,
         initial_orientations: Optional[np.ndarray] = None,
+        parent_prim_path: str = "/World",
+        cube_amount: int = 2,
     ) -> None:
+        
+        self.parent_prim_path = parent_prim_path
+        MAX_CUBE_AMOUNT = 36
+
+        initial_cube_positions = []
+        for i in range(-3, 3):
+            for j in range(-3, 3):
+                if len(initial_cube_positions) >= cube_amount or len(initial_cube_positions) >= MAX_CUBE_AMOUNT:
+                    break
+                initial_cube_position = [0.1*i, 0.1*j, 0.1]
+                initial_cube_positions.append(initial_cube_position)
+        
         if target_position is None:
             target_position = np.array([0.5, 0.5, 0]) / get_stage_units()
         BaseStacking.__init__(
             self,
             name=name,
-            cube_initial_positions=np.array([[0.3, 0.3, 0.3], [0.3, -0.3, 0.3]]) / get_stage_units(),
+            cube_initial_positions=np.array(initial_cube_positions) / get_stage_units(),
             cube_initial_orientations=initial_orientations,
             stack_target_position=target_position,
             cube_size=cube_size,
             offset=offset,
+            parent_prim_path=parent_prim_path,
         )
         return
 
@@ -60,7 +77,7 @@ class Stacking(BaseStacking):
             Franka: [description]
         """
         franka_prim_path = find_unique_string_name(
-            initial_name="/World/Franka", is_unique_fn=lambda x: not is_prim_path_valid(x)
+            initial_name=f"{self.parent_prim_path}/Franka", is_unique_fn=lambda x: not is_prim_path_valid(x)
         )
         franka_robot_name = find_unique_string_name(
             initial_name="my_franka", is_unique_fn=lambda x: not self.scene.object_exists(x)
