@@ -232,61 +232,69 @@ def add_or_update_allowed_area_plane(
     lift: float = PLANE_LIFT,
     material_pool_named_rgba = ALLOWED_AREA_MATS,
     material_seed = None,
-    bind_red_material: bool = False,   # optional, falls du statt Pool „rot“ erzwingen willst
+    bind_red_material: bool = False,
 ):
     """
-    Legt eine **einfache Mesh-Plane** (2 Dreiecke) in den **erlaubten Bereich**:
-    - Hintere Kante verläuft durch die Franka-Basis.
-    - Breite symmetrisch (±width/2 entlang Seitenachse).
-    - Länge 0..length entlang Vorwärtsachse.
-    - Orientierung richtet sich automatisch nach der Basis-Quaternion.
-    - Position/Vertices werden **in Weltkoordinaten** gesetzt.
+    Legt oder aktualisiert eine Allowed-Area-Plane relativ zum Szenen-Xform, der
+    aus dem prim_path automatisch erkannt wird (z. B. /World/Scenes/Scene_000/...).
 
-    Kann mehrfach aufgerufen werden: existiert das Prim bereits, werden nur die
-    Geometrie-Attribute (Punkte/Indizes) aktualisiert.
+    Wenn die Szene verschoben oder rotiert wird, folgt die Plane automatisch.
     """
-    # 1) Basispose **in Weltkoordinaten** holen
-    base_pos_w, base_quat_w = robot_obj.get_world_pose()   # base_pos_w: (3,), base_quat_w: [w,x,y,z]
 
-    # 2) Vorwärts- und Seitenachsen in Welt berechnen (aus Quaternion)
-    fwd, side = _forward_side_axes_world(base_quat_w, forward_axis=forward_axis)
+    # 1) Anker bestimmen (Parent-Xform, also die Szene)
+    anchor_path = str(prim_path.rsplit("/", 1)[0])
+    anchor_prim = stage.GetPrimAtPath(anchor_path)
+    if not anchor_prim:
+        raise RuntimeError(f"Anchor prim not found: {anchor_path}")
 
-    # 3) Vier Ecken des Rechtecks (in Weltkoordinaten) konstruieren
-    #    Hintere Kante (v=0) geht durch die Basis, v wächst nach vorne bis 'length'.
-    #    Reihenfolge: p0 -> p1 -> p2 -> p3 ergibt zwei Dreiecke (0,1,2) und (0,2,3)
+    anchor_xform = UsdGeom.Xformable(anchor_prim)
+    M_world_to_anchor = Gf.Matrix4d(anchor_xform.ComputeLocalToWorldTransform(Usd.TimeCode.Default())).GetInverse()
+
+    # 2) Basispose des Roboters (in Weltkoordinaten)
+    base_pos_w, base_quat_w = robot_obj.get_world_pose()
+
+    # 3) Vorwärts- und Seitenachsen in Welt berechnen
+    fwd_w, side_w = _forward_side_axes_world(base_quat_w, forward_axis=forward_axis)
+
+    # 4) Eckpunkte in Welt berechnen
     half_w = width * 0.5
-    z_lift = float(base_pos_w[2] + lift)  # kleine Anhebung
+    z_lift = float(base_pos_w[2] + lift)
 
-    # Hilfsfunktion, um 3D-Punkt aus Basis + Offsets zu bauen
-    def make_point(u_lateral, v_forward):
-        p = base_pos_w + u_lateral * side + v_forward * fwd
-        return Gf.Vec3f(float(p[0]), float(p[1]), z_lift)
+    def make_point_world(u, v):
+        p = base_pos_w + u * side_w + v * fwd_w
+        return Gf.Vec3d(float(p[0]), float(p[1]), z_lift)
 
-    p0 = make_point(-half_w, 0.0)     # hinten links
-    p1 = make_point( half_w, 0.0)     # hinten rechts
-    p2 = make_point( half_w, length)  # vorne  rechts
-    p3 = make_point(-half_w, length)  # vorne  links
+    p0_w = make_point_world(-half_w, 0.0)
+    p1_w = make_point_world( half_w, 0.0)
+    p2_w = make_point_world( half_w, length)
+    p3_w = make_point_world(-half_w, length)
 
-    # 4) Mesh-Prim anlegen oder holen
+    # 5) Punkte in Anchor-Lokalraum transformieren
+    def to_anchor_local(p_w: Gf.Vec3d) -> Gf.Vec3f:
+        p_a = M_world_to_anchor.Transform(p_w)
+        return Gf.Vec3f(p_a[0], p_a[1], p_a[2])
+
+    points_local = [to_anchor_local(p) for p in [p0_w, p1_w, p2_w, p3_w]]
+
+    # 6) Mesh anlegen oder aktualisieren
     mesh = UsdGeom.Mesh.Get(stage, prim_path)
     if not mesh:
         mesh = UsdGeom.Mesh.Define(stage, prim_path)
 
-    # 5) Punkte/Topologie setzen (2 Dreiecke)
-    mesh.CreatePointsAttr([p0, p1, p2, p3])
+    mesh.CreatePointsAttr(points_local)
     mesh.CreateFaceVertexCountsAttr([3, 3])
-    mesh.CreateFaceVertexIndicesAttr([0, 1, 2,   0, 2, 3])
+    mesh.CreateFaceVertexIndicesAttr([0, 1, 2, 0, 2, 3])
 
-    # 6) Normale (nach oben) und Double-Sided (sichtbar von oben/unten)
-    mesh.CreateNormalsAttr([Gf.Vec3f(0.0, 0.0, 1.0),
-                            Gf.Vec3f(0.0, 0.0, 1.0),
-                            Gf.Vec3f(0.0, 0.0, 1.0),
-                            Gf.Vec3f(0.0, 0.0, 1.0)])
+    up = Gf.Vec3f(0.0, 0.0, 1.0)
+    mesh.CreateNormalsAttr([up, up, up, up])
     mesh.SetNormalsInterpolation(UsdGeom.Tokens.vertex)
     mesh.CreateDoubleSidedAttr(True)
 
-    # 7) Optional: rotes Material binden (nur einmal anlegen, dann wiederverwenden)
-    if material_pool_named_rgba:
+    # 7) Material (optional)
+    if bind_red_material:
+        mats = _ensure_material_pool(stage, {"red": (1.0, 0.0, 0.0, 1.0)})
+        bind_random_material_to_prim(stage, prim_path, mats, seed=material_seed)
+    elif material_pool_named_rgba:
         mats = _ensure_material_pool(stage, material_pool_named_rgba)
         bind_random_material_to_prim(stage, prim_path, mats, seed=material_seed)
 
@@ -394,20 +402,21 @@ def randomize_stacking_in_rectangle_existing_task(
     stage,
     task,
     robot_obj,
-    width,
-    length,
-    keep_cubes_z,
-    min_dist,
-    base_clearance,
     seed,
-    forward_axis,
-    randomize_rotation: bool = RAND_CUBE_ROTATION,          # Master-Schalter
-    rotation_mode: str = "yaw",               # "yaw" | "xyz"
-    yaw_range_deg: tuple = (-180.0, 180.0),   # für mode="yaw"
-    keep_cubes_rot: bool = False,             # vorhandene Ori behalten?
-    max_tries: int = 200,
-    scene_prim_path: str = "/World"
+    scene_prim_path: str = "/World",
+    width=SCENE_WIDTH,
+    length=SCENE_LENGTH,
+    keep_cubes_z=True,
+    min_dist=MIN_DIST,
+    base_clearance=FRANKA_BASE_CLEARANCE,
+    forward_axis=FORWARD_AXIS,
+    randomize_rotation=RAND_CUBE_ROTATION,
+    rotation_mode=ROTATION_MODE,
+    yaw_range_deg=YAW_RANGE,
+    keep_cubes_rot=KEEP_CUBES_ROTATED,
+    max_tries=MAX_TRIES,            # vorhandene Ori behalten?
 ):
+    
     """
     Randomisiert:
       - Startpositionen aller Würfel (nur XY, Z optional beibehalten)
@@ -676,7 +685,6 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
     for i, task in enumerate(tasks):
         
         scene_root = f"/World/Scenes/Scene_{i:03d}"
-        task_root = f"{scene_root}/Task"
 
         # --- Extrahieren der Roboter aus den Tasks ---
         robot_name = task.get_params()["robot_name"]["value"]
@@ -690,19 +698,12 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
         add_or_update_allowed_area_plane(
             stage=stage,
             robot_obj=robot,
-            width=SCENE_WIDTH,
-            length=SCENE_LENGTH,
-            forward_axis=FORWARD_AXIS,   # 'x' oder 'y' je nach Szene/Robot
-            lift=PLANE_LIFT,
             prim_path=f"{scene_root}/AllowedAreaPlane_{i}",
-            material_pool_named_rgba=ALLOWED_AREA_MATS,
             material_seed=None
         )
-
         
         add_scene_cam(i,scene_root, stage=stage, cam_freq=cam_freq, cam_res=cam_res)
                 
-        
         # Controller
         ctrl = StackingController_JW(
             name=f"stacking_controller_{i}",
@@ -713,31 +714,18 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
         )
         ctrls.append(ctrl)
 
-        # --- Zufälliges Licht pro Szene ---
+        # Seed pro Szene
         sample_seed = seed + i*100
-        # rng = np.random.default_rng(sample_seed)
+
+        # --- Zufälliges Licht pro Szene ---
         add_scene_light(i, light_seed = sample_seed, scene_root=scene_root, stage=stage,)
 
-        # add_scene_light(i, scene_offset, rng, kind="sphere",
-        #                 width=SCENE_WIDTH, length=SCENE_LENGTH, scene_root_path=scene_root)
-        
         # --- Zufällige Würfelpositionen pro Szene ---
         randomize_stacking_in_rectangle_existing_task(
                             stage = stage,
                             task=task,
                             robot_obj=robot,
-                            width=SCENE_WIDTH,
-                            length=SCENE_LENGTH,
-                            keep_cubes_z=True,
-                            min_dist=MIN_DIST,
-                            base_clearance=FRANKA_BASE_CLEARANCE,
                             seed=sample_seed,
-                            forward_axis=FORWARD_AXIS,
-                            randomize_rotation=RAND_CUBE_ROTATION,
-                            rotation_mode=ROTATION_MODE,
-                            yaw_range_deg=YAW_RANGE,
-                            keep_cubes_rot=KEEP_CUBES_ROTATED,
-                            max_tries=MAX_TRIES,
                             scene_prim_path = scene_root
                         )
 
