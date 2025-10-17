@@ -50,7 +50,7 @@ import isaacsim.core.utils.numpy.rotations as rot_utils
 import isaacsim.core.utils.prims as prim_utils
 import numpy as np
 import omni.usd
-from pxr import UsdGeom, UsdShade, Gf, Sdf
+from pxr import UsdGeom, UsdShade, Gf, Sdf, Usd, UsdLux
 
 
 SEED = 111
@@ -59,7 +59,7 @@ Problemseeds =  [10, 11, 12, 14]
 NUM_SCENES = ARGS.scenes
 
 SIDE_CAM_BASE_POS = np.array([2.4, -3.2, 2.2]) # m  [0.48, -3.6, 1.8]
-SIDE_CAM_EULER = np.array([60, 29, 15])  # deg  [0.0, 22.5, 90.0]
+SIDE_CAM_EULER = (63.2, 0.0, 33.0) # np.array([60, 29, 15])  # deg  [0.0, 22.5, 90.0]
 SCENE_SPACING = 5.0  # m
 ROBOTS_PER_LANE = np.round(np.sqrt(NUM_SCENES)).astype(int) # Für Lichtplatzierung und Positionierung der Szenen
 
@@ -391,6 +391,7 @@ def sample_points_in_front_rectangle_local(
     return np.vstack(pts)
 
 def randomize_stacking_in_rectangle_existing_task(
+    stage,
     task,
     robot_obj,
     width,
@@ -405,6 +406,7 @@ def randomize_stacking_in_rectangle_existing_task(
     yaw_range_deg: tuple = (-180.0, 180.0),   # für mode="yaw"
     keep_cubes_rot: bool = False,             # vorhandene Ori behalten?
     max_tries: int = 200,
+    scene_prim_path: str = "/World"
 ):
     """
     Randomisiert:
@@ -419,6 +421,27 @@ def randomize_stacking_in_rectangle_existing_task(
 
     # 1) Basispose im lokalen Task-Frame
     base_pos_local, base_quat_local = robot_obj.get_local_pose()
+    log.info(f"Basis im lokalen Task-Frame: Pos {np.round(base_pos_local,3)}, Quat {np.round(base_quat_local,3)}")
+    
+    scene_prim = stage.GetPrimAtPath(scene_prim_path)
+    scene_xform = UsdGeom.Xformable(scene_prim)
+    # base_transform = scene_xform.GetLocalTransformation()
+    # log.info(f"Basis im Szenen-Frame: Transform {base_transform} in Pfad {scene_prim_path}")
+    # base_pos_xform = base_transform[0]
+    # base_quat_xform = base_transform[1]
+    # log.info(f"current_pos_xform: {base_pos_xform}")
+    # log.info(f"current_quat_xform: {base_quat_xform}")
+
+    # (A) Lokale Matrix + Flag (kein Quaternion!)
+    local_mat = scene_xform.GetLocalTransformation()
+    # Dekomposition (lokal)
+    base_local_4D_transfrom = Gf.Transform(local_mat).GetMatrix()
+    log.info(f"Decomposed Local Transform: {base_local_4D_transfrom}")
+
+    # (B) Welt-Transform berechnen
+    world_mat = scene_xform.ComputeLocalToWorldTransform(Usd.TimeCode.Default())
+    base_global_4D_transfrom = Gf.Transform(world_mat).GetMatrix()
+    log.info(f"Computed World Transform: {base_global_4D_transfrom}")
 
     # 2) Würfel-Liste
     cube_names = task.get_cube_names()
@@ -452,8 +475,13 @@ def randomize_stacking_in_rectangle_existing_task(
         log.info(f"Cube {i} '{name}' Xformable: {xform}")
         # Gets local transform matrix - used to convert the Xform Ops.
         pose = omni.usd.get_local_transform_matrix(cube.prim)
-        current_quat_pose = pose.ExtractRotationQuat()
-        log.info(f"Cube {i} '{name}' current_quat_pose: {current_quat_pose}")
+        # current_quat_xform = pose.ExtractRotationQuat()
+        cube_transform = xform.GetLocalTransformation()
+        log.info(f"Cube {i} '{name}' Transform: {cube_transform}")
+        current_pos_xform = cube_transform[0]
+        current_quat_xform = cube_transform[1]
+        log.info(f"Cube {i} '{name}' current_pos_xform: {current_pos_xform}")
+        log.info(f"Cube {i} '{name}' current_quat_xform: {current_quat_xform}")
 
         current_pos, current_quat = cube.get_local_pose()
         log.info(f"Cube {i} '{name}' current_quat: {current_quat}")
@@ -468,17 +496,13 @@ def randomize_stacking_in_rectangle_existing_task(
         new_quat = current_quat
 
         if randomize_rotation and not keep_cubes_rot:
-            # eigener RNG je Würfel → unabhängig & reproduzierbar
             local_rng = np.random.default_rng(None if seed is None else seed + 100 + i)
-
             if rotation_mode == "yaw":
                 yaw_deg = float(local_rng.uniform(*yaw_range_deg))
                 q_delta = rot_utils.euler_angles_to_quats(np.array([0.0, 0.0, yaw_deg]), degrees=True)
             else:
                 log.error(f"Unbekannter rotation_mode: {rotation_mode}")
                 raise ValueError(f"Unbekannter rotation_mode: {rotation_mode}")
-
-            # additiv zur aktuellen Orientierung (empfohlen)
             new_quat = quat_mul(current_quat, q_delta)
 
         cube_orientations.append(np.asarray(new_quat, dtype=float).tolist())
@@ -504,68 +528,60 @@ def randomize_stacking_in_rectangle_existing_task(
             log.warning(f"Würfel {j} zu nah am Turm-Ziel: {dist:.3f} m < {min_dist:.3f} m")
 
 def add_scene_light(i: int,
-                    scene_offset: np.ndarray,
-                    rng: np.random.Generator,
-                    kind: str = "rect",
+                    light_seed: int,
                     width: float = SCENE_WIDTH,
                     length: float = SCENE_LENGTH,
-                    scene_root_path: str = "/World"
+                    scene_root: str = "/World",
+                    stage = None,
                     ):
-    """
-    Erzeugt ein zufälliges Licht für eine Szene.
 
-    Args:
-        i: Szenenindex (für eindeutigen Prim-Pfad).
-        scene_offset: Offset der Szene (np.array([x,y,z])).
-        rng: np.random.Generator (für reproduzierbare Randoms).
-        kind: "rect" oder "sphere".
-        width: Breite der Szene (Allowed-Area).
-        length: Länge der Szene (Allowed-Area).
-    """
     half_w = width / 2.0
     half_l = length / 2.0
 
-    # --- zufällige Position innerhalb der Szene ---
+    rng = np.random.default_rng(light_seed)
+
+    # zufällige Position innerhalb der Szene
     px = rng.uniform(-0.8 * half_w, 0.8 * half_w)
     py = rng.uniform(-0.8 * half_l, 0.8 * half_l)
-    pz = rng.uniform(0.8, 3.0)  # leicht variabel in der Höhe
-    light_pos = scene_offset + np.array([px, py, pz])
+    pz = rng.uniform(0.8, 3.0)  
 
-    if kind == "rect":
-        # Grundausrichtung nach unten
-        base_euler = np.array([-90.0, 0.0, 0.0])
-        # zufällige Variationen
-        yaw = rng.uniform(-180, 180)
-        roll = rng.uniform(-10, 10)
-        pitch = rng.uniform(-20, 5)
-        euler = base_euler + np.array([pitch, 0.0, yaw]) + np.array([0.0, 0.0, roll])
-        quat = rot_utils.euler_angles_to_quats(euler.tolist(), degrees=True)
+    # Licht und Licht-xForm Pfade definieren
+    light_xform_path = f"{scene_root}/light_{i}_xform"
+    light_prim_path = f"{light_xform_path}/light_{i}"
+    
+    # Licht-xForm anlegen
+    UsdGeom.Xform.Define(stage, light_xform_path)
 
-        prim_utils.create_prim(
-            f"{scene_root_path}/SceneLight_{i}",
-            "RectLight",
-            position=light_pos,
-            orientation=quat,
-            attributes={
-                "inputs:intensity": float(rng.uniform(3000.0, 8000.0)),
-                "inputs:width": float(rng.uniform(1.0, 2.5)),
-                "inputs:height": float(rng.uniform(1.0, 2.5)),
-                "inputs:color": (1.0, 1.0, 1.0),
-            },
-        )
-    elif kind == "sphere":
-        prim_utils.create_prim(
-            f"{scene_root_path}/SceneLight_{i}",
-            "SphereLight",
-            position=light_pos,
-            attributes={
-                "inputs:intensity": float(rng.uniform(5500.0, 7000.0)),
-                "inputs:radius": float(rng.uniform(0.4, 0.6)),
-                "inputs:color": (1.0, 1.0, 1.0),
-            },
-        )
-    else:
-        raise ValueError(f"Unsupported light kind: {kind}")
+    # xForm-API von des Licht-xForms definieren und das das Licht xForm dann Verschieben
+    light_xform_api = UsdGeom.XformCommonAPI(stage.GetPrimAtPath(light_xform_path))
+    light_xform_api.SetTranslate(Gf.Vec3d(*np.array([px, py, pz])))     
+
+    # Licht im Licht-xForm plazieren und Parameter setzen
+    light = UsdLux.SphereLight.Define(stage, light_prim_path)
+    light.GetIntensityAttr().Set(float(rng.uniform(5500.0, 7000.0)))
+    light.GetRadiusAttr().Set(float(rng.uniform(0.4, 0.6)))
+    light.GetColorAttr().Set(Gf.Vec3f(1.0, 1.0, 1.0))
+
+def add_scene_cam(i, scene_root, stage , cam_freq, cam_res):
+    
+    # Kamerapfad (eindeutiger Pfad je Szene)
+    cam_xform_path = f"{scene_root}/camera_{i}_xform"
+    cam_prim_path = f"{cam_xform_path}/camera_{i}"
+    
+    UsdGeom.Xform.Define(stage, cam_xform_path)
+    UsdGeom.Camera.Define(stage, cam_prim_path)
+
+    # Kamera relativ zur Szene platzieren
+    cam_xform_api = UsdGeom.XformCommonAPI(stage.GetPrimAtPath(cam_xform_path))
+    cam_xform_api.SetTranslate(Gf.Vec3d(*SIDE_CAM_BASE_POS))     
+    cam_xform_api.SetRotate(Gf.Vec3f(*SIDE_CAM_EULER))
+
+    cam = Camera(
+        prim_path=cam_prim_path,
+        # position=SIDE_CAM_BASE_POS + scene_offset,
+        frequency=cam_freq,
+        resolution=cam_res,
+    )
 
 log.info("Domain-Randomization-Funktionen erfolgreich definiert.")  
 
@@ -620,6 +636,7 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
     # --- alle Szenen anlegen ---
     for i in range(num_scenes):
         
+        # --- Szenen Vorbereitung ---
         scene_offset = np.array([x_offset, y_offset, 0.0]) * SCENE_SPACING
         log.info(f"--- Baue Szene {i} bei Offset {scene_offset} ---")
 
@@ -628,33 +645,29 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
                 y_offset = 0 #y_offset - ROBOTS_PER_LANE # also y_offset = 0  
         else: 
             y_offset += 1
-        
+    
+        scene_root = f"/World/Scenes/Scene_{i:03d}"
+        xform_scene_root = UsdGeom.Xform.Define(stage, scene_root)
+        UsdGeom.XformCommonAPI(xform_scene_root).SetTranslate(Gf.Vec3d(*scene_offset))
+
+        # --- Task Vorbereitung ---
+        task_name = f"stacking_task_{i}"
+        task_parent_path = f"{scene_root}/Task"
         cube_size = [CUBE_SIDE] * 3
         log.info(f"[Scene {i}] Cube size for stacking task: {cube_size}")
 
-        task_name = f"stacking_task_{i}"
-            
-        # (A) Szene-Root-Xform (Basis) anlegen
-        scene_root = f"/World/Scenes/Scene_{i:03d}"
-        # xform_root = UsdGeom.Xform.Define(stage, scene_root)
-        # UsdGeom.XformCommonAPI(xform_root).SetTranslate(Gf.Vec3d(*scene_offset))
-
-        # (B) Task anlegen (ohne weiteren Offset; alles unter scene_root)
-        task_name = f"stacking_task_{i}"
-
-        task_parent_path = f"{scene_root}/Task"
-        UsdGeom.Xform.Define(stage, task_parent_path)
+        # UsdGeom.Xform.Define(stage, task_parent_path)
         task = Stacking_JW(
             name=task_name,
             cube_size=cube_size,
-            offset=scene_offset,#[0.0, 0.0, 0.0],  # kein weiterer Offset – Szene-Root verschiebt schon
+            offset=[0.0, 0.0, 0.0],  # kein weiterer Offset – Szene-Root verschiebt schon
             parent_prim_path=task_parent_path,
             cube_amount=n_cubes,
         )
         world.add_task(task)
         tasks.append(task)
 
-    world.reset() # instantiate prims / initialize timeline
+    world.reset() # instantiate prims & timeline
     log.info(f"--- Alle {num_scenes} Szenen angelegt. ---")
     
     x_offset = 0
@@ -671,21 +684,17 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
         else: 
             y_offset += 1
 
-        # sublayer_task = Sfd.Layer.CreateNew("")
-        # xform_task = UsdGeom.Xform.Define(stage, f"/World/defaultGroundPlane/Environment/{task_name}")
-        # sublayer_task = Sdf.Layer.CreateNew("")
-
         scene_root = f"/World/Scenes/Scene_{i:03d}"
-        # (optional) separater Xform für Task-Inhalt unter der Szene
         task_root = f"{scene_root}/Task"
-        if not stage.GetPrimAtPath(task_root):
-            UsdGeom.Xform.Define(stage, task_root)
+
         
-        # Robot
+        # --- Extrahieren der Roboter aus den Tasks ---
         robot_name = task.get_params()["robot_name"]["value"]
         log.info(f"[Scene {i}] Robot name: {robot_name}")
         robot = world.scene.get_object(robot_name)
         robots.append(robot)
+
+        # --- Setzen und Randomisieren des Szenen- und Task-Environments --- 
 
         # Allowed Area Plane (eindeutiger Pfad je Szene)
         add_or_update_allowed_area_plane(
@@ -700,17 +709,9 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
             material_seed=None
         )
 
-        # Kamera (eindeutiger Pfad je Szene)
-        quat_usd = rot_utils.euler_angles_to_quats(SIDE_CAM_EULER, degrees=True)
-
-        cam = Camera(
-            prim_path=f"{scene_root}/camera_{i}",
-            position=SIDE_CAM_BASE_POS + scene_offset,
-            frequency=cam_freq,
-            resolution=cam_res,
-        )
-        cam.set_world_pose(SIDE_CAM_BASE_POS + scene_offset, quat_usd, camera_axes="usd")
         
+        add_scene_cam(i,scene_root, stage=stage, cam_freq=cam_freq, cam_res=cam_res)
+                
         
         # Controller
         ctrl = StackingController_JW(
@@ -724,13 +725,15 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
 
         # --- Zufälliges Licht pro Szene ---
         sample_seed = seed + i*100
-        rng = np.random.default_rng(sample_seed)
+        # rng = np.random.default_rng(sample_seed)
+        add_scene_light(i, light_seed = sample_seed, scene_root=scene_root, stage=stage,)
 
-        add_scene_light(i, scene_offset, rng, kind="sphere",
-                        width=SCENE_WIDTH, length=SCENE_LENGTH, scene_root_path=scene_root)
+        # add_scene_light(i, scene_offset, rng, kind="sphere",
+        #                 width=SCENE_WIDTH, length=SCENE_LENGTH, scene_root_path=scene_root)
         
-        # --- Zufälliger Task pro Szene ---
+        # --- Zufällige Würfelpositionen pro Szene ---
         randomize_stacking_in_rectangle_existing_task(
+                            stage = stage,
                             task=task,
                             robot_obj=robot,
                             width=SCENE_WIDTH,
@@ -744,7 +747,8 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
                             rotation_mode=ROTATION_MODE,
                             yaw_range_deg=YAW_RANGE,
                             keep_cubes_rot=KEEP_CUBES_ROTATED,
-                            max_tries=MAX_TRIES
+                            max_tries=MAX_TRIES,
+                            scene_prim_path = scene_root
                         )
 
     return world, tasks, robots, ctrls, cameras, scene_offset
@@ -819,6 +823,7 @@ def main():
                         log.info(f"[Scene {i}] Resetting episode. Next Seed: {scene_seeds[i]:03d}")
 
                         randomize_stacking_in_rectangle_existing_task(
+                            stage = stage,
                             task=task,
                             robot_obj=robot,
                             width=SCENE_WIDTH,
@@ -832,7 +837,8 @@ def main():
                             rotation_mode=ROTATION_MODE,
                             yaw_range_deg=YAW_RANGE,
                             keep_cubes_rot=KEEP_CUBES_ROTATED,
-                            max_tries=MAX_TRIES
+                            max_tries=MAX_TRIES,
+                            scene_prim_path = scene_prim_path
                         )
                         log.info(f"[Scene {i}] New stacking target position: {task.get_params()['stack_target_position']['value']}")
 
