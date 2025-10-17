@@ -675,19 +675,9 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
 
     for i, task in enumerate(tasks):
         
-        scene_offset = np.array([x_offset, y_offset, 0.0]) * SCENE_SPACING
-        log.info(f"--- Initialisiere Szene {i} bei Offset {scene_offset} ---")
-
-        if (i+1)%ROBOTS_PER_LANE == 0 and i > 0:
-                x_offset += 1
-                y_offset = 0 #y_offset - ROBOTS_PER_LANE # also y_offset = 0  
-        else: 
-            y_offset += 1
-
         scene_root = f"/World/Scenes/Scene_{i:03d}"
         task_root = f"{scene_root}/Task"
 
-        
         # --- Extrahieren der Roboter aus den Tasks ---
         robot_name = task.get_params()["robot_name"]["value"]
         log.info(f"[Scene {i}] Robot name: {robot_name}")
