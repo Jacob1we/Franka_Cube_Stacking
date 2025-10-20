@@ -48,6 +48,7 @@ from Franka_Env_JW import Stacking_JW
 from isaacsim.sensors.camera import Camera
 import isaacsim.core.utils.numpy.rotations as rot_utils
 import isaacsim.core.utils.prims as prim_utils
+from omni.isaac.core.articulations import Articulation
 import numpy as np
 import omni.usd
 from pxr import UsdGeom, UsdShade, Gf, Sdf, Usd, UsdLux
@@ -131,6 +132,7 @@ def _forward_side_axes_world(base_quat_world, forward_axis='x'):
     forward_axis='x' bedeutet: +X der Basis zeigt „nach vorne“ (typisch Franka).
     """
     R = quat_to_rot(base_quat_world)
+
     if forward_axis == 'x':
         fwd = R[:, 0]
         side = R[:, 1]
@@ -414,9 +416,9 @@ def randomize_stacking_in_rectangle_existing_task(
     rotation_mode=ROTATION_MODE,
     yaw_range_deg=YAW_RANGE,
     keep_cubes_rot=KEEP_CUBES_ROTATED,
-    max_tries=MAX_TRIES,            # vorhandene Ori behalten?
+    max_tries=MAX_TRIES,           
 ):
-    
+    log.info("Debug 4.0")
     """
     Randomisiert:
       - Startpositionen aller Würfel (nur XY, Z optional beibehalten)
@@ -434,6 +436,7 @@ def randomize_stacking_in_rectangle_existing_task(
     
     scene_prim = stage.GetPrimAtPath(scene_prim_path)
     scene_xform = UsdGeom.Xformable(scene_prim)
+    log.info("Debug 4.1")
     # base_transform = scene_xform.GetLocalTransformation()
     # log.info(f"Basis im Szenen-Frame: Transform {base_transform} in Pfad {scene_prim_path}")
     # base_pos_xform = base_transform[0]
@@ -452,11 +455,12 @@ def randomize_stacking_in_rectangle_existing_task(
     base_global_4D_transfrom = Gf.Transform(world_mat).GetMatrix()
     log.info(f"Computed World Transform: {base_global_4D_transfrom}")
 
+    log.info("Debug 4.2")
     # 2) Würfel-Liste
     cube_names = task.get_cube_names()
     n_cubes = len(cube_names)
 
-
+    log.info("Debug 4.3")
     # 4) Positions-Sampling (mit Sicherheitszone & min_dist)
     starts_local = sample_points_in_front_rectangle_local(
         n=n_cubes+1,  # +1 für Turmbasis
@@ -471,7 +475,7 @@ def randomize_stacking_in_rectangle_existing_task(
         forward_axis=forward_axis,
     )
     
-
+    log.info("Debug 4.4")
     # 5) Startposen + optionale Rotation anwenden (UNABHÄNGIG je Würfel)
     X_positions = []
     Y_positions = []
@@ -518,6 +522,7 @@ def randomize_stacking_in_rectangle_existing_task(
         cube.set_local_pose(new_pos, new_quat)
         log.info(f"Würfel {i} '{name}': Startpos {np.round(new_pos,3)}, Ori {np.round(new_quat,3)}")
     
+    log.info("Debug 4.5")
     # 6) Ziel in Task-Params schreiben
     stack_target_xy = np.asarray(starts_local[n_cubes], dtype=float)
     task.set_params(
@@ -526,6 +531,7 @@ def randomize_stacking_in_rectangle_existing_task(
         cube_orientation=new_quat
     )
 
+    log.info("Debug 4.6")
     #7) Log-Ausgabe und Min-Abstandsprüfung
     cube_min_dist = np.linalg.norm(starts_local[0] - starts_local[1])
     log.info(f"Min. Distanz zwischen den Würfeln {cube_min_dist:.3f} m")
@@ -645,7 +651,7 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
     # --- alle Szenen anlegen ---
     for i in range(num_scenes):
         
-        # --- Szenen Vorbereitung ---
+        # Definiere den Szenen-Offset im Raster
         scene_offset = np.array([x_offset, y_offset, 0.0]) * SCENE_SPACING
         log.info(f"--- Baue Szene {i} bei Offset {scene_offset} ---")
 
@@ -654,23 +660,26 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
                 y_offset = 0 #y_offset - ROBOTS_PER_LANE # also y_offset = 0  
         else: 
             y_offset += 1
-    
+
+        # Definiere den Szenen-Root-Pfad und verschiebe die Szene nch Offset
         scene_root = f"/World/Scenes/Scene_{i:03d}"
         xform_scene_root = UsdGeom.Xform.Define(stage, scene_root)
         UsdGeom.XformCommonAPI(xform_scene_root).SetTranslate(Gf.Vec3d(*scene_offset))
 
         # --- Task Vorbereitung ---
         task_name = f"stacking_task_{i}"
-        task_parent_path = f"{scene_root}/Task"
+        # Ordne Task dem verschobenen Szenen-Root zu 
+        task_root = f"{scene_root}/Task"
+        # xform_task_root = UsdGeom.Xform.Define(stage, task_root)
+
         cube_size = [CUBE_SIDE] * 3
         log.info(f"[Scene {i}] Cube size for stacking task: {cube_size}")
 
-        # UsdGeom.Xform.Define(stage, task_parent_path)
         task = Stacking_JW(
             name=task_name,
             cube_size=cube_size,
             offset=[0.0, 0.0, 0.0],  # kein weiterer Offset – Szene-Root verschiebt schon
-            parent_prim_path=task_parent_path,
+            parent_prim_path=task_root,
             cube_amount=n_cubes,
         )
         world.add_task(task)
@@ -682,27 +691,49 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
     x_offset = 0
     y_offset = 0
 
+    # --- Setzen und Randomisieren des Szenen- und Task-Environments --- 
     for i, task in enumerate(tasks):
         
         scene_root = f"/World/Scenes/Scene_{i:03d}"
+        task_root = f"{scene_root}/Task"
+        
 
-        # --- Extrahieren der Roboter aus den Tasks ---
+        # # --- Extrahieren der Roboter aus den Tasks ---
+
+        # robot_name = task.get_params()["robot_name"]["value"]
+        
+
+        # robot_root = f"{task_root}/{robot_name}"
+        # robot = task.scene.get_object(f"{task_root}/{robot_name}")
+
+        # # robot_prim = stage.GetPrimAtPath(robot_root)
+        # # robot_prim_path = robot_prim.GetPath().pathString
+        # # robot = world.scene.get_object(robot_prim_path)  
+
+        # log.info(f"Szene {task_name}: Robot name: {robot_name}")
+        # log.info(f"Path Robot: {robot_root}")
+        # # log.info(f"Robot Prim Path: {robot_prim_path}")
+        # log.info(f"Robot object: {robot}")
+        # log.info(f"[Szene {task_name}: Cube names: {task.get_cube_names()}")
+        # Roboter-Pfad direkt aus dem Task lesen
+        
         robot_name = task.get_params()["robot_name"]["value"]
-        log.info(f"[Scene {i}] Robot name: {robot_name}")
         robot = world.scene.get_object(robot_name)
         robots.append(robot)
 
-        # --- Setzen und Randomisieren des Szenen- und Task-Environments --- 
+        # robot_path = f"{task_root}/{robot_name}"
+        # # Roboter-Prim vom Stage holen
+        # robot_prim = stage.GetPrimAtPath(robot_path)
+        # # Als Articulation-Objekt registrieren (nur falls nicht schon vorhanden)
+        # robot = world.scene.get_object(robot_path)
+        # if robot is None:
+        #     robot = Articulation(prim_path=robot_path, name=f"robot_{i}")
+        #     world.scene.add(robot)
 
-        # Allowed Area Plane (eindeutiger Pfad je Szene)
-        add_or_update_allowed_area_plane(
-            stage=stage,
-            robot_obj=robot,
-            prim_path=f"{scene_root}/AllowedAreaPlane_{i}",
-            material_seed=None
-        )
-        
-        add_scene_cam(i,scene_root, stage=stage, cam_freq=cam_freq, cam_res=cam_res)
+        # log.info(f"[Scene {i}] Robot prim: {robot_path}")
+        log.info(f"[Scene {i}] Task: {task_name}")
+        log.info(f"[Scene {i}] Robot object: {robot}")
+        log.info(f"[Scene {i}] Cube names: {task.get_cube_names()}")
                 
         # Controller
         ctrl = StackingController_JW(
@@ -717,6 +748,16 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
         # Seed pro Szene
         sample_seed = seed + i*100
 
+        # Allowed Area Plane (eindeutiger Pfad je Szene)
+        add_or_update_allowed_area_plane(
+            stage=stage,
+            robot_obj=robot,
+            prim_path=f"{scene_root}/AllowedAreaPlane_{i}",
+            material_seed=None
+        )
+        
+        add_scene_cam(i,scene_root, stage=stage, cam_freq=cam_freq, cam_res=cam_res)
+
         # --- Zufälliges Licht pro Szene ---
         add_scene_light(i, light_seed = sample_seed, scene_root=scene_root, stage=stage,)
 
@@ -728,8 +769,8 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
                             seed=sample_seed,
                             scene_prim_path = scene_root
                         )
-
-    return world, tasks, robots, ctrls, cameras, scene_offset
+        
+    return world, tasks, robots, ctrls, cameras
 
 
 ## Main Simulation Loop
@@ -739,7 +780,7 @@ def main():
     scene_seeds = [current_seed + i*100 for i in range(NUM_SCENES)]
     stage = omni.usd.get_context().get_stage()
 
-    world, tasks, robots, ctrls, cams, scene_offset = build_worlds(ARGS.cam_freq, (W, H), NUM_SCENES,current_seed)
+    world, tasks, robots, ctrls, cams = build_worlds(ARGS.cam_freq, (W, H), NUM_SCENES,current_seed)
 
     for cam in cams:
         cam.initialize()
@@ -762,12 +803,15 @@ def main():
                 reset_needed = True
 
             if world.is_playing():
+
+                #### RESET EPISODE #### RESET EPISODE #### RESET EPISODE #### RESET EPISODE ####
                 if reset_needed:
                     # Save previous episode (if we actually recorded anything)
+                    log.info("debug_flag 1")
                     save_path = unique_log_path(ARGS.logdir)
                     logger.pause()  # safe write
                     logger.save(log_path=str(save_path))
-
+                    
                     # Reset logger for next episode and re-register callback
                     logger.reset()
                     ensure_logger_running(world, robots[0], logger, log_cb_holder)
@@ -780,12 +824,13 @@ def main():
                             plt.imsave(image_path, rgba)
                         except Exception as e:
                             log.warning(f"[Scene {i}] Screenshot fehlgeschlagen: {e}")
-                    
+
+                    log.info("debug_flag 2")
                     # Reset sim episode
                     world.reset()
                     for ctrl in ctrls:
                         ctrl.reset()
-
+                    arts = [r.get_articulation_controller() for r in robots]
                     world.step(render=False)
 
                     # Seed erhöhen (lokal) und randomisieren
@@ -795,102 +840,56 @@ def main():
 
                     # Seeds erhöhen & Szenen neu randomisieren
                     for i, (task, robot) in enumerate(zip(tasks, robots)):
+
+                        log.info("debug_flag 3")
                         scene_seeds[i] += 1
                         scene_prim_path = f"/World/Scenes/Scene_{i:03d}"
                         log.info("---------------------------------------------------")
                         log.info(f"[Scene {i}] Resetting episode. Next Seed: {scene_seeds[i]:03d}")
 
+                        log.info("debug_flag 4")
                         randomize_stacking_in_rectangle_existing_task(
                             stage = stage,
-                            task=task,
-                            robot_obj=robot,
-                            width=SCENE_WIDTH,
-                            length=SCENE_LENGTH,
-                            keep_cubes_z=True,
-                            min_dist=MIN_DIST,
-                            base_clearance=FRANKA_BASE_CLEARANCE,
-                            seed=scene_seeds[i],
-                            forward_axis=FORWARD_AXIS,
-                            randomize_rotation=RAND_CUBE_ROTATION,
-                            rotation_mode=ROTATION_MODE,
-                            yaw_range_deg=YAW_RANGE,
-                            keep_cubes_rot=KEEP_CUBES_ROTATED,
-                            max_tries=MAX_TRIES,
+                            task = task,
+                            robot_obj = robot,
+                            seed = current_seed,
                             scene_prim_path = scene_prim_path
                         )
+                        
                         log.info(f"[Scene {i}] New stacking target position: {task.get_params()['stack_target_position']['value']}")
 
+                        log.info("debug_flag 5")
                         add_or_update_allowed_area_plane(
                             stage=stage,
                             robot_obj=robot,
-                            width=SCENE_WIDTH,
-                            length=SCENE_LENGTH,
-                            forward_axis=FORWARD_AXIS,   # 'x' oder 'y' je nach Szene/Robot
-                            lift=PLANE_LIFT,
                             prim_path=f"{scene_prim_path}/AllowedAreaPlane_{i}",
-                            material_pool_named_rgba=ALLOWED_AREA_MATS,
                             material_seed=None
                         )
                         log.info(f"[Scene {i}] Updated allowed area plane.")
 
-                        # rng = np.random.default_rng(scene_seeds[i])
-                        # add_scene_light(i, scene_offset, rng, kind="sphere",
-                        #     width=SCENE_WIDTH, length=SCENE_LENGTH
-                        #     )
-                        # log.info(f"[Scene {i}] Added new random light.")
-
                     reset_needed = False
 
                 # Controller-Schritt für alle Szenen
-                obs = world.get_observations()
+                obs = world.get_observations() 
+
+                ## DEBUG START
+                log.info(f"OBS keys: {list(obs.keys())[:20]}")
+
+                for i, (ctrl, task) in enumerate(zip(ctrls, tasks)):
+                    robot_key = getattr(ctrl, "_robot_observation_name", None)
+                    if robot_key is None:
+                        robot_key = task.get_params()["robot_name"]["value"]
+
+                    cube_keys = getattr(ctrl, "_picking_order_cube_names", None)
+                    if cube_keys is None:
+                        cube_keys = task.get_cube_names()
+
+                    log.info(f"[Scene {i}] expects robot key: {robot_key} and cubes: {cube_keys}")
+                ## DEBUG END
+
                 for i, (art, ctrl) in enumerate(zip(arts, ctrls)):
                     act = ctrl.forward(observations=obs)
                     art.apply_action(act)
-
-                # log.info(f"Observations Franka 0: {list(obs.values())[0]}")
-                # log.info(f'Observerations: {obs.keys()}')
-                # log.info(f'Example \nFranka 0: {list(obs.values())[0]}, \nCube 0: {list(obs.values())[1]} \nCube 1: {list(obs.values())[2]}')
-
-                # for i, (art, ctrl) in enumerate(zip(arts, ctrls)):
-                #     robot_key = "my_franka" if i == 0 else f"my_franka_{i}"
-                #     cube0_key = "cube" if i == 0 else f"cube_{2*i}"
-                #     cube1_key = "cube_1" if i == 0 else f"cube_{2*i+1}"
-
-                #     pp_obs = {
-                #         robot_key: {
-                #             "joint_positions": obs[robot_key]["joint_positions"],
-                #             "end_effector_position": obs[robot_key]["end_effector_position"],
-                #         },
-                #         cube0_key: {
-                #             "position": obs[cube0_key]["position"],
-                #             "orientation": obs[cube0_key]["orientation"],
-                #             "target_position": obs[cube0_key]["target_position"],
-                #         },
-                #         cube1_key: {
-                #             "position": obs[cube1_key]["position"],
-                #             "orientation": obs[cube1_key]["orientation"],
-                #             "target_position": obs[cube1_key]["target_position"],
-                #         },
-                #     }
-                #     log.info("---------------------------------------------------")
-                #     log.info(f"Observations Franka {i}: \n{pp_obs}")
-                    
-                #     # # genau die Infos extrahieren, die PickPlace.forward braucht
-                #     # pick_pos  = obs[cube0_key]["position"]           # oder cube1_key, je nach Ziel
-                #     # place_pos = obs[cube0_key]["target_position"]
-                #     # q_current = obs[robot_key]["joint_positions"]
-                #     # q_target  = obs[cube0_key]["orientation"]        # <-- Würfel-Quaternion direkt übernehmen
-
-                #     # # (optional) normieren, damit keine Zahlenfehler crashen
-                #     # q_target = q_target / np.linalg.norm(q_target)
-
-                #     # act = ctrl._pick_place_controller.forward(
-                #     #     observations=pp_obs,
-                #     #     end_effector_orientation=np.asarray(q_target, dtype=float),
-                #     # )
-                #     # art.apply_action(act)
-                #     act = ctrl.forward(observations=pp_obs)
-                #     art.apply_action(act)
 
             if all(ctrl.is_done() for ctrl in ctrls):
                 reset_needed = True
