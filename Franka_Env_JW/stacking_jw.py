@@ -46,7 +46,7 @@ class Stacking(BaseStacking):
     ) -> None:
         
         # self.task_name = name
-        self.parent_prim_path = parent_prim_path
+        self.parent_prim_path = parent_prim_path        #f"/World/Scenes/Scene_{i:03d}/Task"
         MAX_CUBE_AMOUNT = 36
 
         initial_cube_positions = []
@@ -81,7 +81,7 @@ class Stacking(BaseStacking):
         #     initial_name=f"{self.parent_prim_path}/Franka", is_unique_fn=lambda x: not is_prim_path_valid(x)
         # )
         franka_prim_path = find_unique_string_name(
-            initial_name=f"{self.parent_prim_path}/{self.task_name}_franka", is_unique_fn=lambda x: not is_prim_path_valid(x)
+            initial_name=f"{self.parent_prim_path}/{self.task_name}_Franka", is_unique_fn=lambda x: not is_prim_path_valid(x)
         )
         franka_robot_name = find_unique_string_name(
             initial_name=f"{self.task_name}_franka", is_unique_fn=lambda x: not self.scene.object_exists(x)

@@ -51,9 +51,10 @@ import isaacsim.core.utils.prims as prim_utils
 from omni.isaac.core.articulations import Articulation
 import numpy as np
 import omni.usd
+# import pxr
 from pxr import UsdGeom, UsdShade, Gf, Sdf, Usd, UsdLux
 
-
+#region: Constants
 SEED = 111
 Problemseeds =  [10, 11, 12, 14]
 
@@ -98,6 +99,7 @@ ALLOWED_AREA_MATS = [
 ]
 
 log.info("Konstanten erfolgreich geladen. Set default Seed to %03d.", SEED)
+#endregion
 
 ## Helper Functions
 def quat_to_rot(q):
@@ -118,6 +120,7 @@ def get_base_axes_from_local_quat(base_quat_local, forward_axis='x'):
        forward_axis='y' setzen.
     """
     R = quat_to_rot(base_quat_local)
+    # R = base_quat_local.get
     if forward_axis == 'x':
         x_fwd = R[:, 0] / np.linalg.norm(R[:, 0])
         y_side = R[:, 1] / np.linalg.norm(R[:, 1])
@@ -177,6 +180,34 @@ def get_allowed_area_center_world(robot_obj,
     center = base_pos_w + 0.5 * length * fwd
     center = np.array([center[0], center[1], base_pos_w[2] + lift], dtype=float)
     return center
+
+
+def convert_ops_from_transform(prim) -> tuple:
+
+    # Get the Xformable from prim
+    xform = UsdGeom.Xformable(prim)
+
+    # Gets local transform matrix - used to convert the Xform Ops.
+    pose = omni.usd.get_local_transform_matrix(prim)
+
+    # Compute Scale
+    x_scale = Gf.Vec3d(pose[0][0], pose[0][1], pose[0][2]).GetLength()
+    y_scale = Gf.Vec3d(pose[1][0], pose[1][1], pose[1][2]).GetLength()
+    z_scale = Gf.Vec3d(pose[2][0], pose[2][1], pose[2][2]).GetLength()
+
+    # Clear Transforms from xform.
+    xform.ClearXformOpOrder()
+
+    # Add the Transform, orient, scale set
+    xform_op_t = xform.AddXformOp(UsdGeom.XformOp.TypeTranslate, UsdGeom.XformOp.PrecisionDouble, "")
+    xform_op_r = xform.AddXformOp(UsdGeom.XformOp.TypeOrient, UsdGeom.XformOp.PrecisionDouble, "")
+    xform_op_s = xform.AddXformOp(UsdGeom.XformOp.TypeScale, UsdGeom.XformOp.PrecisionDouble, "")
+
+    xform_op_t.Set(pose.ExtractTranslation())
+    xform_op_r.Set(pose.ExtractRotationQuat().GetNormalized())
+    xform_op_s.Set(Gf.Vec3d(x_scale, y_scale, z_scale))
+
+    return xform_op_t, xform_op_r, xform_op_s
 
 log.info("Helper functions erfolgreich definiert.")
 
@@ -418,7 +449,6 @@ def randomize_stacking_in_rectangle_existing_task(
     keep_cubes_rot=KEEP_CUBES_ROTATED,
     max_tries=MAX_TRIES,           
 ):
-    log.info("Debug 4.0")
     """
     Randomisiert:
       - Startpositionen aller Würfel (nur XY, Z optional beibehalten)
@@ -435,33 +465,42 @@ def randomize_stacking_in_rectangle_existing_task(
     log.info(f"Basis im lokalen Task-Frame: Pos {np.round(base_pos_local,3)}, Quat {np.round(base_quat_local,3)}")
     
     scene_prim = stage.GetPrimAtPath(scene_prim_path)
+    log.info(f"Szenen-Prim für Transform: {scene_prim}")
     scene_xform = UsdGeom.Xformable(scene_prim)
-    log.info("Debug 4.1")
-    # base_transform = scene_xform.GetLocalTransformation()
-    # log.info(f"Basis im Szenen-Frame: Transform {base_transform} in Pfad {scene_prim_path}")
-    # base_pos_xform = base_transform[0]
-    # base_quat_xform = base_transform[1]
-    # log.info(f"current_pos_xform: {base_pos_xform}")
-    # log.info(f"current_quat_xform: {base_quat_xform}")
+    log.info(f"Szenen-Xform für Transform: {scene_xform}")
 
-    # (A) Lokale Matrix + Flag (kein Quaternion!)
-    local_mat = scene_xform.GetLocalTransformation()
-    # Dekomposition (lokal)
-    base_local_4D_transfrom = Gf.Transform(local_mat).GetMatrix()
-    log.info(f"Decomposed Local Transform: {base_local_4D_transfrom}")
+    scene_ops = convert_ops_from_transform(scene_prim)
+    log.info(f"Converted Szene Ops: {scene_ops}")
 
-    # (B) Welt-Transform berechnen
-    world_mat = scene_xform.ComputeLocalToWorldTransform(Usd.TimeCode.Default())
-    base_global_4D_transfrom = Gf.Transform(world_mat).GetMatrix()
-    log.info(f"Computed World Transform: {base_global_4D_transfrom}")
+    # scene_xform_ops = scene_xform.GetOrderedXformOps()
+    # log.info(f"Szenen-XformOps für Transform: {scene_xform_ops}")
+    # time = Sdf.TimeCode.GetValue()
+    # scene_transform = scene_xform_ops.GetOpTransfrom(time)
+    # log.info(f"Szenen-Transform für Transform: {scene_transform}")
 
-    log.info("Debug 4.2")
+    # # base_transform = scene_xform.GetLocalTransformation()
+    # # log.info(f"Basis im Szenen-Frame: Transform {base_transform} in Pfad {scene_prim_path}")
+    # # base_pos_xform = base_transform[0]
+    # # base_quat_xform = base_transform[1]
+    # # log.info(f"current_pos_xform: {base_pos_xform}")
+    # # log.info(f"current_quat_xform: {base_quat_xform}")
+
+    # # (A) Lokale Matrix + Flag (kein Quaternion!)
+    # local_mat = scene_xform.GetLocalTransformation()
+    # # Dekomposition (lokal)
+    # base_local_4D_transfrom = Gf.Transform(local_mat).GetMatrix()
+    # log.info(f"UNUSED Local Transform: {base_local_4D_transfrom}")
+
+    # # (B) Welt-Transform berechnen
+    # world_mat = scene_xform.ComputeLocalToWorldTransform(Usd.TimeCode.Default())
+    # base_global_4D_transfrom = Gf.Transform(world_mat).GetMatrix()
+    # log.info(f"UNUSED World Transform: {base_global_4D_transfrom}")
+
     # 2) Würfel-Liste
     cube_names = task.get_cube_names()
     n_cubes = len(cube_names)
 
-    log.info("Debug 4.3")
-    # 4) Positions-Sampling (mit Sicherheitszone & min_dist)
+    # 3) Positions-Sampling (mit Sicherheitszone & min_dist)
     starts_local = sample_points_in_front_rectangle_local(
         n=n_cubes+1,  # +1 für Turmbasis
         base_pos_local=base_pos_local,
@@ -475,8 +514,7 @@ def randomize_stacking_in_rectangle_existing_task(
         forward_axis=forward_axis,
     )
     
-    log.info("Debug 4.4")
-    # 5) Startposen + optionale Rotation anwenden (UNABHÄNGIG je Würfel)
+    # 4) Startposen + optionale Rotation anwenden (UNABHÄNGIG je Würfel)
     X_positions = []
     Y_positions = []
     cube_orientations  = []
@@ -489,8 +527,10 @@ def randomize_stacking_in_rectangle_existing_task(
         # Gets local transform matrix - used to convert the Xform Ops.
         pose = omni.usd.get_local_transform_matrix(cube.prim)
         # current_quat_xform = pose.ExtractRotationQuat()
+
         cube_transform = xform.GetLocalTransformation()
         log.info(f"Cube {i} '{name}' Transform: {cube_transform}")
+
         current_pos_xform = cube_transform[0]
         current_quat_xform = cube_transform[1]
         log.info(f"Cube {i} '{name}' current_pos_xform: {current_pos_xform}")
@@ -522,8 +562,7 @@ def randomize_stacking_in_rectangle_existing_task(
         cube.set_local_pose(new_pos, new_quat)
         log.info(f"Würfel {i} '{name}': Startpos {np.round(new_pos,3)}, Ori {np.round(new_quat,3)}")
     
-    log.info("Debug 4.5")
-    # 6) Ziel in Task-Params schreiben
+    # 5) Ziel in Task-Params schreiben
     stack_target_xy = np.asarray(starts_local[n_cubes], dtype=float)
     task.set_params(
         stack_target_position=[float(stack_target_xy[0]), float(stack_target_xy[1]), 0.0],
@@ -531,8 +570,7 @@ def randomize_stacking_in_rectangle_existing_task(
         cube_orientation=new_quat
     )
 
-    log.info("Debug 4.6")
-    #7) Log-Ausgabe und Min-Abstandsprüfung
+    #6) Log-Ausgabe und Min-Abstandsprüfung
     cube_min_dist = np.linalg.norm(starts_local[0] - starts_local[1])
     log.info(f"Min. Distanz zwischen den Würfeln {cube_min_dist:.3f} m")
 
@@ -807,7 +845,6 @@ def main():
                 #### RESET EPISODE #### RESET EPISODE #### RESET EPISODE #### RESET EPISODE ####
                 if reset_needed:
                     # Save previous episode (if we actually recorded anything)
-                    log.info("debug_flag 1")
                     save_path = unique_log_path(ARGS.logdir)
                     logger.pause()  # safe write
                     logger.save(log_path=str(save_path))
@@ -825,7 +862,6 @@ def main():
                         except Exception as e:
                             log.warning(f"[Scene {i}] Screenshot fehlgeschlagen: {e}")
 
-                    log.info("debug_flag 2")
                     # Reset sim episode
                     world.reset()
                     for ctrl in ctrls:
@@ -840,14 +876,11 @@ def main():
 
                     # Seeds erhöhen & Szenen neu randomisieren
                     for i, (task, robot) in enumerate(zip(tasks, robots)):
-
-                        log.info("debug_flag 3")
                         scene_seeds[i] += 1
                         scene_prim_path = f"/World/Scenes/Scene_{i:03d}"
                         log.info("---------------------------------------------------")
                         log.info(f"[Scene {i}] Resetting episode. Next Seed: {scene_seeds[i]:03d}")
 
-                        log.info("debug_flag 4")
                         randomize_stacking_in_rectangle_existing_task(
                             stage = stage,
                             task = task,
@@ -858,14 +891,12 @@ def main():
                         
                         log.info(f"[Scene {i}] New stacking target position: {task.get_params()['stack_target_position']['value']}")
 
-                        log.info("debug_flag 5")
                         add_or_update_allowed_area_plane(
                             stage=stage,
                             robot_obj=robot,
                             prim_path=f"{scene_prim_path}/AllowedAreaPlane_{i}",
                             material_seed=None
                         )
-                        log.info(f"[Scene {i}] Updated allowed area plane.")
 
                     reset_needed = False
 

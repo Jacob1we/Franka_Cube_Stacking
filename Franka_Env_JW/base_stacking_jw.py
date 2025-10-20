@@ -47,7 +47,8 @@ class Stacking(ABC, BaseTask):
         parent_prim_path: str = "/World/Cube",
     ) -> None:
         
-        self.parent_prim_path = parent_prim_path
+
+        self.parent_prim_path = parent_prim_path        # f"/World/Scenes/Scene_{i:03d}/Task"
         self.task_name = name
 
         BaseTask.__init__(self, name=name, offset=offset)
@@ -91,7 +92,7 @@ class Stacking(ABC, BaseTask):
             cube_name = find_unique_string_name(
                 initial_name=f"{self.task_name}_cube_{i}", is_unique_fn=lambda x: not self.scene.object_exists(x) # JW
             )
-            cube_prim_path = find_unique_string_name(
+            cube_prim_path = find_unique_string_name(       # f"/World/Scenes/Scene_{i:03d}/Task/stacking_task_{i}_cube_{i}"
                 initial_name=f"{self.parent_prim_path}/{cube_name}", is_unique_fn=lambda x: not is_prim_path_valid(x) # JW
             )
 
@@ -103,6 +104,7 @@ class Stacking(ABC, BaseTask):
             # cube_name = find_unique_string_name(
             #     initial_name="cube", is_unique_fn=lambda x: not self.scene.object_exists(x)
             # )
+
             self._cubes.append(
                 scene.add(
                     DynamicCuboid(
