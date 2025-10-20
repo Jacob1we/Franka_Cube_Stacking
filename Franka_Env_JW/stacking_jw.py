@@ -45,6 +45,7 @@ class Stacking(BaseStacking):
         cube_amount: int = 2,
     ) -> None:
         
+        # self.task_name = name
         self.parent_prim_path = parent_prim_path
         MAX_CUBE_AMOUNT = 36
 
@@ -67,7 +68,7 @@ class Stacking(BaseStacking):
             cube_size=cube_size,
             offset=offset,
             parent_prim_path=parent_prim_path,
-        )
+        )   
         return
 
     def set_robot(self) -> Franka:
@@ -76,11 +77,14 @@ class Stacking(BaseStacking):
         Returns:
             Franka: [description]
         """
+        # franka_prim_path = find_unique_string_name(
+        #     initial_name=f"{self.parent_prim_path}/Franka", is_unique_fn=lambda x: not is_prim_path_valid(x)
+        # )
         franka_prim_path = find_unique_string_name(
-            initial_name=f"{self.parent_prim_path}/Franka", is_unique_fn=lambda x: not is_prim_path_valid(x)
+            initial_name=f"{self.parent_prim_path}/{self.task_name}_franka", is_unique_fn=lambda x: not is_prim_path_valid(x)
         )
         franka_robot_name = find_unique_string_name(
-            initial_name="my_franka", is_unique_fn=lambda x: not self.scene.object_exists(x)
+            initial_name=f"{self.task_name}_franka", is_unique_fn=lambda x: not self.scene.object_exists(x)
         )
         return Franka(prim_path=franka_prim_path, name=franka_robot_name)
 

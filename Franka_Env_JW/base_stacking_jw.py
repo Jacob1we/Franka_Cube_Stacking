@@ -48,20 +48,26 @@ class Stacking(ABC, BaseTask):
     ) -> None:
         
         self.parent_prim_path = parent_prim_path
+        self.task_name = name
 
         BaseTask.__init__(self, name=name, offset=offset)
         self._robot = None
         self._num_of_cubes = cube_initial_positions.shape[0]
         self._cube_initial_positions = cube_initial_positions
         self._cube_initial_orientations = cube_initial_orientations
+
         if self._cube_initial_orientations is None:
             self._cube_initial_orientations = [None] * self._num_of_cubes
+
         self._stack_target_position = stack_target_position
         self._cube_size = cube_size
+
         if self._cube_size is None:
             self._cube_size = np.array([0.0515, 0.0515, 0.0515]) / get_stage_units()
+
         if stack_target_position is None:
             self._stack_target_position = np.array([-0.3, -0.3, 0]) / get_stage_units()
+
         self._stack_target_position = self._stack_target_position + self._offset
         self._cubes = []
         return
@@ -76,13 +82,27 @@ class Stacking(ABC, BaseTask):
         scene.add_default_ground_plane()
         for i in range(self._num_of_cubes):
             color = np.random.uniform(size=(3,))
-            cube_prim_path = f"{self.parent_prim_path}/cube_{i}" #JW
+
+
+            # cube_name = f"cube_{i}"  #JW
+            # cube_name = f"{self.task_name}_cube_{i}"  #JW
+            # cube_prim_path = f"{self.parent_prim_path}/{cube_name}" #JW
+
+            cube_name = find_unique_string_name(
+                initial_name=f"{self.task_name}_cube_{i}", is_unique_fn=lambda x: not self.scene.object_exists(x) # JW
+            )
+            cube_prim_path = find_unique_string_name(
+                initial_name=f"{self.parent_prim_path}/{cube_name}", is_unique_fn=lambda x: not is_prim_path_valid(x) # JW
+            )
+
+
             # cube_prim_path = find_unique_string_name(
             #     initial_name="/World/Cube", is_unique_fn=lambda x: not is_prim_path_valid(x)
             # )
-            cube_name = find_unique_string_name(
-                initial_name="cube", is_unique_fn=lambda x: not self.scene.object_exists(x)
-            )
+
+            # cube_name = find_unique_string_name(
+            #     initial_name="cube", is_unique_fn=lambda x: not self.scene.object_exists(x)
+            # )
             self._cubes.append(
                 scene.add(
                     DynamicCuboid(
@@ -142,6 +162,7 @@ class Stacking(ABC, BaseTask):
         params_representation = dict()
         params_representation["stack_target_position"] = {"value": self._stack_target_position, "modifiable": True}
         params_representation["robot_name"] = {"value": self._robot.name, "modifiable": False}
+        # params_representation["robot_name"] = {"value": self._robot.prim_path, "modifiable": False} # JW
         return params_representation
 
     def get_observations(self) -> dict:
