@@ -901,26 +901,51 @@ def main():
                     reset_needed = False
 
                 # Controller-Schritt für alle Szenen
-                obs = world.get_observations() 
-
-                ## DEBUG START
-                log.info(f"OBS keys: {list(obs.keys())[:20]}")
-
-                for i, (ctrl, task) in enumerate(zip(ctrls, tasks)):
-                    robot_key = getattr(ctrl, "_robot_observation_name", None)
-                    if robot_key is None:
-                        robot_key = task.get_params()["robot_name"]["value"]
-
-                    cube_keys = getattr(ctrl, "_picking_order_cube_names", None)
-                    if cube_keys is None:
-                        cube_keys = task.get_cube_names()
-
-                    log.info(f"[Scene {i}] expects robot key: {robot_key} and cubes: {cube_keys}")
-                ## DEBUG END
+                obs = world.get_observations()              # PROBLEM: lokale Obervationen werden als global gesetzt
 
                 for i, (art, ctrl) in enumerate(zip(arts, ctrls)):
                     act = ctrl.forward(observations=obs)
                     art.apply_action(act)
+
+                for robot in robots:
+                    robot.get_joints_state()
+                    log.debug(f"Robot '{robot.name}' Joints State: {robot.joints_state}")
+                    
+                for i, task in enumerate(tasks):
+
+                    task_obs = task.get_observations()          # lokale Observations des Tasks
+                    task_obs.joint
+
+                    robot_name = task.get_params()["robot_name"]["value"]
+                    joint_positions = task_obs[robot_name]["joint_positions"]
+
+                    joint_velocities = task_obs[robot_name]["joint_velocities"]
+                    ee_local = task_obs[robot_name]["end_effector_position"]
+                    log.info(f"[Scene {i}] Robot '{robot_name}' Joints: {np.round(joint_positions,3)}, Velocities: {np.round(joint_velocities,3)}, EE Local Pos: {np.round(ee_local,3)}")
+
+                    cube_names = task.get_cube_names()
+                    cube0_name = cube_names[0]
+                    cube0_pos = task_obs[cube0_name]["position"]
+                    cube0_ori = task_obs[cube0_name]["orientation"]
+                    cube0_target = task_obs[cube0_name]["target_position"]
+                    log.info(f"Cube0 '{cube0_name}' Pos: {np.round(cube0_pos,3)}, Ori: {np.round(cube0_ori,3)}, Target: {np.round(cube0_target,3)}")
+
+                # ## DEBUG START
+                # log.info(f"OBS keys: {list(obs.keys())[:20]}")
+                # log.info(f"Obs_0 example: {list(obs.values())[0]}")
+
+                # for i, (ctrl, task) in enumerate(zip(ctrls, tasks)):
+                #     robot_key = getattr(ctrl, "_robot_observation_name", None)
+                #     if robot_key is None:
+                #         robot_key = task.get_params()["robot_name"]["value"]
+
+                #     cube_keys = getattr(ctrl, "_picking_order_cube_names", None)
+                #     if cube_keys is None:
+                #         cube_keys = task.get_cube_names()
+
+                #     log.info(f"[Scene {i}] expects robot key: {robot_key} and cubes: {cube_keys}")
+                # ## DEBUG END
+
 
             if all(ctrl.is_done() for ctrl in ctrls):
                 reset_needed = True
