@@ -711,7 +711,6 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
         # xform_task_root = UsdGeom.Xform.Define(stage, task_root)
 
         cube_size = [CUBE_SIDE] * 3
-        log.info(f"[Scene {i}] Cube size for stacking task: {cube_size}")
 
         task = Stacking_JW(
             name=task_name,
@@ -832,6 +831,8 @@ def main():
     reset_needed = False
     last_saved_path = None
 
+    log.info("Starting main simulation loop. Press Ctrl+C to exit.")
+
     try:
         while simulation_app.is_running():
             world.step(render=not ARGS.headless)
@@ -902,10 +903,15 @@ def main():
 
                 # Controller-Schritt für alle Szenen
                 obs = world.get_observations()              # PROBLEM: lokale Obervationen werden als global gesetzt
-
+                log.debug(f"Global Observations keys: {list(obs.keys())[:20]}")
+                
                 for i, (art, ctrl) in enumerate(zip(arts, ctrls)):
                     act = ctrl.forward(observations=obs)
                     art.apply_action(act)
+                    log.debug(f"Actions {act} applied.")
+
+                if all(ctrl.is_done() for ctrl in ctrls):
+                    reset_needed = True
 
                 for robot in robots:
                     robot.get_joints_state()
@@ -919,9 +925,9 @@ def main():
                     robot_name = task.get_params()["robot_name"]["value"]
                     joint_positions = task_obs[robot_name]["joint_positions"]
 
-                    joint_velocities = task_obs[robot_name]["joint_velocities"]
+                    # joint_velocities = task_obs[robot_name]["joint_velocities"]
                     ee_local = task_obs[robot_name]["end_effector_position"]
-                    log.info(f"[Scene {i}] Robot '{robot_name}' Joints: {np.round(joint_positions,3)}, Velocities: {np.round(joint_velocities,3)}, EE Local Pos: {np.round(ee_local,3)}")
+                    # log.info(f"[Scene {i}] Robot '{robot_name}' Joints: {np.round(joint_positions,3)}, Velocities: {np.round(joint_velocities,3)}, EE Local Pos: {np.round(ee_local,3)}")
 
                     cube_names = task.get_cube_names()
                     cube0_name = cube_names[0]
@@ -947,8 +953,7 @@ def main():
                 # ## DEBUG END
 
 
-            if all(ctrl.is_done() for ctrl in ctrls):
-                reset_needed = True
+            
 
     except KeyboardInterrupt:
         print("Interrupted by user.")

@@ -18,8 +18,8 @@ from typing import List, Optional
 import numpy as np
 from isaacsim.core.api.objects import DynamicCuboid
 from isaacsim.core.api.scenes.scene import Scene
-# from isaacsim.core.api.tasks import BaseTask
-from .base_task_jw import BaseTask
+from isaacsim.core.api.tasks import BaseTask
+# from .base_task_jw import BaseTask
 from isaacsim.core.utils.prims import is_prim_path_valid
 from isaacsim.core.utils.stage import get_stage_units
 from isaacsim.core.utils.string import find_unique_string_name
@@ -179,8 +179,8 @@ class Stacking(ABC, BaseTask):
         observations = {
             self._robot.name: {
                 "joint_positions": joints_state.positions,
-                "joint_velocities": joints_state.velocities,    #JW
-                "joint_forces": joints_state.forces,            #JW   
+                # "joint_velocities": joints_state.velocities,    #JW
+                # "joint_forces": joints_state.forces,            #JW   
                 "end_effector_position": end_effector_position,
             }
         }
