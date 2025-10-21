@@ -914,7 +914,7 @@ def main():
                 for i, task in enumerate(tasks):
 
                     task_obs = task.get_observations()          # lokale Observations des Tasks
-                    task_obs.joint
+                    # task_obs.joint
 
                     robot_name = task.get_params()["robot_name"]["value"]
                     joint_positions = task_obs[robot_name]["joint_positions"]
