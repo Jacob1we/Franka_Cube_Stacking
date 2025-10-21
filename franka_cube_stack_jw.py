@@ -181,7 +181,6 @@ def get_allowed_area_center_world(robot_obj,
     center = np.array([center[0], center[1], base_pos_w[2] + lift], dtype=float)
     return center
 
-
 def convert_ops_from_transform(prim) -> tuple:
 
     # Get the Xformable from prim
@@ -635,6 +634,7 @@ def add_scene_cam(i, scene_root, stage , cam_freq, cam_res):
         frequency=cam_freq,
         resolution=cam_res,
     )
+    return cam
 
 log.info("Domain-Randomization-Funktionen erfolgreich definiert.")  
 
@@ -793,7 +793,9 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
             material_seed=None
         )
         
-        add_scene_cam(i,scene_root, stage=stage, cam_freq=cam_freq, cam_res=cam_res)
+        # add_scene_cam(i,scene_root, stage=stage, cam_freq=cam_freq, cam_res=cam_res)
+        cam = add_scene_cam(i,scene_root, stage=stage, cam_freq=cam_freq, cam_res=cam_res)
+        cameras.append(cam)
 
         # --- Zufälliges Licht pro Szene ---
         add_scene_light(i, light_seed = sample_seed, scene_root=scene_root, stage=stage,)
@@ -903,7 +905,6 @@ def main():
 
                 # Controller-Schritt für alle Szenen
                 obs = world.get_observations()              # PROBLEM: lokale Obervationen werden als global gesetzt
-                log.debug(f"Global Observations keys: {list(obs.keys())[:20]}")
                 
                 for i, (art, ctrl) in enumerate(zip(arts, ctrls)):
                     act = ctrl.forward(observations=obs)
@@ -913,12 +914,14 @@ def main():
                 if all(ctrl.is_done() for ctrl in ctrls):
                     reset_needed = True
 
-                for robot in robots:
-                    robot.get_joints_state()
-                    log.debug(f"Robot '{robot.name}' Joints State: {robot.joints_state}")
+                # for robot in robots:
+                #     robot.get_joints_state()
+                #     log.debug(f"Robot '{robot.name}' Joints State: {robot.joints_state}")
                     
                 for i, task in enumerate(tasks):
-
+                    if i == 0 or i%NUM_SCENES == 0:
+                        log.info(f"------------- Observations -------------")
+                        
                     task_obs = task.get_observations()          # lokale Observations des Tasks
                     # task_obs.joint
 
