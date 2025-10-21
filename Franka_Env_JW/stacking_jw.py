@@ -17,11 +17,12 @@ from typing import Optional
 import numpy as np
 # from Franka_Env_JW import Base_Stacking_JW as BaseStacking -> Geht nicht, weil ich schon im Paket Franka_Env_JW bin!!
 from .base_stacking_jw import Stacking as BaseStacking
+from .franka_jw import Franka
 # from isaacsim.core.api.tasks import Stacking as BaseStacking
 from isaacsim.core.utils.prims import is_prim_path_valid
 from isaacsim.core.utils.stage import get_stage_units
 from isaacsim.core.utils.string import find_unique_string_name
-from isaacsim.robot.manipulators.examples.franka import Franka
+# from isaacsim.robot.manipulators.examples.franka import Franka
 
 
 class Stacking(BaseStacking):
