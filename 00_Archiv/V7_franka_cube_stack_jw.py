@@ -1,7 +1,3 @@
-import os
-os.environ["OMNI_KIT_ACCEPT_EULA"] = "YES"
-os.environ.setdefault("PYTHONUNBUFFERED", "1")
-
 # --- Isaac Sim boot ---
 from isaacsim import SimulationApp
 
@@ -9,7 +5,7 @@ from isaacsim import SimulationApp
 import argparse
 from pathlib import Path
 from datetime import datetime
-import logging, sys
+import logging, os, sys
 import matplotlib.pyplot as plt
 
 def parse_args():
@@ -26,7 +22,7 @@ W, H = map(int, ARGS.cam_res.lower().split("x"))
 simulation_app = SimulationApp({"headless": ARGS.headless})
 
 
-
+os.environ.setdefault("PYTHONUNBUFFERED", "1")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -41,6 +37,7 @@ logging.basicConfig(
 log = logging.getLogger("FrankaCubeStacking")
 
 # --- import Isaac modules that require the app context ---
+from isaacsim.core.api import World
 # from isaacsim.robot.manipulators.examples.franka.controllers.stacking_controller_jw import StackingController_JW
 # from isaacsim.robot.manipulators.examples.franka.tasks import Stacking_JW
 
@@ -48,29 +45,18 @@ log = logging.getLogger("FrankaCubeStacking")
 from Franka_Env_JW import StackingController as StackingController_JW
 from Franka_Env_JW import Stacking_JW
 
-from isaacsim.core.api import World
 from isaacsim.sensors.camera import Camera
+import isaacsim.core.utils.numpy.rotations as rot_utils
 import isaacsim.core.utils.prims as prim_utils
 from omni.isaac.core.articulations import Articulation
-import isaacsim.core.utils.rotations as rotations_utils
-
-
-import isaacsim.core.utils.xforms as xforms_utils
-import isaacsim.core.utils.warp as warp_utils
-
-
-
 import numpy as np
 import omni.usd
 # import pxr
 from pxr import UsdGeom, UsdShade, Gf, Sdf, Usd, UsdLux
 
-
-
 #region: Constants
 SEED = 111
 Problemseeds =  [10, 11, 12, 14]
-WORLD_ROOT = "/World"
 
 NUM_SCENES = ARGS.scenes
 
@@ -134,10 +120,7 @@ def get_base_axes_from_local_quat(base_quat_local, forward_axis='x'):
        forward_axis='y' setzen.
     """
     R = quat_to_rot(base_quat_local)
-    log.info(f"Rotation Matrix from quat: {R}")
-    R = rotations_utils.quat_to_rot_matrix(quat=base_quat_local)
-    log.info(f"Rotation Matrix from quat: {R}")
-    
+    # R = base_quat_local.get
     if forward_axis == 'x':
         x_fwd = R[:, 0] / np.linalg.norm(R[:, 0])
         y_side = R[:, 1] / np.linalg.norm(R[:, 1])
@@ -569,7 +552,7 @@ def randomize_stacking_in_rectangle_existing_task(
             local_rng = np.random.default_rng(None if seed is None else seed + 100 + i)
             if rotation_mode == "yaw":
                 yaw_deg = float(local_rng.uniform(*yaw_range_deg))
-                q_delta = rotations_utils.euler_angles_to_quat(np.array([0.0, 0.0, yaw_deg]), degrees=True)
+                q_delta = rot_utils.euler_angles_to_quats(np.array([0.0, 0.0, yaw_deg]), degrees=True)
             else:
                 log.error(f"Unbekannter rotation_mode: {rotation_mode}")
                 raise ValueError(f"Unbekannter rotation_mode: {rotation_mode}")
@@ -691,14 +674,6 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
     
     world = World(stage_units_in_meters=1.0)
     world.scene.add_default_ground_plane()
-    world_root = WORLD_ROOT
-    UsdGeom.Xform.Define(world.stage, world_root)
-
-    local_world_pose = xforms_utils.get_local_pose(prim_path=world_root)
-    global_world_pose = xforms_utils.get_world_pose(prim_path=world_root)
-
-    log.info(f"World Root '{world_root}' local pose: pos {np.round(local_world_pose[0],3)}, quat {np.round(local_world_pose[1],3)}")
-    log.info(f"World Root '{world_root}' global pose: pos {np.round(global_world_pose[0],3)}, quat {np.round(global_world_pose[1],3)}")
 
     stage = omni.usd.get_context().get_stage()
 
@@ -725,15 +700,9 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
             y_offset += 1
 
         # Definiere den Szenen-Root-Pfad und verschiebe die Szene nch Offset
-        scene_root = f"{world_root}/Scene_{i:03d}"
+        scene_root = f"/World/Scenes/Scene_{i:03d}"
         xform_scene_root = UsdGeom.Xform.Define(stage, scene_root)
         UsdGeom.XformCommonAPI(xform_scene_root).SetTranslate(Gf.Vec3d(*scene_offset))
-
-        local_scene_pose = xforms_utils.get_local_pose(prim_path=scene_root)
-        global_scene_pose = xforms_utils.get_world_pose(prim_path=scene_root)
-
-        log.info(f"World Root '{scene_root}' local pose: pos {np.round(local_scene_pose[0],3)}, quat {np.round(local_scene_pose[1],3)}")
-        log.info(f"World Root '{scene_root}' global pose: pos {np.round(global_scene_pose[0],3)}, quat {np.round(global_scene_pose[1],3)}")
 
         # --- Task Vorbereitung ---
         task_name = f"stacking_task_{i}"
@@ -762,7 +731,7 @@ def build_worlds(cam_freq: int, cam_res: tuple[int, int], num_scenes : int = NUM
     # --- Setzen und Randomisieren des Szenen- und Task-Environments --- 
     for i, task in enumerate(tasks):
         
-        scene_root = f"{world_root}/Scene_{i:03d}"
+        scene_root = f"/World/Scenes/Scene_{i:03d}"
         task_root = f"{scene_root}/Task"
         
 
@@ -849,7 +818,6 @@ def main():
     current_seed = SEED
     scene_seeds = [current_seed + i*100 for i in range(NUM_SCENES)]
     stage = omni.usd.get_context().get_stage()
-    world_root = WORLD_ROOT
 
     world, tasks, robots, ctrls, cams = build_worlds(ARGS.cam_freq, (W, H), NUM_SCENES,current_seed)
 
@@ -917,7 +885,7 @@ def main():
                     # Seeds erhöhen & Szenen neu randomisieren
                     for i, (task, robot) in enumerate(zip(tasks, robots)):
                         scene_seeds[i] += 1
-                        scene_prim_path = f"{world_root}/Scenes/Scene_{i:03d}"
+                        scene_prim_path = f"/World/Scenes/Scene_{i:03d}"
                         log.info("---------------------------------------------------")
                         log.info(f"[Scene {i}] Resetting episode. Next Seed: {scene_seeds[i]:03d}")
 

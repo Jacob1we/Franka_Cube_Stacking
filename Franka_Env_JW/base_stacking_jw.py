@@ -91,7 +91,7 @@ class Stacking(ABC, BaseTask):
             # cube_prim_path = f"{self.parent_prim_path}/{cube_name}" #JW
 
             cube_name = find_unique_string_name(
-                initial_name=f"{self.task_name}_cube_{i}", is_unique_fn=lambda x: not self.scene.object_exists(x) # JW
+                initial_name=f"cube", is_unique_fn=lambda x: not self.scene.object_exists(x) # JW
             )
             cube_prim_path = find_unique_string_name(       # f"/World/Scenes/Scene_{i:03d}/Task/stacking_task_{i}_cube_{i}"
                 initial_name=f"{self.parent_prim_path}/{cube_name}", is_unique_fn=lambda x: not is_prim_path_valid(x) # JW
@@ -153,7 +153,8 @@ class Stacking(ABC, BaseTask):
         if stack_target_position is not None:
             self._stack_target_position = stack_target_position
         if cube_name is not None:
-            self._task_objects[cube_name].set_local_pose(position=cube_position, orientation=cube_orientation)
+            # self._task_objects[cube_name].set_local_pose(position=cube_position, orientation=cube_orientation)
+            self._task_objects[cube_name].set_local_pose(translation=cube_position, orientation=cube_orientation) #JW
         return
 
     def get_params(self) -> dict:
@@ -226,6 +227,18 @@ class Stacking(ABC, BaseTask):
         for i in range(self._num_of_cubes):
             cube_names.append(self._cubes[i].name)
         return cube_names
+    
+    #JW 
+    def get_cube_prim_paths(self) -> List[str]:
+        """[summary]
+
+        Returns:
+            List[str]: [description]
+        """
+        cube_prim_paths = []
+        for i in range(self._num_of_cubes):
+            cube_prim_paths.append(self._cubes[i].prim_path)
+        return cube_prim_paths
 
     def calculate_metrics(self) -> dict:
         """[summary]
