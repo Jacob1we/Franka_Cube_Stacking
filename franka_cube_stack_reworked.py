@@ -35,6 +35,7 @@ import isaacsim.core.utils.prims as prims_utils
 import isaacsim.core.utils.rotations as rotations_utils
 from isaacsim.core.api.simulation_context import SimulationContext
 
+from isaacsim.sensors.camera import Camera
 from isaacsim.core.api.robots import Robot
 from pxr import UsdGeom, UsdShade, Gf, Sdf, Usd, UsdLux
 import carb
@@ -59,27 +60,24 @@ WORLD_ROOT = "/World"
 
 NUM_SCENES = 4
 
-SIDE_CAM_BASE_POS = np.array([2.4, -3.2, 2.2]) # m  [0.48, -3.6, 1.8]
-SIDE_CAM_EULER = (63.2, 0.0, 33.0) # np.array([60, 29, 15])  # deg  [0.0, 22.5, 90.0]
-SCENE_SPACING = 5.0  # m
-ROBOTS_PER_LANE = np.round(np.sqrt(NUM_SCENES)).astype(int) # Für Lichtplatzierung und Positionierung der Szenen
+# SIDE_CAM_BASE_POS = np.array([2.4, -3.2, 2.2]) # m  
+# SIDE_CAM_EULER = (63.2, 0.0, 33.0) # deg
+SIDE_CAM_BASE_POS = np.array([1.41, -1.67, 1.27]) # m  
+SIDE_CAM_EULER = (60.84, 0.0, 32.05) # deg
 
 SCENE_WIDTH  = 0.60  # m
 SCENE_LENGTH = 0.75  # m
 FRANKA_BASE_CLEARANCE = 0.3 # m
-FORWARD_AXIS = 'x'  # bei Bedarf 'y' wählen, falls Franka in deiner Szene nach +Y „schaut“
 PLANE_LIFT = 0.001
 
 N_CUBES = 2
 CUBE_SIDE = 0.05  # für Mindestabstand und Würfelgröße
 MIN_DIST = 1.5 * CUBE_SIDE  # Optional: verhindert Überschneidungen der Startwürfel
 MAX_TRIES = 200
-RAND_CUBE_ROTATION = True # Master-Schalter
-ROTATION_MODE = "yaw"               # "yaw" | "xyz"
 YAW_RANGE: tuple = (-180.0, 180.0) #(-5.0, 5.0) #(-180.0, 180.0)   # für mode="yaw"
-KEEP_CUBES_ROTATED: bool = False             # vorhandene Ori behalten?
+CAM_FEQUENCY = 20 # Hz
+CAM_RESOLUTION = (256,256)
 
-# Penis
 # Material-Pool (Beispiele: Farben + Transparenzen)
 ALLOWED_AREA_MATS = [
     # Metalle
@@ -109,7 +107,9 @@ class Franka_Cube_Stack():
         self.task = None
         self.rng = SEED
         self.world_prim_path = WORLD_ROOT
-        self.robot_prim_path = f"{self.world_prim_path}/{robot_name}"    
+        self.robot_prim_path = f"{self.world_prim_path}/{robot_name}"   
+        self.materials = None 
+        self.logdir = "./logs"
 
     def setup_world(self):
         world = World(stage_units_in_meters=1.0)
@@ -123,16 +123,16 @@ class Franka_Cube_Stack():
         self.stage = stage
 
         task_name = "stacking_task"
-        task_root = f"{self.world_prim_path}/Task"
+        self.task_root = f"{self.world_prim_path}/Task"
 
         self.task = Stacking_JW(
             name=task_name,
             cube_size=[CUBE_SIDE] * 3,
             offset=[0.0, 0.0, 0.0],
-            parent_prim_path=task_root,
+            parent_prim_path=self.task_root,
             cube_amount=N_CUBES,
         )
-        world.add_task(self.task)
+        world.add_task(self.task)  
 
         world.reset()
         log.info("World Resetted")
@@ -142,6 +142,11 @@ class Franka_Cube_Stack():
         log.info("Setup Post Load")
         robot_name = self.task.get_params()["robot_name"]["value"]
         self.franka = self.world.scene.get_object(robot_name)
+
+        base_pos, base_quat = self.franka.get_local_pose()
+        self.base_pos = base_pos
+        self.base_quat = base_quat
+        log.info(f"Base Position: {base_pos}")
 
         controller = StackingController_JW(
             name=f"stacking_controller",
@@ -164,9 +169,9 @@ class Franka_Cube_Stack():
             pz = rng.uniform(0.8, 3.0)  
             
             if light_prim_path is not None:
-                self.scene.remove_object(light_prim_path)
+                self.world.scene.remove_object(light_prim_path)
 
-            light_xform_path = f"{self.world_prim_path}/light_xform"
+            light_xform_path = f"{self.task_root}/light_xform"
             light_prim_path = f"{light_xform_path}/light"
             
             UsdGeom.Xform.Define(self.stage, light_xform_path)
@@ -178,16 +183,99 @@ class Franka_Cube_Stack():
             light.GetRadiusAttr().Set(float(rng.uniform(0.4, 0.6)))
             light.GetColorAttr().Set(Gf.Vec3f(1.0, 1.0, 1.0))
     
+    def add_scene_cam(self):
+    
+        # Kamerapfad (eindeutiger Pfad je Szene)
+        cam_xform_path = f"{self.task_root}/camera_xform"
+        cam_prim_path = f"{cam_xform_path}/camera"
+        
+        UsdGeom.Xform.Define(self.stage, cam_xform_path)
+        UsdGeom.Camera.Define(self.stage, cam_prim_path)
+
+        # Kamera relativ zur Szene platzieren
+        cam_xform_api = UsdGeom.XformCommonAPI(self.stage.GetPrimAtPath(cam_xform_path))
+        cam_xform_api.SetTranslate(Gf.Vec3d(*SIDE_CAM_BASE_POS))     
+        cam_xform_api.SetRotate(Gf.Vec3f(*SIDE_CAM_EULER))
+
+        cam = Camera(
+            prim_path=cam_prim_path,
+            frequency=CAM_FEQUENCY,
+            resolution=CAM_RESOLUTION,
+        )
+        return cam
+
+    def get_materials(self,plane_root):
+        self.materials = []
+        for name,rgba in ALLOWED_AREA_MATS:
+            mat_path = f"{plane_root}/{name}"
+            mat = UsdShade.Material.Get(self.stage, mat_path)
+            if not mat:
+                mat = UsdShade.Material.Define(self.stage, mat_path)
+                shader = UsdShade.Shader.Define(self.stage, f"{plane_root}/Shader")
+                shader.CreateIdAttr("UsdPreviewSurface")
+                shader.CreateInput("diffuseColor", Sdf.ValueTypeNames.Color3f).Set(rgba[:3])
+                shader.CreateInput("roughness",   Sdf.ValueTypeNames.Float).Set(0.6)
+                shader.CreateInput("metallic",    Sdf.ValueTypeNames.Float).Set(0.0)
+                shader.CreateInput("opacity",     Sdf.ValueTypeNames.Float).Set(rgba[3])
+
+                surf_out   = mat.CreateSurfaceOutput()
+                shader_out = shader.CreateOutput("surface", Sdf.ValueTypeNames.Token)
+                surf_out.ConnectToSource(shader_out)
+            self.materials.append(mat)
+    
+    def add_or_update_plane(self,seed):
+        plane_root = f"{self.task_root}/Plane"
+
+        mesh = UsdGeom.Mesh.Get(self.stage, plane_root)
+        if not mesh:
+            mesh = UsdGeom.Mesh.Define(self.stage, plane_root)
+        plane_prim = mesh.GetPrim()
+
+        def make_point(x, y):
+            p = self.base_pos + np.array([x, y, PLANE_LIFT])
+            return Gf.Vec3d(float(p[0]), float(p[1]), float(p[2]))
+        
+
+        p0_w = make_point( 0.0,-SCENE_WIDTH/2)
+        p1_w = make_point( 0.0, SCENE_WIDTH/2)
+        p2_w = make_point( SCENE_LENGTH, SCENE_WIDTH/2)
+        p3_w = make_point( SCENE_LENGTH,-SCENE_WIDTH/2)
+    
+
+        points_local = [p0_w, p1_w, p2_w, p3_w]
+
+        mesh.CreatePointsAttr(points_local)
+        mesh.CreateFaceVertexCountsAttr([3, 3])
+        mesh.CreateFaceVertexIndicesAttr([0, 1, 2, 0, 2, 3])
+        up = Gf.Vec3f(0.0, 0.0, 1.0)
+        mesh.CreateNormalsAttr([up, up, up, up])
+        mesh.SetNormalsInterpolation(UsdGeom.Tokens.vertex)
+        mesh.CreateDoubleSidedAttr(True)
+
+        if self.materials is None:
+            self.get_materials(plane_root)
+
+        rng = np.random.default_rng(seed)
+        random_material_index = int(rng.integers(0, len(self.materials)))
+        material = self.materials[random_material_index]
+        log.info(self.materials)
+        log.info(random_material_index)
+        log.info(material)
+        UsdShade.MaterialBindingAPI(plane_prim).Bind(material)
+
+        return mesh
+
     def domain_randomization(self, seed):
         log.info("Start Randomization")
         self.rng = np.random.default_rng(seed)
 
-        def sample_cube_positions(base_pos: np.ndarray):
+        def sample_cube_positions():
             
             points = []
             w = 0.6*CUBE_SIDE
+
             def point_valid(point_xy):
-                if np.linalg.norm(point_xy-base_pos[:2]) < FRANKA_BASE_CLEARANCE:
+                if np.linalg.norm(point_xy-self.base_pos[:2]) < FRANKA_BASE_CLEARANCE:
                     return False
                 for p in points:
                     if np.linalg.norm(point_xy - p[:2]) < MIN_DIST:
@@ -198,21 +286,21 @@ class Franka_Cube_Stack():
                 fallback_point = np.array([0.5, 0.0, 1.1*CUBE_SIDE])
                 found_valid = False
                 for _ in range(MAX_TRIES):
-                    u = self.rng.uniform(-SCENE_WIDTH/2, SCENE_WIDTH/2)
-                    v = self.rng.uniform(-SCENE_LENGTH/2, SCENE_LENGTH/2)
-                    point = base_pos + np.array([u, v, w])
+                    u = self.rng.uniform(0, SCENE_LENGTH)
+                    v = self.rng.uniform(-SCENE_WIDTH/2, SCENE_WIDTH/2)
+                    # u = self.rng.uniform(-SCENE_WIDTH/2, SCENE_WIDTH/2)
+                    # v = self.rng.uniform(0, SCENE_LENGTH)
+                    
+                    point = self.base_pos + np.array([u, v, w])
                     point_xy = point[:2].astype(float)
-                    print(point)
+
                     if point_valid(point_xy):
-                        print(f"Valider Punkt: {point}")
                         points.append(point)
                         found_valid = True
                         break
                     
                 if not found_valid:
                     points.append(fallback_point)
-
-            log.info(f"Sampled cube positions: {points}")
             return points
 
         def sample_cube_orientation(seed):
@@ -225,59 +313,71 @@ class Franka_Cube_Stack():
             return orientations
         
         def cube_randomization_in_existing_task():
-            base_pos, base_quat = self.franka.get_local_pose()
             cube_names =self.task.get_cube_names()
-            sample_points = sample_cube_positions(base_pos)
+            sample_points = sample_cube_positions()
+            log.info(f"Sample Points: \n{sample_points}")
+
             cube_sample_points = sample_points[:N_CUBES]
             stack_target_sample_point = sample_points[N_CUBES]
             sample_orientations = sample_cube_orientation(seed)
+
             for n, name in enumerate(cube_names):
                 cube_name = name
                 cube_pos = cube_sample_points[n]
                 cube_ori = sample_orientations[n]
-                log.info(f"{cube_name} hat Ori: {rotations_utils.quat_to_euler_angles(cube_ori)}")
                 cube_target = stack_target_sample_point
-                print(cube_name, cube_pos, cube_ori, cube_target)
-                self.task.set_params(cube_name,cube_pos,cube_ori,cube_target)
-            log.info(sample_points)
+                self.task.set_params(cube_name, cube_pos, cube_ori, cube_target)
             return
 
         cube_randomization_in_existing_task()
+
+        self.add_or_update_plane(seed)
         
         self.set_scene_light(seed)
+
         return
     
 def main():
-    seed = SEED
+    seed = SEED+50
     env = Franka_Cube_Stack()
     env.setup_world()
     controller = env.setup_post_load()
     env.domain_randomization(seed)
+
     simulation_context = SimulationContext()
     articulation = env.franka.get_articulation_controller()
+    camera = env.add_scene_cam()
+    camera.initialize()
 
     while simulation_app.is_running():
         simulation_app.update()
         env.world.step()
         obs = env.task.get_observations()
-        joint_positions = env.franka.get_joint_positions()
-        joint_velocities = env.franka.get_joint_velocities()
-        t = np.round(simulation_context.current_time,2)
+        # joint_positions = env.franka.get_joint_positions()
+        # joint_velocities = env.franka.get_joint_velocities()
+        # t = np.round(simulation_context.current_time,2)
         
-        if t%1 == 0:
-            log.info(f"============================ Sekunde {np.round(t,2)} ============================")
-            log.info(f"------------- Observations -------------")
-            cube_0_ori = rotations_utils.quat_to_euler_angles(obs[env.task.get_cube_names()[0]]["orientation"])
-            log.info(cube_0_ori)
-            log.info(f"------------- Joint Positions -------------")
-            log.info(joint_positions)
-            log.info(f"------------- Joint Velocities -------------")
-            log.info(joint_velocities)
+        # if t%1 == 0:
+        #     log.info(f"============================ Sekunde {np.round(t,2)} ============================")
+        #     log.info(f"------------- Observations -------------")
+        #     cube_0_ori = rotations_utils.quat_to_euler_angles(obs[env.task.get_cube_names()[0]]["orientation"])
+        #     log.info(cube_0_ori)
+        #     log.info(f"------------- Joint Positions -------------")
+        #     log.info(joint_positions)
+        #     log.info(f"------------- Joint Velocities -------------")
+        #     log.info(joint_velocities)
 
         action = controller.forward(observations=obs)
         articulation.apply_action(action)
 
         if controller.is_done():
+            try:
+                rgba = camera.get_rgba()
+                image_path = f"{env.logdir}/00_Screenshots/Episode_{seed:03d}.png"
+                plt.imsave(image_path, rgba)
+            except Exception as e:
+                log.warning(f"Screenshot fehlgeschlagen: {e}")
+
             env.world.reset()
             controller.reset()
             env.world.step()

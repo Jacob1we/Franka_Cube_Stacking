@@ -159,8 +159,6 @@ class Base_PickPlaceController_JW(BaseController):
             if end_effector_orientation is None:
                 # end_effector_orientation = euler_angles_to_quat(np.array([0, np.pi, 0])) #JW
                 picking_orientation_euler = rotations_utils.quat_to_euler_angles(quat=picking_orientation) 
-                self.log.info(picking_orientation_euler)
-                self.log.info(picking_orientation_euler[2])
                 end_effector_orientation = euler_angles_to_quat(np.array([0, np.pi, picking_orientation_euler[2]])) #JW 
                 # end_effector_orientation = picking_orientation      #JW
             target_joint_positions = self._cspace_controller.forward(
