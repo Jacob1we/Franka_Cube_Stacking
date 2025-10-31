@@ -235,6 +235,7 @@ class Franka_Cube_Stack():
                 cube_name = name
                 cube_pos = cube_sample_points[n]
                 cube_ori = sample_orientations[n]
+                log.info(f"{cube_name} hat Ori: {rotations_utils.quat_to_euler_angles(cube_ori)}")
                 cube_target = stack_target_sample_point
                 print(cube_name, cube_pos, cube_ori, cube_target)
                 self.task.set_params(cube_name,cube_pos,cube_ori,cube_target)
@@ -263,10 +264,11 @@ def main():
         joint_velocities = env.franka.get_joint_velocities()
         t = np.round(simulation_context.current_time,2)
         
-        if t%10 == 0:
+        if t%1 == 0:
             log.info(f"============================ Sekunde {np.round(t,2)} ============================")
             log.info(f"------------- Observations -------------")
-            log.info(obs)
+            cube_0_ori = rotations_utils.quat_to_euler_angles(obs[env.task.get_cube_names()[0]]["orientation"])
+            log.info(cube_0_ori)
             log.info(f"------------- Joint Positions -------------")
             log.info(joint_positions)
             log.info(f"------------- Joint Velocities -------------")
