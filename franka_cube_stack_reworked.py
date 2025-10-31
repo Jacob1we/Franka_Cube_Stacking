@@ -25,7 +25,7 @@ import omni
 # enable_extension("omni.isaac.examples")
 # from omni.isaac.examples.base_sample import BaseSample
 from Franka_Env_JW import Stacking_JW
-from Franka_Env_JW import StackingController as StackingController_JW
+from Franka_Env_JW import StackingController_JW
 
 from omni.isaac.core import World
 
@@ -269,11 +269,18 @@ def main():
             log.info(obs)
             log.info(f"------------- Joint Positions -------------")
             log.info(joint_positions)
-            log.info(f"------------- Joint Veöocities -------------")
+            log.info(f"------------- Joint Velocities -------------")
             log.info(joint_velocities)
 
         action = controller.forward(observations=obs)
         articulation.apply_action(action)
+
+        if controller.is_done():
+            env.world.reset()
+            controller.reset()
+            env.world.step()
+            seed += 1
+            env.domain_randomization(seed)
     
     simulation_app.close()
 
