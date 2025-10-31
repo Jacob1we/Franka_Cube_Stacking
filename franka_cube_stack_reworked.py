@@ -63,7 +63,7 @@ NUM_SCENES = 4
 # SIDE_CAM_BASE_POS = np.array([2.4, -3.2, 2.2]) # m  
 # SIDE_CAM_EULER = (63.2, 0.0, 33.0) # deg
 SIDE_CAM_BASE_POS = np.array([1.41, -1.67, 1.27]) # m  
-SIDE_CAM_EULER = (60.84, 0.0, 32.05) # deg
+SIDE_CAM_EULER = (58.0, 0.0, 32.05) # deg
 
 SCENE_WIDTH  = 0.60  # m
 SCENE_LENGTH = 0.75  # m
@@ -230,17 +230,16 @@ class Franka_Cube_Stack():
         if not mesh:
             mesh = UsdGeom.Mesh.Define(self.stage, plane_root)
         plane_prim = mesh.GetPrim()
+        log.info(plane_prim)
 
         def make_point(x, y):
             p = self.base_pos + np.array([x, y, PLANE_LIFT])
             return Gf.Vec3d(float(p[0]), float(p[1]), float(p[2]))
         
-
         p0_w = make_point( 0.0,-SCENE_WIDTH/2)
         p1_w = make_point( 0.0, SCENE_WIDTH/2)
         p2_w = make_point( SCENE_LENGTH, SCENE_WIDTH/2)
         p3_w = make_point( SCENE_LENGTH,-SCENE_WIDTH/2)
-    
 
         points_local = [p0_w, p1_w, p2_w, p3_w]
 
@@ -258,12 +257,13 @@ class Franka_Cube_Stack():
         rng = np.random.default_rng(seed)
         random_material_index = int(rng.integers(0, len(self.materials)))
         material = self.materials[random_material_index]
+
         log.info(self.materials)
         log.info(random_material_index)
         log.info(material)
         UsdShade.MaterialBindingAPI(plane_prim).Bind(material)
 
-        return mesh
+        return 
 
     def domain_randomization(self, seed):
         log.info("Start Randomization")
