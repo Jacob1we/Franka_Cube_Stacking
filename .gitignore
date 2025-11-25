@@ -16,6 +16,7 @@ env/
 
 # Isaac Sim / Omniverse
 logs/
+dataset/
 cache/
 outputs/
 checkpoints/

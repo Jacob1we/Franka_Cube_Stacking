@@ -1,0 +1,603 @@
+2025-11-25 16:47:43,806 INFO FrankaCubeStacking: World Setup Complete
+2025-11-25 16:47:43,807 INFO FrankaCubeStacking: Setup Post Load
+2025-11-25 16:47:43,807 INFO StackingController: Initiation of Stacking Controller stacking_controller is Done
+2025-11-25 16:47:43,808 INFO PickAndPlaceController: Initiation of Pick and Place Controller Done
+2025-11-25 16:47:44,433 INFO Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2025-11-25 16:47:44,433 INFO BaseStackingController: Initiation of Base Stacking Controller is Done
+2025-11-25 16:47:45,500 INFO DataLogger: DataLogger initialisiert: dataset\franka_cube_stack
+2025-11-25 16:47:45,501 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 16:47:45,863 INFO DataLogger: Episode 0 gestartet
+2025-11-25 16:47:47,692 WARNING FrankaCubeStacking: Fehler beim Loggen: too many indices for array: array is 1-dimensional, but 3 were indexed
+2025-11-25 16:48:23,190 INFO DataLogger: Episode 0 beendet: 499 Timesteps
+2025-11-25 16:48:24,326 INFO FrankaCubeStacking: Episode 0 abgeschlossen: 500 Schritte
+2025-11-25 16:48:25,387 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 16:48:25,526 INFO DataLogger: Episode 1 gestartet
+2025-11-25 16:54:33,602 INFO FrankaCubeStacking: World Setup Complete
+2025-11-25 16:54:33,602 INFO FrankaCubeStacking: Setup Post Load
+2025-11-25 16:54:33,603 INFO StackingController: Initiation of Stacking Controller stacking_controller is Done
+2025-11-25 16:54:33,603 INFO PickAndPlaceController: Initiation of Pick and Place Controller Done
+2025-11-25 16:54:33,693 INFO Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2025-11-25 16:54:33,694 INFO BaseStackingController: Initiation of Base Stacking Controller is Done
+2025-11-25 16:54:33,982 INFO DataLogger: DataLogger initialisiert: dataset\franka_cube_stack
+2025-11-25 16:54:33,983 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 16:54:34,000 INFO DataLogger: Episode 0 gestartet
+2025-11-25 16:54:34,201 WARNING FrankaCubeStacking: Fehler beim Loggen: too many indices for array: array is 1-dimensional, but 3 were indexed
+2025-11-25 16:56:50,700 INFO DataLogger:   1833 PNG-Bilder gespeichert in dataset\franka_cube_stack\000000\images
+2025-11-25 16:56:50,701 INFO DataLogger: Episode 0 beendet: 1833 Timesteps
+2025-11-25 16:56:50,724 INFO FrankaCubeStacking: Episode 0 abgeschlossen: 1834 Schritte
+2025-11-25 16:56:51,131 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 16:56:51,136 INFO DataLogger: Episode 1 gestartet
+2025-11-25 17:24:19,937 INFO FrankaCubeStacking: World Setup Complete
+2025-11-25 17:24:19,938 INFO FrankaCubeStacking: Setup Post Load
+2025-11-25 17:24:19,939 INFO StackingController: Initiation of Stacking Controller stacking_controller is Done
+2025-11-25 17:24:19,939 INFO PickAndPlaceController: Initiation of Pick and Place Controller Done
+2025-11-25 17:24:20,015 INFO Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2025-11-25 17:24:20,015 INFO BaseStackingController: Initiation of Base Stacking Controller is Done
+2025-11-25 17:24:20,273 INFO DataLogger: DataLogger initialisiert: dataset\franka_cube_stack
+2025-11-25 17:24:20,274 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:24:20,290 INFO DataLogger: Episode 0 gestartet
+2025-11-25 17:24:20,467 WARNING FrankaCubeStacking: Fehler beim Loggen: too many indices for array: array is 1-dimensional, but 3 were indexed
+2025-11-25 17:25:54,747 INFO DataLogger:   1833 PNG-Bilder gespeichert in dataset\franka_cube_stack\000000\images
+2025-11-25 17:25:54,748 INFO DataLogger: Episode 0 beendet: 1833 Timesteps
+2025-11-25 17:25:54,774 INFO FrankaCubeStacking: Episode 0 abgeschlossen: 1834 Schritte
+2025-11-25 17:25:55,213 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:25:55,218 INFO DataLogger: Episode 1 gestartet
+2025-11-25 17:27:26,406 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000001\images
+2025-11-25 17:27:26,444 INFO DataLogger: Episode 1 beendet: 1834 Timesteps
+2025-11-25 17:27:26,469 INFO FrankaCubeStacking: Episode 1 abgeschlossen: 1834 Schritte
+2025-11-25 17:27:26,885 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:27:26,891 INFO DataLogger: Episode 2 gestartet
+2025-11-25 17:28:55,746 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000002\images
+2025-11-25 17:28:55,747 INFO DataLogger: Episode 2 beendet: 1834 Timesteps
+2025-11-25 17:28:55,773 INFO FrankaCubeStacking: Episode 2 abgeschlossen: 1834 Schritte
+2025-11-25 17:28:56,187 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:28:56,192 INFO DataLogger: Episode 3 gestartet
+2025-11-25 17:30:23,195 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000003\images
+2025-11-25 17:30:23,196 INFO DataLogger: Episode 3 beendet: 1834 Timesteps
+2025-11-25 17:30:23,222 INFO FrankaCubeStacking: Episode 3 abgeschlossen: 1834 Schritte
+2025-11-25 17:30:23,641 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:30:23,646 INFO DataLogger: Episode 4 gestartet
+2025-11-25 17:31:50,127 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000004\images
+2025-11-25 17:31:50,128 INFO DataLogger: Episode 4 beendet: 1834 Timesteps
+2025-11-25 17:31:50,154 INFO FrankaCubeStacking: Episode 4 abgeschlossen: 1834 Schritte
+2025-11-25 17:31:50,578 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:31:50,583 INFO DataLogger: Episode 5 gestartet
+2025-11-25 17:33:15,448 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000005\images
+2025-11-25 17:33:15,449 INFO DataLogger: Episode 5 beendet: 1834 Timesteps
+2025-11-25 17:33:15,476 INFO FrankaCubeStacking: Episode 5 abgeschlossen: 1834 Schritte
+2025-11-25 17:33:15,932 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:33:15,936 INFO DataLogger: Episode 6 gestartet
+2025-11-25 17:34:49,356 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000006\images
+2025-11-25 17:34:49,356 INFO DataLogger: Episode 6 beendet: 1834 Timesteps
+2025-11-25 17:34:49,383 INFO FrankaCubeStacking: Episode 6 abgeschlossen: 1834 Schritte
+2025-11-25 17:34:49,794 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:34:49,798 INFO DataLogger: Episode 7 gestartet
+2025-11-25 17:36:24,693 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000007\images
+2025-11-25 17:36:24,693 INFO DataLogger: Episode 7 beendet: 1834 Timesteps
+2025-11-25 17:36:24,718 INFO FrankaCubeStacking: Episode 7 abgeschlossen: 1834 Schritte
+2025-11-25 17:36:25,127 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:36:25,132 INFO DataLogger: Episode 8 gestartet
+2025-11-25 17:38:01,397 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000008\images
+2025-11-25 17:38:01,398 INFO DataLogger: Episode 8 beendet: 1834 Timesteps
+2025-11-25 17:38:01,425 INFO FrankaCubeStacking: Episode 8 abgeschlossen: 1834 Schritte
+2025-11-25 17:38:01,840 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:38:01,846 INFO DataLogger: Episode 9 gestartet
+2025-11-25 17:39:35,558 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000009\images
+2025-11-25 17:39:35,560 INFO DataLogger: Episode 9 beendet: 1834 Timesteps
+2025-11-25 17:39:35,585 INFO FrankaCubeStacking: Episode 9 abgeschlossen: 1834 Schritte
+2025-11-25 17:39:36,026 INFO DataLogger: Speichere Datensatz: 10 Rollouts, max_len=1834
+2025-11-25 17:39:36,026 INFO DataLogger: State dim: 22, Action dim: 9
+2025-11-25 17:39:36,445 INFO DataLogger: Datensatz gespeichert: dataset\franka_cube_stack
+2025-11-25 17:39:36,446 INFO DataLogger:   states.pth: torch.Size([10, 1834, 22])
+2025-11-25 17:39:36,446 INFO DataLogger:   actions.pth: torch.Size([10, 1834, 9])
+2025-11-25 17:39:36,446 INFO FrankaCubeStacking: Zwischenstand gespeichert: 10 Episoden
+2025-11-25 17:39:36,447 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:39:36,451 INFO DataLogger: Episode 10 gestartet
+2025-11-25 17:41:09,509 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000010\images
+2025-11-25 17:41:09,510 INFO DataLogger: Episode 10 beendet: 1834 Timesteps
+2025-11-25 17:41:09,535 INFO FrankaCubeStacking: Episode 10 abgeschlossen: 1834 Schritte
+2025-11-25 17:41:09,954 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:41:09,959 INFO DataLogger: Episode 11 gestartet
+2025-11-25 17:42:41,407 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000011\images
+2025-11-25 17:42:41,407 INFO DataLogger: Episode 11 beendet: 1834 Timesteps
+2025-11-25 17:42:41,432 INFO FrankaCubeStacking: Episode 11 abgeschlossen: 1834 Schritte
+2025-11-25 17:42:41,848 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:42:41,853 INFO DataLogger: Episode 12 gestartet
+2025-11-25 17:44:19,535 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000012\images
+2025-11-25 17:44:19,536 INFO DataLogger: Episode 12 beendet: 1834 Timesteps
+2025-11-25 17:44:19,561 INFO FrankaCubeStacking: Episode 12 abgeschlossen: 1834 Schritte
+2025-11-25 17:44:19,981 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:44:19,985 INFO DataLogger: Episode 13 gestartet
+2025-11-25 17:45:52,974 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000013\images
+2025-11-25 17:45:52,975 INFO DataLogger: Episode 13 beendet: 1834 Timesteps
+2025-11-25 17:45:52,999 INFO FrankaCubeStacking: Episode 13 abgeschlossen: 1834 Schritte
+2025-11-25 17:45:53,428 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:45:53,432 INFO DataLogger: Episode 14 gestartet
+2025-11-25 17:47:26,674 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000014\images
+2025-11-25 17:47:26,679 INFO DataLogger: Episode 14 beendet: 1834 Timesteps
+2025-11-25 17:47:26,711 INFO FrankaCubeStacking: Episode 14 abgeschlossen: 1834 Schritte
+2025-11-25 17:47:27,128 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:47:27,132 INFO DataLogger: Episode 15 gestartet
+2025-11-25 17:49:16,230 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000015\images
+2025-11-25 17:49:16,231 INFO DataLogger: Episode 15 beendet: 1834 Timesteps
+2025-11-25 17:49:16,257 INFO FrankaCubeStacking: Episode 15 abgeschlossen: 1834 Schritte
+2025-11-25 17:49:16,699 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:49:16,705 INFO DataLogger: Episode 16 gestartet
+2025-11-25 17:50:49,182 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000016\images
+2025-11-25 17:50:49,183 INFO DataLogger: Episode 16 beendet: 1834 Timesteps
+2025-11-25 17:50:49,208 INFO FrankaCubeStacking: Episode 16 abgeschlossen: 1834 Schritte
+2025-11-25 17:50:49,625 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:50:49,630 INFO DataLogger: Episode 17 gestartet
+2025-11-25 17:52:20,978 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000017\images
+2025-11-25 17:52:20,979 INFO DataLogger: Episode 17 beendet: 1834 Timesteps
+2025-11-25 17:52:21,003 INFO FrankaCubeStacking: Episode 17 abgeschlossen: 1834 Schritte
+2025-11-25 17:52:21,419 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:52:21,424 INFO DataLogger: Episode 18 gestartet
+2025-11-25 17:53:55,377 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000018\images
+2025-11-25 17:53:55,378 INFO DataLogger: Episode 18 beendet: 1834 Timesteps
+2025-11-25 17:53:55,402 INFO FrankaCubeStacking: Episode 18 abgeschlossen: 1834 Schritte
+2025-11-25 17:53:55,820 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:53:55,825 INFO DataLogger: Episode 19 gestartet
+2025-11-25 17:55:30,102 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000019\images
+2025-11-25 17:55:30,103 INFO DataLogger: Episode 19 beendet: 1834 Timesteps
+2025-11-25 17:55:30,129 INFO FrankaCubeStacking: Episode 19 abgeschlossen: 1834 Schritte
+2025-11-25 17:55:30,554 INFO DataLogger: Speichere Datensatz: 20 Rollouts, max_len=1834
+2025-11-25 17:55:30,555 INFO DataLogger: State dim: 22, Action dim: 9
+2025-11-25 17:55:30,564 INFO DataLogger: Datensatz gespeichert: dataset\franka_cube_stack
+2025-11-25 17:55:30,565 INFO DataLogger:   states.pth: torch.Size([20, 1834, 22])
+2025-11-25 17:55:30,565 INFO DataLogger:   actions.pth: torch.Size([20, 1834, 9])
+2025-11-25 17:55:30,566 INFO FrankaCubeStacking: Zwischenstand gespeichert: 20 Episoden
+2025-11-25 17:55:30,566 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:55:30,572 INFO DataLogger: Episode 20 gestartet
+2025-11-25 17:57:01,732 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000020\images
+2025-11-25 17:57:01,732 INFO DataLogger: Episode 20 beendet: 1834 Timesteps
+2025-11-25 17:57:01,758 INFO FrankaCubeStacking: Episode 20 abgeschlossen: 1834 Schritte
+2025-11-25 17:57:02,175 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:57:02,179 INFO DataLogger: Episode 21 gestartet
+2025-11-25 17:58:32,698 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000021\images
+2025-11-25 17:58:32,699 INFO DataLogger: Episode 21 beendet: 1834 Timesteps
+2025-11-25 17:58:32,732 INFO FrankaCubeStacking: Episode 21 abgeschlossen: 1834 Schritte
+2025-11-25 17:58:33,268 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 17:58:33,274 INFO DataLogger: Episode 22 gestartet
+2025-11-25 18:00:43,211 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000022\images
+2025-11-25 18:00:43,212 INFO DataLogger: Episode 22 beendet: 1834 Timesteps
+2025-11-25 18:00:43,419 INFO FrankaCubeStacking: Episode 22 abgeschlossen: 1834 Schritte
+2025-11-25 18:00:43,823 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:00:43,827 INFO DataLogger: Episode 23 gestartet
+2025-11-25 18:03:36,821 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000023\images
+2025-11-25 18:03:36,822 INFO DataLogger: Episode 23 beendet: 1834 Timesteps
+2025-11-25 18:03:36,847 INFO FrankaCubeStacking: Episode 23 abgeschlossen: 1834 Schritte
+2025-11-25 18:03:37,259 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:03:37,263 INFO DataLogger: Episode 24 gestartet
+2025-11-25 18:05:32,257 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000024\images
+2025-11-25 18:05:32,258 INFO DataLogger: Episode 24 beendet: 1834 Timesteps
+2025-11-25 18:05:32,284 INFO FrankaCubeStacking: Episode 24 abgeschlossen: 1834 Schritte
+2025-11-25 18:05:32,699 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:05:32,704 INFO DataLogger: Episode 25 gestartet
+2025-11-25 18:07:27,142 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000025\images
+2025-11-25 18:07:27,143 INFO DataLogger: Episode 25 beendet: 1834 Timesteps
+2025-11-25 18:07:27,168 INFO FrankaCubeStacking: Episode 25 abgeschlossen: 1834 Schritte
+2025-11-25 18:07:27,580 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:07:27,585 INFO DataLogger: Episode 26 gestartet
+2025-11-25 18:09:19,750 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000026\images
+2025-11-25 18:09:19,750 INFO DataLogger: Episode 26 beendet: 1834 Timesteps
+2025-11-25 18:09:19,776 INFO FrankaCubeStacking: Episode 26 abgeschlossen: 1834 Schritte
+2025-11-25 18:09:20,191 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:09:20,196 INFO DataLogger: Episode 27 gestartet
+2025-11-25 18:11:14,439 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000027\images
+2025-11-25 18:11:14,440 INFO DataLogger: Episode 27 beendet: 1834 Timesteps
+2025-11-25 18:11:14,465 INFO FrankaCubeStacking: Episode 27 abgeschlossen: 1834 Schritte
+2025-11-25 18:11:14,883 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:11:14,888 INFO DataLogger: Episode 28 gestartet
+2025-11-25 18:13:01,738 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000028\images
+2025-11-25 18:13:01,739 INFO DataLogger: Episode 28 beendet: 1834 Timesteps
+2025-11-25 18:13:01,765 INFO FrankaCubeStacking: Episode 28 abgeschlossen: 1834 Schritte
+2025-11-25 18:13:02,179 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:13:02,184 INFO DataLogger: Episode 29 gestartet
+2025-11-25 18:14:50,852 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000029\images
+2025-11-25 18:14:50,853 INFO DataLogger: Episode 29 beendet: 1834 Timesteps
+2025-11-25 18:14:50,877 INFO FrankaCubeStacking: Episode 29 abgeschlossen: 1834 Schritte
+2025-11-25 18:14:51,288 INFO DataLogger: Speichere Datensatz: 30 Rollouts, max_len=1834
+2025-11-25 18:14:51,288 INFO DataLogger: State dim: 22, Action dim: 9
+2025-11-25 18:14:51,302 INFO DataLogger: Datensatz gespeichert: dataset\franka_cube_stack
+2025-11-25 18:14:51,302 INFO DataLogger:   states.pth: torch.Size([30, 1834, 22])
+2025-11-25 18:14:51,302 INFO DataLogger:   actions.pth: torch.Size([30, 1834, 9])
+2025-11-25 18:14:51,303 INFO FrankaCubeStacking: Zwischenstand gespeichert: 30 Episoden
+2025-11-25 18:14:51,303 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:14:51,309 INFO DataLogger: Episode 30 gestartet
+2025-11-25 18:16:41,173 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000030\images
+2025-11-25 18:16:41,174 INFO DataLogger: Episode 30 beendet: 1834 Timesteps
+2025-11-25 18:16:41,199 INFO FrankaCubeStacking: Episode 30 abgeschlossen: 1834 Schritte
+2025-11-25 18:16:41,613 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:16:41,618 INFO DataLogger: Episode 31 gestartet
+2025-11-25 18:18:32,272 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000031\images
+2025-11-25 18:18:32,272 INFO DataLogger: Episode 31 beendet: 1834 Timesteps
+2025-11-25 18:18:32,297 INFO FrankaCubeStacking: Episode 31 abgeschlossen: 1834 Schritte
+2025-11-25 18:18:32,720 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:18:32,725 INFO DataLogger: Episode 32 gestartet
+2025-11-25 18:20:25,472 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000032\images
+2025-11-25 18:20:25,473 INFO DataLogger: Episode 32 beendet: 1834 Timesteps
+2025-11-25 18:20:25,512 INFO FrankaCubeStacking: Episode 32 abgeschlossen: 1834 Schritte
+2025-11-25 18:20:25,946 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:20:25,951 INFO DataLogger: Episode 33 gestartet
+2025-11-25 18:22:14,938 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000033\images
+2025-11-25 18:22:14,939 INFO DataLogger: Episode 33 beendet: 1834 Timesteps
+2025-11-25 18:22:14,964 INFO FrankaCubeStacking: Episode 33 abgeschlossen: 1834 Schritte
+2025-11-25 18:22:15,376 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:22:15,381 INFO DataLogger: Episode 34 gestartet
+2025-11-25 18:24:05,760 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000034\images
+2025-11-25 18:24:05,761 INFO DataLogger: Episode 34 beendet: 1834 Timesteps
+2025-11-25 18:24:05,786 INFO FrankaCubeStacking: Episode 34 abgeschlossen: 1834 Schritte
+2025-11-25 18:24:06,227 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:24:06,231 INFO DataLogger: Episode 35 gestartet
+2025-11-25 18:26:00,308 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000035\images
+2025-11-25 18:26:00,309 INFO DataLogger: Episode 35 beendet: 1834 Timesteps
+2025-11-25 18:26:00,334 INFO FrankaCubeStacking: Episode 35 abgeschlossen: 1834 Schritte
+2025-11-25 18:26:00,771 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:26:00,775 INFO DataLogger: Episode 36 gestartet
+2025-11-25 18:27:49,140 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000036\images
+2025-11-25 18:27:49,141 INFO DataLogger: Episode 36 beendet: 1834 Timesteps
+2025-11-25 18:27:49,165 INFO FrankaCubeStacking: Episode 36 abgeschlossen: 1834 Schritte
+2025-11-25 18:27:49,579 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:27:49,584 INFO DataLogger: Episode 37 gestartet
+2025-11-25 18:29:38,133 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000037\images
+2025-11-25 18:29:38,134 INFO DataLogger: Episode 37 beendet: 1834 Timesteps
+2025-11-25 18:29:38,159 INFO FrankaCubeStacking: Episode 37 abgeschlossen: 1834 Schritte
+2025-11-25 18:29:38,578 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:29:38,583 INFO DataLogger: Episode 38 gestartet
+2025-11-25 18:31:34,196 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000038\images
+2025-11-25 18:31:34,197 INFO DataLogger: Episode 38 beendet: 1834 Timesteps
+2025-11-25 18:31:34,223 INFO FrankaCubeStacking: Episode 38 abgeschlossen: 1834 Schritte
+2025-11-25 18:31:34,647 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:31:34,652 INFO DataLogger: Episode 39 gestartet
+2025-11-25 18:33:23,182 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000039\images
+2025-11-25 18:33:23,183 INFO DataLogger: Episode 39 beendet: 1834 Timesteps
+2025-11-25 18:33:23,208 INFO FrankaCubeStacking: Episode 39 abgeschlossen: 1834 Schritte
+2025-11-25 18:33:23,624 INFO DataLogger: Speichere Datensatz: 40 Rollouts, max_len=1834
+2025-11-25 18:33:23,625 INFO DataLogger: State dim: 22, Action dim: 9
+2025-11-25 18:33:23,640 INFO DataLogger: Datensatz gespeichert: dataset\franka_cube_stack
+2025-11-25 18:33:23,640 INFO DataLogger:   states.pth: torch.Size([40, 1834, 22])
+2025-11-25 18:33:23,640 INFO DataLogger:   actions.pth: torch.Size([40, 1834, 9])
+2025-11-25 18:33:23,641 INFO FrankaCubeStacking: Zwischenstand gespeichert: 40 Episoden
+2025-11-25 18:33:23,641 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:33:23,645 INFO DataLogger: Episode 40 gestartet
+2025-11-25 18:35:18,162 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000040\images
+2025-11-25 18:35:18,163 INFO DataLogger: Episode 40 beendet: 1834 Timesteps
+2025-11-25 18:35:18,199 INFO FrankaCubeStacking: Episode 40 abgeschlossen: 1834 Schritte
+2025-11-25 18:35:18,653 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:35:18,658 INFO DataLogger: Episode 41 gestartet
+2025-11-25 18:37:12,697 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000041\images
+2025-11-25 18:37:12,698 INFO DataLogger: Episode 41 beendet: 1834 Timesteps
+2025-11-25 18:37:12,722 INFO FrankaCubeStacking: Episode 41 abgeschlossen: 1834 Schritte
+2025-11-25 18:37:13,158 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:37:13,162 INFO DataLogger: Episode 42 gestartet
+2025-11-25 18:39:02,483 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000042\images
+2025-11-25 18:39:02,484 INFO DataLogger: Episode 42 beendet: 1834 Timesteps
+2025-11-25 18:39:02,510 INFO FrankaCubeStacking: Episode 42 abgeschlossen: 1834 Schritte
+2025-11-25 18:39:02,936 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:39:02,940 INFO DataLogger: Episode 43 gestartet
+2025-11-25 18:40:52,410 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000043\images
+2025-11-25 18:40:52,411 INFO DataLogger: Episode 43 beendet: 1834 Timesteps
+2025-11-25 18:40:52,439 INFO FrankaCubeStacking: Episode 43 abgeschlossen: 1834 Schritte
+2025-11-25 18:40:52,863 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:40:52,867 INFO DataLogger: Episode 44 gestartet
+2025-11-25 18:42:50,270 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000044\images
+2025-11-25 18:42:50,271 INFO DataLogger: Episode 44 beendet: 1834 Timesteps
+2025-11-25 18:42:50,297 INFO FrankaCubeStacking: Episode 44 abgeschlossen: 1834 Schritte
+2025-11-25 18:42:50,709 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:42:50,714 INFO DataLogger: Episode 45 gestartet
+2025-11-25 18:44:44,364 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000045\images
+2025-11-25 18:44:44,365 INFO DataLogger: Episode 45 beendet: 1834 Timesteps
+2025-11-25 18:44:44,414 INFO FrankaCubeStacking: Episode 45 abgeschlossen: 1834 Schritte
+2025-11-25 18:44:44,825 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:44:44,829 INFO DataLogger: Episode 46 gestartet
+2025-11-25 18:46:53,691 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000046\images
+2025-11-25 18:46:53,693 INFO DataLogger: Episode 46 beendet: 1834 Timesteps
+2025-11-25 18:46:53,719 INFO FrankaCubeStacking: Episode 46 abgeschlossen: 1834 Schritte
+2025-11-25 18:46:54,150 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:46:54,154 INFO DataLogger: Episode 47 gestartet
+2025-11-25 18:48:47,966 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000047\images
+2025-11-25 18:48:47,966 INFO DataLogger: Episode 47 beendet: 1834 Timesteps
+2025-11-25 18:48:47,991 INFO FrankaCubeStacking: Episode 47 abgeschlossen: 1834 Schritte
+2025-11-25 18:48:48,408 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:48:48,413 INFO DataLogger: Episode 48 gestartet
+2025-11-25 18:50:35,654 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000048\images
+2025-11-25 18:50:35,655 INFO DataLogger: Episode 48 beendet: 1834 Timesteps
+2025-11-25 18:50:35,683 INFO FrankaCubeStacking: Episode 48 abgeschlossen: 1834 Schritte
+2025-11-25 18:50:36,102 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:50:36,107 INFO DataLogger: Episode 49 gestartet
+2025-11-25 18:52:18,518 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000049\images
+2025-11-25 18:52:18,519 INFO DataLogger: Episode 49 beendet: 1834 Timesteps
+2025-11-25 18:52:18,543 INFO FrankaCubeStacking: Episode 49 abgeschlossen: 1834 Schritte
+2025-11-25 18:52:18,965 INFO DataLogger: Speichere Datensatz: 50 Rollouts, max_len=1834
+2025-11-25 18:52:18,965 INFO DataLogger: State dim: 22, Action dim: 9
+2025-11-25 18:52:18,984 INFO DataLogger: Datensatz gespeichert: dataset\franka_cube_stack
+2025-11-25 18:52:18,985 INFO DataLogger:   states.pth: torch.Size([50, 1834, 22])
+2025-11-25 18:52:18,985 INFO DataLogger:   actions.pth: torch.Size([50, 1834, 9])
+2025-11-25 18:52:18,986 INFO FrankaCubeStacking: Zwischenstand gespeichert: 50 Episoden
+2025-11-25 18:52:18,986 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:52:18,991 INFO DataLogger: Episode 50 gestartet
+2025-11-25 18:53:51,981 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000050\images
+2025-11-25 18:53:51,982 INFO DataLogger: Episode 50 beendet: 1834 Timesteps
+2025-11-25 18:53:52,006 INFO FrankaCubeStacking: Episode 50 abgeschlossen: 1834 Schritte
+2025-11-25 18:53:52,430 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:53:52,435 INFO DataLogger: Episode 51 gestartet
+2025-11-25 18:55:27,454 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000051\images
+2025-11-25 18:55:27,455 INFO DataLogger: Episode 51 beendet: 1834 Timesteps
+2025-11-25 18:55:27,480 INFO FrankaCubeStacking: Episode 51 abgeschlossen: 1834 Schritte
+2025-11-25 18:55:27,895 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:55:27,899 INFO DataLogger: Episode 52 gestartet
+2025-11-25 18:57:02,237 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000052\images
+2025-11-25 18:57:02,238 INFO DataLogger: Episode 52 beendet: 1834 Timesteps
+2025-11-25 18:57:02,261 INFO FrankaCubeStacking: Episode 52 abgeschlossen: 1834 Schritte
+2025-11-25 18:57:02,680 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:57:02,685 INFO DataLogger: Episode 53 gestartet
+2025-11-25 18:58:36,297 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000053\images
+2025-11-25 18:58:36,298 INFO DataLogger: Episode 53 beendet: 1834 Timesteps
+2025-11-25 18:58:36,323 INFO FrankaCubeStacking: Episode 53 abgeschlossen: 1834 Schritte
+2025-11-25 18:58:36,739 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 18:58:36,743 INFO DataLogger: Episode 54 gestartet
+2025-11-25 19:00:07,549 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000054\images
+2025-11-25 19:00:07,550 INFO DataLogger: Episode 54 beendet: 1834 Timesteps
+2025-11-25 19:00:07,575 INFO FrankaCubeStacking: Episode 54 abgeschlossen: 1834 Schritte
+2025-11-25 19:00:07,984 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:00:07,989 INFO DataLogger: Episode 55 gestartet
+2025-11-25 19:01:42,013 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000055\images
+2025-11-25 19:01:42,014 INFO DataLogger: Episode 55 beendet: 1834 Timesteps
+2025-11-25 19:01:42,038 INFO FrankaCubeStacking: Episode 55 abgeschlossen: 1834 Schritte
+2025-11-25 19:01:42,456 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:01:42,461 INFO DataLogger: Episode 56 gestartet
+2025-11-25 19:03:16,061 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000056\images
+2025-11-25 19:03:16,062 INFO DataLogger: Episode 56 beendet: 1834 Timesteps
+2025-11-25 19:03:16,086 INFO FrankaCubeStacking: Episode 56 abgeschlossen: 1834 Schritte
+2025-11-25 19:03:16,527 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:03:16,531 INFO DataLogger: Episode 57 gestartet
+2025-11-25 19:04:48,468 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000057\images
+2025-11-25 19:04:48,469 INFO DataLogger: Episode 57 beendet: 1834 Timesteps
+2025-11-25 19:04:48,494 INFO FrankaCubeStacking: Episode 57 abgeschlossen: 1834 Schritte
+2025-11-25 19:04:48,907 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:04:48,912 INFO DataLogger: Episode 58 gestartet
+2025-11-25 19:06:21,604 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000058\images
+2025-11-25 19:06:21,605 INFO DataLogger: Episode 58 beendet: 1834 Timesteps
+2025-11-25 19:06:21,633 INFO FrankaCubeStacking: Episode 58 abgeschlossen: 1834 Schritte
+2025-11-25 19:06:22,041 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:06:22,045 INFO DataLogger: Episode 59 gestartet
+2025-11-25 19:07:54,136 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000059\images
+2025-11-25 19:07:54,137 INFO DataLogger: Episode 59 beendet: 1834 Timesteps
+2025-11-25 19:07:54,161 INFO FrankaCubeStacking: Episode 59 abgeschlossen: 1834 Schritte
+2025-11-25 19:07:54,597 INFO DataLogger: Speichere Datensatz: 60 Rollouts, max_len=1834
+2025-11-25 19:07:54,598 INFO DataLogger: State dim: 22, Action dim: 9
+2025-11-25 19:07:54,616 INFO DataLogger: Datensatz gespeichert: dataset\franka_cube_stack
+2025-11-25 19:07:54,617 INFO DataLogger:   states.pth: torch.Size([60, 1834, 22])
+2025-11-25 19:07:54,617 INFO DataLogger:   actions.pth: torch.Size([60, 1834, 9])
+2025-11-25 19:07:54,618 INFO FrankaCubeStacking: Zwischenstand gespeichert: 60 Episoden
+2025-11-25 19:07:54,618 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:07:54,623 INFO DataLogger: Episode 60 gestartet
+2025-11-25 19:09:27,161 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000060\images
+2025-11-25 19:09:27,162 INFO DataLogger: Episode 60 beendet: 1834 Timesteps
+2025-11-25 19:09:27,187 INFO FrankaCubeStacking: Episode 60 abgeschlossen: 1834 Schritte
+2025-11-25 19:09:27,606 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:09:27,611 INFO DataLogger: Episode 61 gestartet
+2025-11-25 19:11:01,716 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000061\images
+2025-11-25 19:11:01,717 INFO DataLogger: Episode 61 beendet: 1834 Timesteps
+2025-11-25 19:11:01,741 INFO FrankaCubeStacking: Episode 61 abgeschlossen: 1834 Schritte
+2025-11-25 19:11:02,155 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:11:02,160 INFO DataLogger: Episode 62 gestartet
+2025-11-25 19:12:34,236 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000062\images
+2025-11-25 19:12:34,236 INFO DataLogger: Episode 62 beendet: 1834 Timesteps
+2025-11-25 19:12:34,263 INFO FrankaCubeStacking: Episode 62 abgeschlossen: 1834 Schritte
+2025-11-25 19:12:34,706 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:12:34,711 INFO DataLogger: Episode 63 gestartet
+2025-11-25 19:14:07,112 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000063\images
+2025-11-25 19:14:07,113 INFO DataLogger: Episode 63 beendet: 1834 Timesteps
+2025-11-25 19:14:07,139 INFO FrankaCubeStacking: Episode 63 abgeschlossen: 1834 Schritte
+2025-11-25 19:14:07,554 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:14:07,559 INFO DataLogger: Episode 64 gestartet
+2025-11-25 19:15:40,413 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000064\images
+2025-11-25 19:15:40,414 INFO DataLogger: Episode 64 beendet: 1834 Timesteps
+2025-11-25 19:15:40,440 INFO FrankaCubeStacking: Episode 64 abgeschlossen: 1834 Schritte
+2025-11-25 19:15:40,861 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:15:40,866 INFO DataLogger: Episode 65 gestartet
+2025-11-25 19:17:13,441 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000065\images
+2025-11-25 19:17:13,442 INFO DataLogger: Episode 65 beendet: 1834 Timesteps
+2025-11-25 19:17:13,467 INFO FrankaCubeStacking: Episode 65 abgeschlossen: 1834 Schritte
+2025-11-25 19:17:13,901 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:17:13,905 INFO DataLogger: Episode 66 gestartet
+2025-11-25 19:18:49,514 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000066\images
+2025-11-25 19:18:49,515 INFO DataLogger: Episode 66 beendet: 1834 Timesteps
+2025-11-25 19:18:49,539 INFO FrankaCubeStacking: Episode 66 abgeschlossen: 1834 Schritte
+2025-11-25 19:18:49,945 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:18:49,949 INFO DataLogger: Episode 67 gestartet
+2025-11-25 19:20:22,201 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000067\images
+2025-11-25 19:20:22,202 INFO DataLogger: Episode 67 beendet: 1834 Timesteps
+2025-11-25 19:20:22,227 INFO FrankaCubeStacking: Episode 67 abgeschlossen: 1834 Schritte
+2025-11-25 19:20:22,655 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:20:22,659 INFO DataLogger: Episode 68 gestartet
+2025-11-25 19:21:56,703 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000068\images
+2025-11-25 19:21:56,704 INFO DataLogger: Episode 68 beendet: 1834 Timesteps
+2025-11-25 19:21:56,729 INFO FrankaCubeStacking: Episode 68 abgeschlossen: 1834 Schritte
+2025-11-25 19:21:57,141 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:21:57,146 INFO DataLogger: Episode 69 gestartet
+2025-11-25 19:23:29,512 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000069\images
+2025-11-25 19:23:29,513 INFO DataLogger: Episode 69 beendet: 1834 Timesteps
+2025-11-25 19:23:29,537 INFO FrankaCubeStacking: Episode 69 abgeschlossen: 1834 Schritte
+2025-11-25 19:23:29,947 INFO DataLogger: Speichere Datensatz: 70 Rollouts, max_len=1834
+2025-11-25 19:23:29,947 INFO DataLogger: State dim: 22, Action dim: 9
+2025-11-25 19:23:29,971 INFO DataLogger: Datensatz gespeichert: dataset\franka_cube_stack
+2025-11-25 19:23:29,971 INFO DataLogger:   states.pth: torch.Size([70, 1834, 22])
+2025-11-25 19:23:29,972 INFO DataLogger:   actions.pth: torch.Size([70, 1834, 9])
+2025-11-25 19:23:29,972 INFO FrankaCubeStacking: Zwischenstand gespeichert: 70 Episoden
+2025-11-25 19:23:29,973 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:23:29,977 INFO DataLogger: Episode 70 gestartet
+2025-11-25 19:25:00,108 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000070\images
+2025-11-25 19:25:00,109 INFO DataLogger: Episode 70 beendet: 1834 Timesteps
+2025-11-25 19:25:00,132 INFO FrankaCubeStacking: Episode 70 abgeschlossen: 1834 Schritte
+2025-11-25 19:25:00,546 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:25:00,551 INFO DataLogger: Episode 71 gestartet
+2025-11-25 19:26:32,262 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000071\images
+2025-11-25 19:26:32,263 INFO DataLogger: Episode 71 beendet: 1834 Timesteps
+2025-11-25 19:26:32,290 INFO FrankaCubeStacking: Episode 71 abgeschlossen: 1834 Schritte
+2025-11-25 19:26:32,705 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:26:32,709 INFO DataLogger: Episode 72 gestartet
+2025-11-25 19:28:05,061 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000072\images
+2025-11-25 19:28:05,062 INFO DataLogger: Episode 72 beendet: 1834 Timesteps
+2025-11-25 19:28:05,088 INFO FrankaCubeStacking: Episode 72 abgeschlossen: 1834 Schritte
+2025-11-25 19:28:05,534 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:28:05,538 INFO DataLogger: Episode 73 gestartet
+2025-11-25 19:29:37,938 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000073\images
+2025-11-25 19:29:37,939 INFO DataLogger: Episode 73 beendet: 1834 Timesteps
+2025-11-25 19:29:37,964 INFO FrankaCubeStacking: Episode 73 abgeschlossen: 1834 Schritte
+2025-11-25 19:29:38,381 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:29:38,386 INFO DataLogger: Episode 74 gestartet
+2025-11-25 19:31:10,012 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000074\images
+2025-11-25 19:31:10,012 INFO DataLogger: Episode 74 beendet: 1834 Timesteps
+2025-11-25 19:31:10,037 INFO FrankaCubeStacking: Episode 74 abgeschlossen: 1834 Schritte
+2025-11-25 19:31:10,449 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:31:10,454 INFO DataLogger: Episode 75 gestartet
+2025-11-25 19:32:43,106 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000075\images
+2025-11-25 19:32:43,107 INFO DataLogger: Episode 75 beendet: 1834 Timesteps
+2025-11-25 19:32:43,131 INFO FrankaCubeStacking: Episode 75 abgeschlossen: 1834 Schritte
+2025-11-25 19:32:43,548 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:32:43,553 INFO DataLogger: Episode 76 gestartet
+2025-11-25 19:34:19,149 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000076\images
+2025-11-25 19:34:19,150 INFO DataLogger: Episode 76 beendet: 1834 Timesteps
+2025-11-25 19:34:19,181 INFO FrankaCubeStacking: Episode 76 abgeschlossen: 1834 Schritte
+2025-11-25 19:34:19,613 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:34:19,618 INFO DataLogger: Episode 77 gestartet
+2025-11-25 19:35:52,131 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000077\images
+2025-11-25 19:35:52,132 INFO DataLogger: Episode 77 beendet: 1834 Timesteps
+2025-11-25 19:35:52,156 INFO FrankaCubeStacking: Episode 77 abgeschlossen: 1834 Schritte
+2025-11-25 19:35:52,569 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:35:52,573 INFO DataLogger: Episode 78 gestartet
+2025-11-25 19:37:23,451 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000078\images
+2025-11-25 19:37:23,452 INFO DataLogger: Episode 78 beendet: 1834 Timesteps
+2025-11-25 19:37:23,476 INFO FrankaCubeStacking: Episode 78 abgeschlossen: 1834 Schritte
+2025-11-25 19:37:23,888 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:37:23,893 INFO DataLogger: Episode 79 gestartet
+2025-11-25 19:38:56,299 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000079\images
+2025-11-25 19:38:56,300 INFO DataLogger: Episode 79 beendet: 1834 Timesteps
+2025-11-25 19:38:56,329 INFO FrankaCubeStacking: Episode 79 abgeschlossen: 1834 Schritte
+2025-11-25 19:38:56,745 INFO DataLogger: Speichere Datensatz: 80 Rollouts, max_len=1834
+2025-11-25 19:38:56,746 INFO DataLogger: State dim: 22, Action dim: 9
+2025-11-25 19:38:56,770 INFO DataLogger: Datensatz gespeichert: dataset\franka_cube_stack
+2025-11-25 19:38:56,770 INFO DataLogger:   states.pth: torch.Size([80, 1834, 22])
+2025-11-25 19:38:56,771 INFO DataLogger:   actions.pth: torch.Size([80, 1834, 9])
+2025-11-25 19:38:56,771 INFO FrankaCubeStacking: Zwischenstand gespeichert: 80 Episoden
+2025-11-25 19:38:56,771 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:38:56,776 INFO DataLogger: Episode 80 gestartet
+2025-11-25 19:40:27,489 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000080\images
+2025-11-25 19:40:27,490 INFO DataLogger: Episode 80 beendet: 1834 Timesteps
+2025-11-25 19:40:27,514 INFO FrankaCubeStacking: Episode 80 abgeschlossen: 1834 Schritte
+2025-11-25 19:40:27,929 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:40:27,933 INFO DataLogger: Episode 81 gestartet
+2025-11-25 19:41:59,367 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000081\images
+2025-11-25 19:41:59,368 INFO DataLogger: Episode 81 beendet: 1834 Timesteps
+2025-11-25 19:41:59,394 INFO FrankaCubeStacking: Episode 81 abgeschlossen: 1834 Schritte
+2025-11-25 19:41:59,809 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:41:59,813 INFO DataLogger: Episode 82 gestartet
+2025-11-25 19:43:32,719 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000082\images
+2025-11-25 19:43:32,720 INFO DataLogger: Episode 82 beendet: 1834 Timesteps
+2025-11-25 19:43:32,793 INFO FrankaCubeStacking: Episode 82 abgeschlossen: 1834 Schritte
+2025-11-25 19:43:33,203 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:43:33,207 INFO DataLogger: Episode 83 gestartet
+2025-11-25 19:45:06,320 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000083\images
+2025-11-25 19:45:06,322 INFO DataLogger: Episode 83 beendet: 1834 Timesteps
+2025-11-25 19:45:06,346 INFO FrankaCubeStacking: Episode 83 abgeschlossen: 1834 Schritte
+2025-11-25 19:45:06,780 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:45:06,784 INFO DataLogger: Episode 84 gestartet
+2025-11-25 19:46:39,087 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000084\images
+2025-11-25 19:46:39,088 INFO DataLogger: Episode 84 beendet: 1834 Timesteps
+2025-11-25 19:46:39,112 INFO FrankaCubeStacking: Episode 84 abgeschlossen: 1834 Schritte
+2025-11-25 19:46:39,532 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:46:39,537 INFO DataLogger: Episode 85 gestartet
+2025-11-25 19:48:12,504 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000085\images
+2025-11-25 19:48:12,505 INFO DataLogger: Episode 85 beendet: 1834 Timesteps
+2025-11-25 19:48:12,529 INFO FrankaCubeStacking: Episode 85 abgeschlossen: 1834 Schritte
+2025-11-25 19:48:12,938 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:48:12,943 INFO DataLogger: Episode 86 gestartet
+2025-11-25 19:49:48,160 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000086\images
+2025-11-25 19:49:48,160 INFO DataLogger: Episode 86 beendet: 1834 Timesteps
+2025-11-25 19:49:48,186 INFO FrankaCubeStacking: Episode 86 abgeschlossen: 1834 Schritte
+2025-11-25 19:49:48,605 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:49:48,609 INFO DataLogger: Episode 87 gestartet
+2025-11-25 19:51:22,084 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000087\images
+2025-11-25 19:51:22,084 INFO DataLogger: Episode 87 beendet: 1834 Timesteps
+2025-11-25 19:51:22,110 INFO FrankaCubeStacking: Episode 87 abgeschlossen: 1834 Schritte
+2025-11-25 19:51:22,530 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:51:22,535 INFO DataLogger: Episode 88 gestartet
+2025-11-25 19:52:55,058 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000088\images
+2025-11-25 19:52:55,059 INFO DataLogger: Episode 88 beendet: 1834 Timesteps
+2025-11-25 19:52:55,084 INFO FrankaCubeStacking: Episode 88 abgeschlossen: 1834 Schritte
+2025-11-25 19:52:55,501 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:52:55,506 INFO DataLogger: Episode 89 gestartet
+2025-11-25 19:54:33,251 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000089\images
+2025-11-25 19:54:33,252 INFO DataLogger: Episode 89 beendet: 1834 Timesteps
+2025-11-25 19:54:33,276 INFO FrankaCubeStacking: Episode 89 abgeschlossen: 1834 Schritte
+2025-11-25 19:54:33,695 INFO DataLogger: Speichere Datensatz: 90 Rollouts, max_len=1834
+2025-11-25 19:54:33,696 INFO DataLogger: State dim: 22, Action dim: 9
+2025-11-25 19:54:33,725 INFO DataLogger: Datensatz gespeichert: dataset\franka_cube_stack
+2025-11-25 19:54:33,725 INFO DataLogger:   states.pth: torch.Size([90, 1834, 22])
+2025-11-25 19:54:33,725 INFO DataLogger:   actions.pth: torch.Size([90, 1834, 9])
+2025-11-25 19:54:33,726 INFO FrankaCubeStacking: Zwischenstand gespeichert: 90 Episoden
+2025-11-25 19:54:33,726 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:54:33,730 INFO DataLogger: Episode 90 gestartet
+2025-11-25 19:56:04,453 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000090\images
+2025-11-25 19:56:04,454 INFO DataLogger: Episode 90 beendet: 1834 Timesteps
+2025-11-25 19:56:04,478 INFO FrankaCubeStacking: Episode 90 abgeschlossen: 1834 Schritte
+2025-11-25 19:56:04,899 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:56:04,903 INFO DataLogger: Episode 91 gestartet
+2025-11-25 19:57:36,661 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000091\images
+2025-11-25 19:57:36,662 INFO DataLogger: Episode 91 beendet: 1834 Timesteps
+2025-11-25 19:57:36,687 INFO FrankaCubeStacking: Episode 91 abgeschlossen: 1834 Schritte
+2025-11-25 19:57:37,105 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:57:37,109 INFO DataLogger: Episode 92 gestartet
+2025-11-25 19:59:09,041 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000092\images
+2025-11-25 19:59:09,042 INFO DataLogger: Episode 92 beendet: 1834 Timesteps
+2025-11-25 19:59:09,067 INFO FrankaCubeStacking: Episode 92 abgeschlossen: 1834 Schritte
+2025-11-25 19:59:09,482 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 19:59:09,486 INFO DataLogger: Episode 93 gestartet
+2025-11-25 20:00:44,767 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000093\images
+2025-11-25 20:00:44,768 INFO DataLogger: Episode 93 beendet: 1834 Timesteps
+2025-11-25 20:00:44,792 INFO FrankaCubeStacking: Episode 93 abgeschlossen: 1834 Schritte
+2025-11-25 20:00:45,206 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 20:00:45,210 INFO DataLogger: Episode 94 gestartet
+2025-11-25 20:02:18,047 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000094\images
+2025-11-25 20:02:18,047 INFO DataLogger: Episode 94 beendet: 1834 Timesteps
+2025-11-25 20:02:18,075 INFO FrankaCubeStacking: Episode 94 abgeschlossen: 1834 Schritte
+2025-11-25 20:02:18,496 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 20:02:18,500 INFO DataLogger: Episode 95 gestartet
+2025-11-25 20:03:52,326 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000095\images
+2025-11-25 20:03:52,327 INFO DataLogger: Episode 95 beendet: 1834 Timesteps
+2025-11-25 20:03:52,373 INFO FrankaCubeStacking: Episode 95 abgeschlossen: 1834 Schritte
+2025-11-25 20:03:52,783 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 20:03:52,788 INFO DataLogger: Episode 96 gestartet
+2025-11-25 20:05:26,355 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000096\images
+2025-11-25 20:05:26,356 INFO DataLogger: Episode 96 beendet: 1834 Timesteps
+2025-11-25 20:05:26,411 INFO FrankaCubeStacking: Episode 96 abgeschlossen: 1834 Schritte
+2025-11-25 20:05:26,825 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 20:05:26,829 INFO DataLogger: Episode 97 gestartet
+2025-11-25 20:06:57,719 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000097\images
+2025-11-25 20:06:57,720 INFO DataLogger: Episode 97 beendet: 1834 Timesteps
+2025-11-25 20:06:57,839 INFO FrankaCubeStacking: Episode 97 abgeschlossen: 1834 Schritte
+2025-11-25 20:06:58,246 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 20:06:58,251 INFO DataLogger: Episode 98 gestartet
+2025-11-25 20:08:30,541 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000098\images
+2025-11-25 20:08:30,542 INFO DataLogger: Episode 98 beendet: 1834 Timesteps
+2025-11-25 20:08:30,569 INFO FrankaCubeStacking: Episode 98 abgeschlossen: 1834 Schritte
+2025-11-25 20:08:30,996 INFO FrankaCubeStacking: Start Randomization
+2025-11-25 20:08:31,000 INFO DataLogger: Episode 99 gestartet
+2025-11-25 20:10:05,268 INFO DataLogger:   1834 PNG-Bilder gespeichert in dataset\franka_cube_stack\000099\images
+2025-11-25 20:10:05,269 INFO DataLogger: Episode 99 beendet: 1834 Timesteps
+2025-11-25 20:10:05,294 INFO FrankaCubeStacking: Episode 99 abgeschlossen: 1834 Schritte
+2025-11-25 20:10:05,718 INFO DataLogger: Speichere Datensatz: 100 Rollouts, max_len=1834
+2025-11-25 20:10:05,719 INFO DataLogger: State dim: 22, Action dim: 9
+2025-11-25 20:10:05,750 INFO DataLogger: Datensatz gespeichert: dataset\franka_cube_stack
+2025-11-25 20:10:05,751 INFO DataLogger:   states.pth: torch.Size([100, 1834, 22])
+2025-11-25 20:10:05,751 INFO DataLogger:   actions.pth: torch.Size([100, 1834, 9])
+2025-11-25 20:10:05,751 INFO FrankaCubeStacking: Zwischenstand gespeichert: 100 Episoden
+2025-11-25 20:10:05,752 INFO DataLogger: Speichere Datensatz: 100 Rollouts, max_len=1834
+2025-11-25 20:10:05,752 INFO DataLogger: State dim: 22, Action dim: 9
+2025-11-25 20:10:05,784 INFO DataLogger: Datensatz gespeichert: dataset\franka_cube_stack
+2025-11-25 20:10:05,785 INFO DataLogger:   states.pth: torch.Size([100, 1834, 22])
+2025-11-25 20:10:05,785 INFO DataLogger:   actions.pth: torch.Size([100, 1834, 9])
+2025-11-25 20:10:05,786 INFO FrankaCubeStacking: Datensammlung abgeschlossen: 100 Episoden

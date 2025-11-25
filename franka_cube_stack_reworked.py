@@ -40,6 +40,11 @@ from isaacsim.core.api.robots import Robot
 from pxr import UsdGeom, UsdShade, Gf, Sdf, Usd, UsdLux
 import carb
 
+from isaacsim.core.cloner import GridCloner
+from isaacsim.core.cloner import Cloner
+
+
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -62,8 +67,8 @@ NUM_SCENES = 4
 
 # SIDE_CAM_BASE_POS = np.array([2.4, -3.2, 2.2]) # m  
 # SIDE_CAM_EULER = (63.2, 0.0, 33.0) # deg
-SIDE_CAM_BASE_POS = np.array([1.41, -1.67, 1.27]) # m  
-SIDE_CAM_EULER = (58.0, 0.0, 32.05) # deg
+SIDE_CAM_BASE_POS = np.array ([1.6, -2.0, 1.27])       # ([1.41, -1.67, 1.27]) # m  
+SIDE_CAM_EULER = (66.0, 0.0, 32.05) #(58.0, 0.0, 32.05) # deg
 
 SCENE_WIDTH  = 0.60  # m
 SCENE_LENGTH = 0.75  # m
@@ -133,6 +138,19 @@ class Franka_Cube_Stack():
             cube_amount=N_CUBES,
         )
         world.add_task(self.task)  
+
+        # cloner = GridCloner(spacing=3)
+        # # cloner = Cloner()
+        # # task_positions = np.array([[0, 0, 0], [5, 0, 0], [10, 0, 0], [15, 0, 0]])
+
+        # target_paths = cloner.generate_paths("/World/Task", 4)
+        # cloner.clone(source_prim_path=self.task_root, prim_paths=target_paths)
+        # # try:
+        # #     # cloner.clone(source_prim_path="/World/Cube_0", prim_paths=target_paths, positions=task_positions)
+        # #     cloner.clone(source_prim_path=self.task_root, prim_paths=target_paths)
+        # # except Exception as e:
+        # #     log.error(f"Cloning failed: {e}")
+        
 
         world.reset()
         log.info("World Resetted")
@@ -371,6 +389,7 @@ def main():
         articulation.apply_action(action)
 
         if controller.is_done():
+            log.info(f"Episode {seed} done. Taking screenshot and resetting...")
             try:
                 rgba = camera.get_rgba()
                 image_path = f"{env.logdir}/00_Screenshots/Episode_{seed:03d}.png"
