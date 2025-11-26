@@ -55,7 +55,7 @@ WORLD_ROOT = "/World"
 # Datensammlung Konfiguration
 NUM_EPISODES = 100           # Anzahl zu sammelnder Episoden
 DATASET_PATH = "./dataset"
-DATASET_NAME = "franka_cube_stack"
+DATASET_NAME = "franka_cube_stack_ds"
 SAVE_PNG = True              # Speichere alle Bilder auch als PNG
 
 # Kamera
@@ -353,8 +353,15 @@ def main():
     # ================================================================
     # DATA LOGGER SETUP
     # ================================================================
+    current_folder = os.path.basename(os.getcwd())
+
+    if current_folder == "ISAACSIM" or current_folder == "isaacsim":
+        local_save_path = "./00_my_envs/Franka_Cube_Stacking_JW/dataset"
+    else: 
+        local_save_path = DATASET_PATH
+        
     logger = FrankaDataLogger(
-        save_path=DATASET_PATH,
+        save_path=local_save_path,
         object_name=DATASET_NAME,
         image_size=CAM_RESOLUTION,
         max_timesteps=None,  # Unbegrenzt - läuft bis Controller fertig ist
