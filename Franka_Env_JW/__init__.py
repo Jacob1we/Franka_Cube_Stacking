@@ -20,6 +20,14 @@
 
 from Franka_Env_JW.stacking_controller_jw import StackingController_JW
 from Franka_Env_JW.pick_place_controller_jw import PickPlaceController_JW
+from Franka_Env_JW.rmpflow_controller_jw import (
+    RMPFlowController_JW,
+    PRESET_LOCK_WRIST_ROTATION,
+    PRESET_LOCK_UPPER_ARM,
+    PRESET_MINIMAL_MOTION,
+    PRESET_LOCK_FOREARM,
+    PRESET_ESSENTIAL_ONLY,
+)
 # from Franka_Env_JW.stacking_controller import StackingController
 from Franka_Env_JW.stacking_jw import Stacking as Stacking_JW
 from Franka_Env_JW.base_stacking_jw import Stacking as Base_Stacking_JW

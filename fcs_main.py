@@ -36,6 +36,15 @@ from isaacsim.core.cloner import GridCloner
 # Data Logger Import
 from data_logger import FrankaDataLogger, get_franka_state, get_franka_action
 
+from Franka_Env_JW.rmpflow_controller_jw import (
+    RMPFlowController_JW,
+    PRESET_LOCK_WRIST_ROTATION,
+    PRESET_LOCK_UPPER_ARM,
+    PRESET_MINIMAL_MOTION,
+    PRESET_LOCK_FOREARM,
+    PRESET_ESSENTIAL_ONLY,
+)
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
@@ -141,6 +150,9 @@ class Franka_Cube_Stack():
             robot_articulation=self.franka,
             picking_order_cube_names=self.task.get_cube_names(),
             robot_observation_name=robot_name,
+            preferred_joints=PRESET_MINIMAL_MOTION,     # Soft constraint: prefer neutral pose
+            trajectory_resolution=2.0,                  # < 1.0: finer trajectories, > 1.0: coarser trajectories
+            
         )
         return controller
     
