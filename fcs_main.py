@@ -152,11 +152,11 @@ class Franka_Cube_Stack():
             robot_articulation=self.franka,
             picking_order_cube_names=self.task.get_cube_names(),
             robot_observation_name=robot_name,
-            preferred_joints=PRESET_LOCK_TWO,  # Soft constraint: prefer neutral pose   PRESET_MINIMAL_MOTION, PRESET_ESSENTIAL_ONLY
+            preferred_joints=PRESET_LOCK_THREE,  # Soft constraint: prefer neutral pose   PRESET_MINIMAL_MOTION, PRESET_ESSENTIAL_ONLY
             trajectory_resolution=2.0,               # Base resolution (affects ALL phases)
-            air_speed_multiplier=5.0,                # Speed up AIR phases only (0,4,5,8,9)
+            air_speed_multiplier=9.0,                # Speed up AIR phases only (0,4,5,8,9)
             height_adaptive_speed=True,              # DYNAMIC: Slow down near ground!
-            critical_height_threshold=0.5,           # Below xx cm = critical zone
+            critical_height_threshold=0.05,           # Below xx cm = critical zone
             critical_speed_factor=1.0,               # slower in critical zone
         )
         return controller
