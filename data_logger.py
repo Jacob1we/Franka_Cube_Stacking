@@ -245,27 +245,29 @@ class FrankaDataLogger:
             png_folder = episode_path / "images"
             png_folder.mkdir(exist_ok=True)
 
-            crop = 50.0
+            # Jeden n-ten Frame speichern (1 = alle, 10 = jeden 10ten, etc.)
+            frame_step = 50
             
-            for t in range(len(observations)):
-                img_id = t*crop
-
-                if img_id <= len(observations):
-                    img = observations[img_id]  # (H, W, C) uint8
-                    png_path = png_folder / f"frame_{t:04d}.png"
-                    
-                    if HAS_PIL:
-                        # Schneller mit PIL
-                        Image.fromarray(img).save(png_path)
-                    else:
-                        # Fallback mit matplotlib
-                        try:
-                            import matplotlib.pyplot as plt
-                            plt.imsave(str(png_path), img)
-                        except Exception as e:
-                            log.warning(f"PNG-Speicherung fehlgeschlagen: {e}")
+            # Direkt über die gewünschten Indizes iterieren
+            saved_count = 0
+            for img_idx in range(0, len(observations), frame_step):
+                img = observations[img_idx]  # (H, W, C) uint8
+                png_path = png_folder / f"frame_{saved_count:04d}.png"
+                
+                if HAS_PIL:
+                    # Schneller mit PIL
+                    Image.fromarray(img).save(png_path)
+                else:
+                    # Fallback mit matplotlib
+                    try:
+                        import matplotlib.pyplot as plt
+                        plt.imsave(str(png_path), img)
+                    except Exception as e:
+                        log.warning(f"PNG-Speicherung fehlgeschlagen: {e}")
+                
+                saved_count += 1
             
-            log.info(f"  {np.round(len(observations/crop),0)} PNG-Bilder gespeichert in {png_folder}")
+            log.info(f"  {saved_count} PNG-Bilder gespeichert in {png_folder}")
         
         # 3. property_params.pkl
         with open(episode_path / "property_params.pkl", "wb") as f:
