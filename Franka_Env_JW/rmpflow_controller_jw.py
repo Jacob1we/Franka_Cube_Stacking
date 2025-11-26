@@ -1,4 +1,4 @@
-# Custom RMPFlow Controller with Joint Locking and Trajectory Control
+# Custom RMPFlow Controller with Joint Preferences and Trajectory Control
 # Based on isaacsim.robot.manipulators.examples.franka.controllers.rmpflow_controller
 
 from typing import Optional, List, Dict
@@ -12,13 +12,18 @@ from isaacsim.core.utils.types import ArticulationAction
 
 class RMPFlowController_JW(mg.MotionPolicyController):
     """
-    Enhanced RMPFlow Controller with joint locking and trajectory resolution control.
+    Enhanced RMPFlow Controller with joint preferences and trajectory resolution control.
+    
+    IMPORTANT: This controller uses "soft constraints" via cspace_attractor.
+    Joints are NOT hard-locked (which would break IK), but the robot is 
+    attracted towards the preferred joint values in the null-space.
     
     Args:
         name (str): Name of the controller
         robot_articulation (SingleArticulation): The robot articulation
         physics_dt (float): Physics timestep. Defaults to 1.0/60.0
-        locked_joints (Dict[int, float]): Dictionary mapping joint indices to locked values.
+        preferred_joints (Dict[int, float]): Dictionary mapping joint indices to preferred values.
+            The robot will try to stay close to these values in the null-space.
             Franka Panda Joint Indices:
             - 0: panda_joint1 (Shoulder rotation around vertical axis)
             - 1: panda_joint2 (Shoulder tilt forward/backward)
@@ -32,13 +37,16 @@ class RMPFlowController_JW(mg.MotionPolicyController):
             Values > 1.0 = coarser (faster, fewer interpolation points)
             Default: 1.0
     """
+    
+    # Default Franka joint positions (neutral pose)
+    DEFAULT_CSPACE_TARGET = np.array([0.0, -1.0, 0.0, -2.2, 0.0, 2.4, 0.78])
 
     def __init__(
         self, 
         name: str, 
         robot_articulation: SingleArticulation, 
         physics_dt: float = 1.0 / 60.0,
-        locked_joints: Optional[Dict[int, float]] = None,
+        preferred_joints: Optional[Dict[int, float]] = None,
         trajectory_scale: float = 1.0,
     ) -> None:
         self.log = logging.getLogger("RMPFlowController_JW")
@@ -69,26 +77,37 @@ class RMPFlowController_JW(mg.MotionPolicyController):
             robot_orientation=self._default_orientation
         )
         
-        # Store locked joints configuration
-        self._locked_joints = locked_joints or {}
+        # Store preferred joints configuration
+        self._preferred_joints = preferred_joints or {}
         self._trajectory_scale = trajectory_scale
         self._num_joints = 7  # Franka has 7 DOF (excluding gripper)
         
-        # Create the joint mask (True = active, False = locked)
-        self._joint_mask = self._create_joint_mask()
+        # Apply preferred joints as cspace attractor
+        self._update_cspace_attractor()
         
-        self.log.info(f"RMPFlowController_JW initialized with locked_joints={self._locked_joints}, "
+        self.log.info(f"RMPFlowController_JW initialized with preferred_joints={self._preferred_joints}, "
                       f"trajectory_scale={trajectory_scale}")
         
         return
 
-    def _create_joint_mask(self) -> np.ndarray:
-        """Create a boolean mask for active joints (True = can move, False = locked)."""
-        mask = np.ones(self._num_joints, dtype=bool)
-        for joint_idx in self._locked_joints.keys():
-            if 0 <= joint_idx < self._num_joints:
-                mask[joint_idx] = False
-        return mask
+    def _update_cspace_attractor(self) -> None:
+        """
+        Update the cspace attractor based on preferred joint values.
+        The attractor pulls the robot towards these values in the null-space,
+        without affecting the end-effector position.
+        """
+        if len(self._preferred_joints) > 0:
+            # Start with default pose
+            cspace_target = self.DEFAULT_CSPACE_TARGET.copy()
+            
+            # Apply preferred values
+            for joint_idx, preferred_value in self._preferred_joints.items():
+                if 0 <= joint_idx < self._num_joints:
+                    cspace_target[joint_idx] = preferred_value
+            
+            # Set the cspace attractor in RMPFlow
+            self._motion_policy.set_cspace_target(cspace_target)
+            self.log.debug(f"Set cspace attractor: {cspace_target}")
     
     def forward(
         self,
@@ -97,7 +116,7 @@ class RMPFlowController_JW(mg.MotionPolicyController):
     ) -> ArticulationAction:
         """
         Compute joint positions to reach target end-effector pose.
-        Locked joints are replaced with their configured values.
+        The preferred joint values influence the null-space behavior.
         
         Args:
             target_end_effector_position: Target position [x, y, z]
@@ -106,52 +125,43 @@ class RMPFlowController_JW(mg.MotionPolicyController):
         Returns:
             ArticulationAction with computed joint positions
         """
-        # Get the action from parent controller
-        action = mg.MotionPolicyController.forward(
+        # Simply forward to parent - the cspace attractor is already set
+        return mg.MotionPolicyController.forward(
             self,
             target_end_effector_position=target_end_effector_position,
             target_end_effector_orientation=target_end_effector_orientation,
         )
-        
-        # Apply locked joint values
-        if action.joint_positions is not None and len(self._locked_joints) > 0:
-            joint_positions = np.array(action.joint_positions)
-            
-            for joint_idx, locked_value in self._locked_joints.items():
-                if 0 <= joint_idx < len(joint_positions):
-                    joint_positions[joint_idx] = locked_value
-            
-            action = ArticulationAction(
-                joint_positions=joint_positions,
-                joint_velocities=action.joint_velocities,
-                joint_efforts=action.joint_efforts,
-            )
-        
-        return action
 
-    def set_locked_joints(self, locked_joints: Dict[int, float]) -> None:
+    def set_preferred_joints(self, preferred_joints: Dict[int, float]) -> None:
         """
-        Update locked joints configuration at runtime.
+        Update preferred joints configuration at runtime.
         
         Args:
-            locked_joints: Dictionary mapping joint indices to locked values.
+            preferred_joints: Dictionary mapping joint indices to preferred values.
         """
-        self._locked_joints = locked_joints
-        self._joint_mask = self._create_joint_mask()
-        self.log.info(f"Updated locked_joints to {self._locked_joints}")
+        self._preferred_joints = preferred_joints
+        self._update_cspace_attractor()
+        self.log.info(f"Updated preferred_joints to {self._preferred_joints}")
     
-    def unlock_joint(self, joint_idx: int) -> None:
-        """Unlock a specific joint."""
-        if joint_idx in self._locked_joints:
-            del self._locked_joints[joint_idx]
-            self._joint_mask = self._create_joint_mask()
-            self.log.info(f"Unlocked joint {joint_idx}")
+    def set_joint_preference(self, joint_idx: int, value: float) -> None:
+        """Set preference for a specific joint."""
+        self._preferred_joints[joint_idx] = value
+        self._update_cspace_attractor()
+        self.log.info(f"Set joint {joint_idx} preference to {value}")
     
-    def lock_joint(self, joint_idx: int, value: float) -> None:
-        """Lock a specific joint to a value."""
-        self._locked_joints[joint_idx] = value
-        self._joint_mask = self._create_joint_mask()
-        self.log.info(f"Locked joint {joint_idx} to value {value}")
+    def clear_joint_preference(self, joint_idx: int) -> None:
+        """Clear preference for a specific joint."""
+        if joint_idx in self._preferred_joints:
+            del self._preferred_joints[joint_idx]
+            self._update_cspace_attractor()
+            self.log.info(f"Cleared preference for joint {joint_idx}")
+    
+    def clear_all_preferences(self) -> None:
+        """Clear all joint preferences."""
+        self._preferred_joints = {}
+        # Reset to default cspace target
+        self._motion_policy.set_cspace_target(self.DEFAULT_CSPACE_TARGET)
+        self.log.info("Cleared all joint preferences")
 
     def reset(self):
         mg.MotionPolicyController.reset(self)
@@ -159,28 +169,37 @@ class RMPFlowController_JW(mg.MotionPolicyController):
             robot_position=self._default_position, 
             robot_orientation=self._default_orientation
         )
+        # Re-apply cspace attractor after reset
+        self._update_cspace_attractor()
 
 
 # ============================================================================
-# Convenience presets for common configurations
+# Convenience presets for common configurations (Soft Constraints / Attractors)
+# These define preferred joint values that RMPFlow will try to stay close to
+# in the null-space, without affecting end-effector accuracy.
 # ============================================================================
 
-# Preset: Lock wrist rotation for simpler pick-and-place
-PRESET_LOCK_WRIST_ROTATION = {6: 0.0}
+# Preset: Prefer neutral wrist rotation for simpler pick-and-place
+PRESET_LOCK_WRIST_ROTATION = {6: 0.78}  # Neutral wrist rotation
 
-# Preset: Lock upper arm rotation for more predictable paths
+# Preset: Prefer neutral upper arm rotation for more predictable paths
 PRESET_LOCK_UPPER_ARM = {2: 0.0}
 
-# Preset: Lock both wrist and upper arm for very constrained motion
-PRESET_MINIMAL_MOTION = {2: 0.0, 6: 0.0}
+# Preset: Prefer neutral for both wrist and upper arm
+PRESET_MINIMAL_MOTION = {2: 0.0, 6: 0.78}
 
-# Preset: Lock forearm rotation for planar-ish motion
+# Preset: Prefer neutral forearm rotation
 PRESET_LOCK_FOREARM = {4: 0.0}
 
-# Preset: Maximum constraint - only use shoulder, elbow, and wrist tilt
+# Preset: Preferred neutral pose for rotational joints
 PRESET_ESSENTIAL_ONLY = {
-    2: 0.0,   # Upper arm rotation
-    4: 0.0,   # Forearm rotation
-    6: 0.0,   # Wrist rotation
+    2: 0.0,    # Upper arm rotation -> neutral
+    4: 0.0,    # Forearm rotation -> neutral
+    6: 0.78,   # Wrist rotation -> neutral
 }
+
+# Backwards compatibility aliases
+PRESET_PREFER_WRIST_NEUTRAL = PRESET_LOCK_WRIST_ROTATION
+PRESET_PREFER_MINIMAL_ROTATION = PRESET_MINIMAL_MOTION
+PRESET_PREFER_NEUTRAL_POSE = PRESET_ESSENTIAL_ONLY
 

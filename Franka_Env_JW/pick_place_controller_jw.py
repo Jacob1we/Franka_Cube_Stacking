@@ -25,7 +25,10 @@ from isaacsim.robot.manipulators.grippers.parallel_gripper import ParallelGrippe
 
 class PickPlaceController_JW(Base_PickPlaceController):
     """
-    Enhanced Pick and Place Controller with joint locking and trajectory resolution control.
+    Enhanced Pick and Place Controller with joint preferences and trajectory resolution control.
+
+    IMPORTANT: Joint preferences are "soft constraints" - they influence null-space behavior
+    but do NOT prevent the robot from reaching the target position accurately.
 
     Args:
         name (str): Controller name
@@ -34,7 +37,8 @@ class PickPlaceController_JW(Base_PickPlaceController):
         end_effector_initial_height (Optional[float]): Initial EE height. Defaults to 0.3m.
         events_dt (Optional[List[float]]): Time deltas for each phase. 
             Larger values = faster/coarser movement.
-        locked_joints (Optional[Dict[int, float]]): Joints to lock.
+        preferred_joints (Optional[Dict[int, float]]): Preferred joint values (soft constraints).
+            The robot will try to stay close to these values in the null-space.
             Franka joint indices:
             - 0: Shoulder rotation (vertical axis)
             - 1: Shoulder tilt (forward/backward)
@@ -66,10 +70,17 @@ class PickPlaceController_JW(Base_PickPlaceController):
         robot_articulation: SingleArticulation,
         end_effector_initial_height: Optional[float] = None,
         events_dt: Optional[List[float]] = None,
-        locked_joints: Optional[Dict[int, float]] = None,
+        preferred_joints: Optional[Dict[int, float]] = None,
         trajectory_resolution: float = 1.0,
+        # Backwards compatibility alias
+        locked_joints: Optional[Dict[int, float]] = None,
     ) -> None:
         self.log = logging.getLogger("PickAndPlaceController_JW")
+        
+        # Handle backwards compatibility: locked_joints -> preferred_joints
+        if locked_joints is not None and preferred_joints is None:
+            preferred_joints = locked_joints
+            self.log.warning("'locked_joints' is deprecated, use 'preferred_joints' instead")
         
         # Apply trajectory resolution to events_dt
         if events_dt is None:
@@ -80,19 +91,19 @@ class PickPlaceController_JW(Base_PickPlaceController):
         scaled_events_dt = [dt * trajectory_resolution for dt in events_dt]
         
         self.log.info(f"PickPlaceController_JW initialized:")
-        self.log.info(f"  - locked_joints: {locked_joints}")
+        self.log.info(f"  - preferred_joints: {preferred_joints}")
         self.log.info(f"  - trajectory_resolution: {trajectory_resolution}")
         self.log.info(f"  - events_dt: {scaled_events_dt}")
         
         # Store references for runtime modification
-        self._locked_joints = locked_joints
+        self._preferred_joints = preferred_joints
         self._trajectory_resolution = trajectory_resolution
         
-        # Create the RMPFlow controller with joint locking
+        # Create the RMPFlow controller with joint preferences
         self._rmpflow_controller = RMPFlowController_JW(
             name=name + "_cspace_controller", 
             robot_articulation=robot_articulation,
-            locked_joints=locked_joints,
+            preferred_joints=preferred_joints,
             trajectory_scale=trajectory_resolution,
         )
         
@@ -106,18 +117,22 @@ class PickPlaceController_JW(Base_PickPlaceController):
         )
         return
     
-    def set_locked_joints(self, locked_joints: Dict[int, float]) -> None:
-        """Update locked joints at runtime."""
-        self._locked_joints = locked_joints
-        self._rmpflow_controller.set_locked_joints(locked_joints)
+    def set_preferred_joints(self, preferred_joints: Dict[int, float]) -> None:
+        """Update preferred joints at runtime (soft constraints)."""
+        self._preferred_joints = preferred_joints
+        self._rmpflow_controller.set_preferred_joints(preferred_joints)
     
-    def lock_joint(self, joint_idx: int, value: float) -> None:
-        """Lock a specific joint to a value at runtime."""
-        self._rmpflow_controller.lock_joint(joint_idx, value)
+    def set_joint_preference(self, joint_idx: int, value: float) -> None:
+        """Set preference for a specific joint at runtime."""
+        self._rmpflow_controller.set_joint_preference(joint_idx, value)
     
-    def unlock_joint(self, joint_idx: int) -> None:
-        """Unlock a specific joint at runtime."""
-        self._rmpflow_controller.unlock_joint(joint_idx)
+    def clear_joint_preference(self, joint_idx: int) -> None:
+        """Clear preference for a specific joint at runtime."""
+        self._rmpflow_controller.clear_joint_preference(joint_idx)
+    
+    def clear_all_preferences(self) -> None:
+        """Clear all joint preferences."""
+        self._rmpflow_controller.clear_all_preferences()
     
     def set_trajectory_resolution(self, resolution: float) -> None:
         """
@@ -128,3 +143,17 @@ class PickPlaceController_JW(Base_PickPlaceController):
         new_events_dt = [dt * resolution for dt in self.DEFAULT_EVENTS_DT]
         self._events_dt = new_events_dt
         self.log.info(f"Trajectory resolution set to {resolution}, new events_dt: {new_events_dt}")
+    
+    # Backwards compatibility aliases
+    def set_locked_joints(self, locked_joints: Dict[int, float]) -> None:
+        """Deprecated: Use set_preferred_joints instead."""
+        self.log.warning("set_locked_joints is deprecated, use set_preferred_joints")
+        self.set_preferred_joints(locked_joints)
+    
+    def lock_joint(self, joint_idx: int, value: float) -> None:
+        """Deprecated: Use set_joint_preference instead."""
+        self.set_joint_preference(joint_idx, value)
+    
+    def unlock_joint(self, joint_idx: int) -> None:
+        """Deprecated: Use clear_joint_preference instead."""
+        self.clear_joint_preference(joint_idx)
