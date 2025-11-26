@@ -188,6 +188,10 @@ PRESET_LOCK_UPPER_ARM = {2: 0.0}
 # Preset: Prefer neutral for both wrist and upper arm
 PRESET_MINIMAL_MOTION = {2: 0.0, 6: 0.78}
 
+PRESET_LOCK_TWO  = {2: 0.0, 6: 0.0}
+
+PRESET_LOCK_THREE = {2: 0.0, 4: 0.0, 6: 0.0}
+
 # Preset: Prefer neutral forearm rotation
 PRESET_LOCK_FOREARM = {4: 0.0}
 

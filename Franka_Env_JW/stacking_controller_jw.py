@@ -26,6 +26,19 @@ class StackingController_JW(Base_StackingController):
     They influence the robot's null-space behavior to prefer certain joint configurations,
     but do NOT prevent the robot from reaching target positions accurately.
 
+    Phase Overview:
+    ---------------
+    Phase 0: Move EE above cube     [AIR]      - can be fast
+    Phase 1: Lower EE to cube       [CRITICAL] - must be precise for gripping
+    Phase 2: Wait for settle        [WAIT]     - fixed timing
+    Phase 3: Close gripper          [GRIP]     - fixed timing
+    Phase 4: Lift EE up             [AIR]      - can be fast
+    Phase 5: Move to target XY      [AIR]      - can be fast
+    Phase 6: Lower to place         [CRITICAL] - must be precise for placing
+    Phase 7: Open gripper           [RELEASE]  - fixed timing
+    Phase 8: Lift EE up             [AIR]      - can be fast
+    Phase 9: Return to start        [AIR]      - can be fast
+
     Args:
         name (str): Controller name
         gripper (ParallelGripper): Gripper controller
@@ -33,26 +46,21 @@ class StackingController_JW(Base_StackingController):
         picking_order_cube_names (List[str]): Order of cubes to pick
         robot_observation_name (str): Name for robot observations
         preferred_joints (Optional[Dict[int, float]]): Preferred joint values (soft constraints).
-            The robot will try to stay close to these values in the null-space.
-            Available presets (import from rmpflow_controller_jw):
-            - PRESET_LOCK_WRIST_ROTATION: Prefer neutral wrist rotation
-            - PRESET_LOCK_UPPER_ARM: Prefer neutral upper arm rotation
-            - PRESET_MINIMAL_MOTION: Prefer neutral for wrist + upper arm
-            - PRESET_LOCK_FOREARM: Prefer neutral forearm rotation
-            - PRESET_ESSENTIAL_ONLY: Prefer neutral for all rotational joints
-            
-            Manual specification example:
-            {2: 0.0, 4: 0.0, 6: 0.78}  # Prefer specific joint values
-            
-        trajectory_resolution (float): Controls trajectory granularity.
-            < 1.0: Finer trajectory (more interpolation points, smoother but slower)
-            > 1.0: Coarser trajectory (fewer points, faster execution)
-            Default: 1.0
+            Available presets: PRESET_MINIMAL_MOTION, PRESET_ESSENTIAL_ONLY, etc.
+        trajectory_resolution (float): Controls ALL phases uniformly.
+            > 1.0: Coarser/faster. Default: 1.0
+        air_speed_multiplier (float): Extra speed for AIR phases only (0, 4, 5, 8, 9).
+            Does NOT affect critical phases (1, 6) or grip phases (2, 3, 7).
+            Example: air_speed_multiplier=3.0 → air movements 3x faster
+        height_adaptive_speed (bool): Enable DYNAMIC speed based on Z-height!
+            Points near the ground automatically get finer resolution.
+            The lowest points are ALWAYS preserved. Default: False
+        critical_height_threshold (float): Height (m) below which points are critical.
+            Default: 0.15m (15cm above ground)
+        critical_speed_factor (float): Speed factor for critical heights (0.0-1.0).
+            Lower = slower/finer at low heights. Default: 0.25 (4x slower near ground)
         events_dt (Optional[List[float]]): Custom phase timings.
-            Presets available in PickPlaceController_JW:
-            - DEFAULT_EVENTS_DT: Balanced (default)
-            - FAST_EVENTS_DT: Faster execution
-            - FINE_EVENTS_DT: Smoother motion
+            Presets: DEFAULT_EVENTS_DT, FAST_EVENTS_DT, FINE_EVENTS_DT, OPTIMIZED_EVENTS_DT
     """
 
     def __init__(
@@ -64,6 +72,10 @@ class StackingController_JW(Base_StackingController):
         robot_observation_name: str,
         preferred_joints: Optional[Dict[int, float]] = None,
         trajectory_resolution: float = 1.0,
+        air_speed_multiplier: float = 1.0,
+        height_adaptive_speed: bool = False,
+        critical_height_threshold: float = 0.15,
+        critical_speed_factor: float = 0.25,
         events_dt: Optional[List[float]] = None,
         # Backwards compatibility
         locked_joints: Optional[Dict[int, float]] = None,
@@ -78,10 +90,17 @@ class StackingController_JW(Base_StackingController):
         self.log.info(f"Initializing StackingController_JW '{name}':")
         self.log.info(f"  - preferred_joints: {preferred_joints}")
         self.log.info(f"  - trajectory_resolution: {trajectory_resolution}")
+        self.log.info(f"  - air_speed_multiplier: {air_speed_multiplier}")
+        self.log.info(f"  - height_adaptive_speed: {height_adaptive_speed}")
+        if height_adaptive_speed:
+            self.log.info(f"    - critical_height_threshold: {critical_height_threshold}m")
+            self.log.info(f"    - critical_speed_factor: {critical_speed_factor}")
         
         # Store for runtime access
         self._preferred_joints = preferred_joints
         self._trajectory_resolution = trajectory_resolution
+        self._air_speed_multiplier = air_speed_multiplier
+        self._height_adaptive_speed = height_adaptive_speed
         
         # Create the pick-place controller with new parameters
         self._pick_place_ctrl = PickPlaceController(
@@ -90,6 +109,10 @@ class StackingController_JW(Base_StackingController):
             robot_articulation=robot_articulation,
             preferred_joints=preferred_joints,
             trajectory_resolution=trajectory_resolution,
+            air_speed_multiplier=air_speed_multiplier,
+            height_adaptive_speed=height_adaptive_speed,
+            critical_height_threshold=critical_height_threshold,
+            critical_speed_factor=critical_speed_factor,
             events_dt=events_dt,
         )
         

@@ -30,6 +30,19 @@ class PickPlaceController_JW(Base_PickPlaceController):
     IMPORTANT: Joint preferences are "soft constraints" - they influence null-space behavior
     but do NOT prevent the robot from reaching the target position accurately.
 
+    Phase Overview (for understanding speed parameters):
+    ---------------------------------------------------
+    Phase 0: Move EE above cube at initial height     [AIR - can be fast]
+    Phase 1: Lower EE down to cube                    [CRITICAL - must be precise]
+    Phase 2: Wait for inertia to settle               [WAIT]
+    Phase 3: Close gripper                            [GRIP]
+    Phase 4: Lift EE up with cube                     [AIR - can be fast]
+    Phase 5: Move EE toward target XY                 [AIR - can be fast]
+    Phase 6: Lower EE to place cube                   [CRITICAL - must be precise]
+    Phase 7: Open gripper                             [RELEASE]
+    Phase 8: Lift EE up                               [AIR - can be fast]
+    Phase 9: Return EE to starting position           [AIR - can be fast]
+
     Args:
         name (str): Controller name
         gripper (ParallelGripper): Gripper controller
@@ -38,30 +51,38 @@ class PickPlaceController_JW(Base_PickPlaceController):
         events_dt (Optional[List[float]]): Time deltas for each phase. 
             Larger values = faster/coarser movement.
         preferred_joints (Optional[Dict[int, float]]): Preferred joint values (soft constraints).
-            The robot will try to stay close to these values in the null-space.
-            Franka joint indices:
-            - 0: Shoulder rotation (vertical axis)
-            - 1: Shoulder tilt (forward/backward)
-            - 2: Upper arm rotation
-            - 3: Elbow
-            - 4: Forearm rotation  
-            - 5: Wrist tilt
-            - 6: Wrist rotation (end-effector orientation)
-        trajectory_resolution (float): Controls trajectory granularity.
-            Values < 1.0 = finer trajectory (more points, smoother but slower)
-            Values > 1.0 = coarser trajectory (fewer points, faster)
-            Default: 1.0
+        trajectory_resolution (float): Controls ALL phases uniformly.
+            Values > 1.0 = faster/coarser. Default: 1.0
+        air_speed_multiplier (float): Extra speed boost for AIR phases only (0, 4, 5, 8, 9).
+            Does NOT affect critical gripper phases (1, 6) or grip/release phases (2, 3, 7).
+            Values > 1.0 = faster air movements. Default: 1.0
+        height_adaptive_speed (bool): Enable dynamic speed based on Z-height.
+            Points near the ground automatically get finer resolution.
+            Default: False
+        critical_height_threshold (float): Height (m) below which points are critical.
+            Only used when height_adaptive_speed=True. Default: 0.15m
+        critical_speed_factor (float): Speed factor for critical heights (0.0-1.0).
+            Lower = slower/finer at low heights. Default: 0.25
     """
+
+    # Phase indices for different movement types
+    AIR_PHASES = [0, 4, 5, 8, 9]      # Movements in the air (can be fast)
+    CRITICAL_PHASES = [1, 6]          # Approaching/placing (must be precise)
+    GRIPPER_PHASES = [2, 3, 7]        # Wait/grip/release (fixed timing)
 
     # Default events_dt values (controls speed of each phase)
     # Lower values = slower movement = finer trajectory
+    # [0:above, 1:lower, 2:wait, 3:grip, 4:lift, 5:move_xy, 6:place, 7:release, 8:lift, 9:return]
     DEFAULT_EVENTS_DT = [0.008, 0.005, 1, 0.1, 0.05, 0.05, 0.0025, 1, 0.008, 0.08]
     
-    # Preset for fast/coarse trajectory
+    # Preset for fast/coarse trajectory (all phases)
     FAST_EVENTS_DT = [0.016, 0.01, 1, 0.15, 0.1, 0.1, 0.005, 1, 0.016, 0.15]
     
-    # Preset for slow/fine trajectory
+    # Preset for slow/fine trajectory (all phases)
     FINE_EVENTS_DT = [0.004, 0.0025, 1, 0.05, 0.025, 0.025, 0.00125, 1, 0.004, 0.04]
+    
+    # Preset: Fast air, precise gripper (RECOMMENDED for data collection)
+    OPTIMIZED_EVENTS_DT = [0.04, 0.005, 1, 0.1, 0.1, 0.1, 0.0025, 1, 0.04, 0.15]
 
     def __init__(
         self,
@@ -72,6 +93,10 @@ class PickPlaceController_JW(Base_PickPlaceController):
         events_dt: Optional[List[float]] = None,
         preferred_joints: Optional[Dict[int, float]] = None,
         trajectory_resolution: float = 1.0,
+        air_speed_multiplier: float = 1.0,
+        height_adaptive_speed: bool = False,
+        critical_height_threshold: float = 0.15,
+        critical_speed_factor: float = 0.25,
         # Backwards compatibility alias
         locked_joints: Optional[Dict[int, float]] = None,
     ) -> None:
@@ -85,19 +110,34 @@ class PickPlaceController_JW(Base_PickPlaceController):
         # Apply trajectory resolution to events_dt
         if events_dt is None:
             events_dt = self.DEFAULT_EVENTS_DT.copy()
+        else:
+            events_dt = list(events_dt)  # Make a copy
         
-        # Scale events_dt by trajectory_resolution
-        # Higher resolution value = faster = multiply dt values
+        # Scale events_dt by trajectory_resolution (affects ALL phases)
         scaled_events_dt = [dt * trajectory_resolution for dt in events_dt]
+        
+        # Apply air_speed_multiplier ONLY to air phases
+        if air_speed_multiplier != 1.0:
+            for phase_idx in self.AIR_PHASES:
+                if phase_idx < len(scaled_events_dt):
+                    scaled_events_dt[phase_idx] *= air_speed_multiplier
         
         self.log.info(f"PickPlaceController_JW initialized:")
         self.log.info(f"  - preferred_joints: {preferred_joints}")
         self.log.info(f"  - trajectory_resolution: {trajectory_resolution}")
+        self.log.info(f"  - air_speed_multiplier: {air_speed_multiplier}")
+        self.log.info(f"  - height_adaptive_speed: {height_adaptive_speed}")
+        if height_adaptive_speed:
+            self.log.info(f"    - critical_height_threshold: {critical_height_threshold}m")
+            self.log.info(f"    - critical_speed_factor: {critical_speed_factor}")
         self.log.info(f"  - events_dt: {scaled_events_dt}")
+        self.log.info(f"    (air phases {self.AIR_PHASES} boosted, critical phases {self.CRITICAL_PHASES} preserved)")
         
         # Store references for runtime modification
         self._preferred_joints = preferred_joints
         self._trajectory_resolution = trajectory_resolution
+        self._air_speed_multiplier = air_speed_multiplier
+        self._base_events_dt = events_dt  # Store original for recalculation
         
         # Create the RMPFlow controller with joint preferences
         self._rmpflow_controller = RMPFlowController_JW(
@@ -114,6 +154,9 @@ class PickPlaceController_JW(Base_PickPlaceController):
             gripper=gripper,
             end_effector_initial_height=end_effector_initial_height,
             events_dt=scaled_events_dt,
+            height_adaptive_speed=height_adaptive_speed,
+            critical_height_threshold=critical_height_threshold,
+            critical_speed_factor=critical_speed_factor,
         )
         return
     

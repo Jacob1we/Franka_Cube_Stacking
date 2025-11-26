@@ -51,6 +51,12 @@ class Base_PickPlaceController_JW(BaseController):
         gripper (Gripper): a gripper controller for open/ close actions.
         end_effector_initial_height (typing.Optional[float], optional): end effector initial picking height to start from (more info in phases above). If not defined, set to 0.3 meters. Defaults to None.
         events_dt (typing.Optional[typing.List[float]], optional): Dt of each phase/ event step. 10 phases dt has to be defined. Defaults to None.
+        height_adaptive_speed (bool): If True, dynamically adjust speed based on Z-height.
+            Points near the ground are always processed with fine resolution.
+        critical_height_threshold (float): Height (in meters) below which points are considered critical.
+            Default: 0.15m (15cm above ground)
+        critical_speed_factor (float): Speed reduction factor for critical (low) heights.
+            Default: 0.25 (4x slower when near ground)
 
     Raises:
         Exception: events dt need to be list or numpy array
@@ -64,6 +70,9 @@ class Base_PickPlaceController_JW(BaseController):
         gripper: Gripper,
         end_effector_initial_height: typing.Optional[float] = None,
         events_dt: typing.Optional[typing.List[float]] = None,
+        height_adaptive_speed: bool = False,
+        critical_height_threshold: float = 0.15,
+        critical_speed_factor: float = 0.25,
     ) -> None:
         BaseController.__init__(self, name=name)
         self._event = 0
@@ -82,12 +91,26 @@ class Base_PickPlaceController_JW(BaseController):
                 self._events_dt = self._events_dt.tolist()
             if len(self._events_dt) > 10:
                 raise Exception("events dt length must be less than 10")
+        
+        # Store base events_dt for adaptive speed calculation
+        self._base_events_dt = list(self._events_dt)
+        
         self._cspace_controller = cspace_controller
         self._gripper = gripper
         self._pause = False
+        
+        # Height-adaptive speed settings
+        self._height_adaptive_speed = height_adaptive_speed
+        self._critical_height_threshold = critical_height_threshold
+        self._critical_speed_factor = critical_speed_factor
+        self._current_target_height = None  # Track current target height
 
         self.log = logging.getLogger("Base_PickAndPlaceController")
         self.log.info("Initiation of Base Pick and Place Controller is Done")
+        if height_adaptive_speed:
+            self.log.info(f"  Height-adaptive speed enabled:")
+            self.log.info(f"    - Critical height threshold: {critical_height_threshold}m")
+            self.log.info(f"    - Critical speed factor: {critical_speed_factor}")
         
         return
 
@@ -149,6 +172,10 @@ class Base_PickPlaceController_JW(BaseController):
                 placing_position[0], placing_position[1], self._current_target_x, self._current_target_y
             )
             target_height = self._get_target_hs(placing_position[2])
+            
+            # Store current target height for adaptive speed calculation
+            self._current_target_height = target_height
+            
             position_target = np.array(
                 [
                     interpolated_xy[0] + end_effector_offset[0],
@@ -164,11 +191,53 @@ class Base_PickPlaceController_JW(BaseController):
             target_joint_positions = self._cspace_controller.forward(
                 target_end_effector_position=position_target, target_end_effector_orientation=end_effector_orientation
             )
-        self._t += self._events_dt[self._event]
+        
+        # Get effective dt (with height-adaptive adjustment if enabled)
+        effective_dt = self._get_effective_dt()
+        
+        self._t += effective_dt
         if self._t >= 1.0:
             self._event += 1
             self._t = 0
         return target_joint_positions
+    
+    def _get_effective_dt(self) -> float:
+        """
+        Get the effective dt for the current step, with optional height-adaptive adjustment.
+        
+        When height_adaptive_speed is enabled:
+        - Points near the ground (below critical_height_threshold) use slower speed
+        - Points high in the air use the normal (possibly accelerated) speed
+        - Smooth transition between the two based on height
+        
+        Returns:
+            float: Effective dt value for this step
+        """
+        base_dt = self._events_dt[self._event]
+        
+        if not self._height_adaptive_speed:
+            return base_dt
+        
+        # For gripper phases (2, 3, 7), don't apply height adjustment
+        if self._event in [2, 3, 7]:
+            return base_dt
+        
+        # If we don't have a target height yet, use base dt
+        if self._current_target_height is None:
+            return base_dt
+        
+        # Calculate height factor: 0.0 at ground, 1.0 at threshold and above
+        height_ratio = min(1.0, self._current_target_height / self._critical_height_threshold)
+        
+        # Smooth interpolation using cosine (smoother transition)
+        # At height=0: factor = critical_speed_factor (slow)
+        # At height>=threshold: factor = 1.0 (normal speed)
+        smooth_factor = self._critical_speed_factor + (1.0 - self._critical_speed_factor) * height_ratio
+        
+        # Apply factor: lower factor = smaller dt = finer trajectory
+        effective_dt = base_dt * smooth_factor
+        
+        return effective_dt
 
     def _get_interpolated_xy(self, target_x, target_y, current_x, current_y):
         alpha = self._get_alpha()
@@ -237,11 +306,13 @@ class Base_PickPlaceController_JW(BaseController):
         self._cspace_controller.reset()
         self._event = 0
         self._t = 0
+        self._current_target_height = None  # Reset height tracking
         if end_effector_initial_height is not None:
             self._h1 = end_effector_initial_height
         self._pause = False
         if events_dt is not None:
             self._events_dt = events_dt
+            self._base_events_dt = list(events_dt)
             if not isinstance(self._events_dt, np.ndarray) and not isinstance(self._events_dt, list):
                 raise Exception("event velocities need to be list or numpy array")
             elif isinstance(self._events_dt, np.ndarray):
@@ -249,6 +320,31 @@ class Base_PickPlaceController_JW(BaseController):
             if len(self._events_dt) > 10:
                 raise Exception("events dt length must be less than 10")
         return
+    
+    def set_height_adaptive_speed(
+        self, 
+        enabled: bool,
+        critical_height_threshold: typing.Optional[float] = None,
+        critical_speed_factor: typing.Optional[float] = None,
+    ) -> None:
+        """
+        Enable or disable height-adaptive speed at runtime.
+        
+        Args:
+            enabled: Whether to enable height-adaptive speed
+            critical_height_threshold: Height below which points are critical (meters)
+            critical_speed_factor: Speed factor for critical heights (0.0-1.0)
+        """
+        self._height_adaptive_speed = enabled
+        if critical_height_threshold is not None:
+            self._critical_height_threshold = critical_height_threshold
+        if critical_speed_factor is not None:
+            self._critical_speed_factor = critical_speed_factor
+        
+        self.log.info(f"Height-adaptive speed: {enabled}")
+        if enabled:
+            self.log.info(f"  - Critical threshold: {self._critical_height_threshold}m")
+            self.log.info(f"  - Critical speed factor: {self._critical_speed_factor}")
 
     def is_done(self) -> bool:
         """
