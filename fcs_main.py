@@ -150,7 +150,9 @@ class Franka_Cube_Stack():
             robot_articulation=self.franka,
             picking_order_cube_names=self.task.get_cube_names(),
             robot_observation_name=robot_name,
-            preferred_joints=PRESET_MINIMAL_MOTION,  # Soft constraint: prefer neutral pose
+            preferred_joints=PRESET_MINIMAL_MOTION,     # Soft constraint: prefer neutral pose
+            trajectory_resolution=2.0,                  # < 1.0: finer trajectories, > 1.0: coarser trajectories
+            
         )
         return controller
     
