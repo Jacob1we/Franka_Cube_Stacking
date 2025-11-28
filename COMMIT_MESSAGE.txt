@@ -1,0 +1,266 @@
+feat: Implementiere Datensatz-Generierung mit Validierung und Parallelisierung
+
+Datum: 2024-11-28
+Autor: [Dein Name]
+
+================================================================================
+ÜBERSICHT
+================================================================================
+
+Diese Änderungen implementieren ein vollständiges System zur Generierung von
+Trainingsdatensätzen für das dino_wm World Model Training. Das System ist
+kompatibel mit dem deformable/rope Datensatz-Format und unterstützt sowohl
+Single- als auch Parallel-Mode für effiziente Datensammlung.
+
+================================================================================
+NEUE DATEIEN
+================================================================================
+
+1. data_logger.py
+   - FrankaDataLogger Klasse für strukturierte Datenspeicherung
+   - Speichert: RGB-Bilder (obses.pth), States (states.pth), Actions (actions.pth)
+   - Optionale PNG-Speicherung für visuelle Inspektion
+   - Kompatibel mit DeformDataset Format aus dino_wm
+
+2. fcs_main.py (aktualisiert)
+   - Single-Environment Datensammlung
+   - Integrierter DataLogger
+   - Episode-Validierung vor Speicherung
+   - Fehlgeschlagene Seeds werden geloggt
+
+3. fcs_main_parallel.py (neu)
+   - Multi-Environment parallele Datensammlung (Grid-Layout)
+   - Gleiche Klassenstruktur wie fcs_main.py
+   - N-fache Beschleunigung der Datensammlung
+   - Individuelle Logger pro Environment
+
+================================================================================
+GEÄNDERTE DATEIEN - DETAILS
+================================================================================
+
+------------------------------------------------------------------------------
+data_logger.py
+------------------------------------------------------------------------------
+
+NEUE KLASSE: FrankaDataLogger
+  - __init__(): Initialisiert Logger mit Pfad, Bildgröße, etc.
+  - start_episode(): Startet neue Episode für Logging
+  - log_step(): Loggt einen Timestep (RGB, State, Action)
+  - end_episode(): Beendet Episode und speichert Daten
+  - discard_episode(): NEU - Verwirft fehlgeschlagene Episode
+  - save_dataset(): Speichert gesamten Datensatz (states.pth, actions.pth)
+  - set_camera_calibration(): Speichert Kamera-Matrizen
+
+NEUE HILFSFUNKTIONEN:
+  - get_franka_state(): Extrahiert 22D State-Vektor vom Roboter
+    - [0:3]: End-Effector Position (x, y, z)
+    - [3:7]: End-Effector Orientierung (Quaternion)
+    - [7]: Gripper-Öffnung
+    - [8:15]: Joint-Positionen (7 DOF)
+    - [15:22]: Joint-Velocities (7 DOF)
+  
+  - get_franka_action(): Extrahiert 9D Action-Vektor
+    - [0:7]: Joint-Befehle
+    - [7:9]: Gripper-Befehle
+
+DATENSATZ-STRUKTUR:
+  dataset/
+  └── franka_cube_stack_ds/
+      ├── states.pth          # (N, T, 22) float32
+      ├── actions.pth         # (N, T, 9) float32
+      ├── cameras/
+      │   ├── intrinsic.npy   # (3, 3)
+      │   └── extrinsic.npy   # (4, 4)
+      ├── metadata.pkl
+      ├── failed_seeds.txt    # NEU: Fehlgeschlagene Seeds
+      ├── 000000/
+      │   ├── obses.pth       # (T, 256, 256, 3) uint8
+      │   ├── images/         # PNG-Bilder (optional)
+      │   │   ├── frame_0000.png
+      │   │   └── ...
+      │   └── property_params.pkl
+      └── ...
+
+------------------------------------------------------------------------------
+fcs_main.py
+------------------------------------------------------------------------------
+
+NEUE KONSTANTEN:
+  - XY_TOLERANCE = 0.03      # 3 cm Toleranz für X/Y Position
+  - Z_MIN_HEIGHT = 0.02      # 2 cm Mindesthöhe über Boden
+  - Z_STACK_TOLERANCE = 0.02 # Toleranz für Z-Stacking
+
+NEUE FUNKTION: validate_stacking(task, target_position)
+  Prüft am Ende jeder Episode:
+  1. Alle Würfel in X/Y nahe der Zielposition (±XY_TOLERANCE)
+  2. Alle Würfel über dem Boden (z > Z_MIN_HEIGHT)
+  3. Würfel sind übereinander gestapelt (korrekte Z-Abstände)
+  
+  Returns: (is_valid: bool, reason: str)
+
+GEÄNDERTE HAUPTSCHLEIFE:
+  - Validierung nach jeder Episode
+  - Erfolgreiche Episoden werden gespeichert
+  - Fehlgeschlagene Episoden werden verworfen (discard_episode)
+  - failed_seeds Liste wird geführt
+  - Finale Statistik mit Erfolgsrate
+
+NEUE AUSGABEN:
+  - ✅ Episode X erfolgreich: Y Schritte (Seed Z)
+  - ❌ Episode verworfen (Seed X): [Grund]
+  - Finale Statistik: Erfolgsrate, fehlgeschlagene Seeds
+
+------------------------------------------------------------------------------
+fcs_main_parallel.py
+------------------------------------------------------------------------------
+
+NEUE KONSTANTEN (zusätzlich zu fcs_main.py):
+  - NUM_ENVS = 4             # Anzahl paralleler Umgebungen
+  - ENV_SPACING = 2.5        # Abstand zwischen Umgebungen (Meter)
+
+KLASSEN-ERWEITERUNGEN:
+  - Franka_Cube_Stack erhält env_idx und offset Parameter
+  - setup_world() akzeptiert shared World für parallelen Modus
+  - add_scene_cam() berücksichtigt offset für Kamera-Position
+  - set_scene_light() berücksichtigt offset für Licht-Position
+
+NEUE FUNKTION: compute_grid_offsets(num_envs, spacing)
+  Berechnet Grid-Layout für parallele Umgebungen:
+  - 4 Envs → 2x2 Grid
+  - 9 Envs → 3x3 Grid
+  - etc.
+
+PARALLELE DATENSAMMLUNG:
+  - Mehrere Franka-Roboter in einem Physics Step
+  - Jede Env hat eigenen Controller, Kamera, Logger
+  - Unabhängige Episode-Zählung pro Env
+  - Gemeinsame failed_seeds Liste
+  - Separate Datensätze pro Env (franka_cube_stack_ds_env0, _env1, ...)
+
+================================================================================
+VALIDIERUNG - TECHNISCHE DETAILS
+================================================================================
+
+Die validate_stacking() Funktion prüft drei Kriterien:
+
+1. XY-POSITION:
+   - Für jeden Würfel: |cube_x - target_x| < XY_TOLERANCE
+   - Für jeden Würfel: |cube_y - target_y| < XY_TOLERANCE
+   - Fehler: "Würfel X nicht an Zielposition (dx=..., dy=...)"
+
+2. HÖHE ÜBER BODEN:
+   - Für jeden Würfel: cube_z > Z_MIN_HEIGHT
+   - Erkennt wenn Würfel durch Boden gefallen ist
+   - Fehler: "Würfel X unter Boden (z=...)"
+
+3. STACKING-QUALITÄT:
+   - Z-Werte werden sortiert
+   - Aufeinanderfolgende Würfel müssen Mindestabstand haben
+   - z_diff >= CUBE_SIDE * 0.5 - Z_STACK_TOLERANCE
+   - Fehler: "Würfel nicht korrekt gestapelt (z_diff=...)"
+
+================================================================================
+VERWENDUNG
+================================================================================
+
+SINGLE MODE:
+  $ python fcs_main.py
+  
+  Konstanten in fcs_main.py:
+    NUM_EPISODES = 100      # Anzahl erfolgreicher Episoden
+    SAVE_PNG = True         # PNG-Bilder speichern
+
+PARALLEL MODE:
+  $ python fcs_main_parallel.py
+  
+  Konstanten in fcs_main_parallel.py:
+    NUM_ENVS = 4            # 4 parallele Roboter
+    NUM_EPISODES = 100      # 25 pro Env (100/4)
+    ENV_SPACING = 2.5       # Meter zwischen Envs
+
+================================================================================
+AUSGABE-DATEIEN
+================================================================================
+
+Nach erfolgreicher Datensammlung:
+
+dataset/franka_cube_stack_ds/
+├── states.pth              # Alle States gepaddet (N, max_T, 22)
+├── actions.pth             # Alle Actions gepaddet (N, max_T, 9)
+├── metadata.pkl            # Metadaten (n_rollouts, episode_lengths, etc.)
+├── failed_seeds.txt        # Liste fehlgeschlagener Seeds
+├── cameras/
+│   ├── intrinsic.npy
+│   └── extrinsic.npy
+├── 000000/                 # Episode 0
+│   ├── obses.pth           # (T, H, W, 3) Bilder
+│   ├── images/             # PNG-Ordner
+│   └── property_params.pkl # Episode-Parameter (seed, cube_positions, etc.)
+├── 000001/
+└── ...
+
+failed_seeds.txt Format:
+  # Fehlgeschlagene Seeds - Würfel nicht korrekt gestapelt
+  # Datum: 2024-11-28T15:30:00
+  # Anzahl: 5
+  
+  123
+  456
+  789
+  ...
+
+================================================================================
+BREAKING CHANGES
+================================================================================
+
+Keine - Bestehende Datensätze bleiben kompatibel.
+
+================================================================================
+ABHÄNGIGKEITEN
+================================================================================
+
+Erforderlich:
+  - torch (PyTorch)
+  - numpy
+  - PIL (optional, für schnellere PNG-Speicherung)
+
+Optional:
+  - h5py (für H5-Dateien, falls benötigt)
+  - scipy (für Kamera-Kalibrierung)
+
+================================================================================
+TESTS
+================================================================================
+
+Manuelle Tests durchgeführt:
+  - [x] Single-Mode Datensammlung
+  - [x] Parallel-Mode mit 4 Envs
+  - [x] Validierung erkennt fehlerhafte Episodes
+  - [x] PNG-Speicherung funktioniert
+  - [x] Datensatz-Struktur kompatibel mit DeformDataset
+
+================================================================================
+BEKANNTE EINSCHRÄNKUNGEN
+================================================================================
+
+1. Controller-Fehler werden nicht behoben, nur erkannt
+   - Manche Seeds führen zu falschen Greifbewegungen
+   - Diese werden durch Validierung herausgefiltert
+
+2. Parallel-Mode erfordert genügend GPU-Speicher
+   - 4 Kameras + 4 Roboter benötigen mehr VRAM
+
+3. PNG-Speicherung kann langsam sein bei vielen Frames
+   - frame_step in data_logger.py anpassen (aktuell: jeden 50. Frame)
+
+================================================================================
+ZUKÜNFTIGE VERBESSERUNGEN
+================================================================================
+
+- [ ] Controller-Bugs direkt beheben statt filtern
+- [ ] Automatisches Retry bei fehlgeschlagenen Seeds
+- [ ] Depth-Bilder optional speichern
+- [ ] Tensorboard Integration für Monitoring
+
+================================================================================
+

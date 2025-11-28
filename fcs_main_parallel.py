@@ -1,5 +1,7 @@
 """
 Franka Cube Stacking mit Data Logging für dino_wm Training.
+PARALLEL VERSION - Unterstützt mehrere Umgebungen gleichzeitig.
+
 Basiert auf franka_cube_stack_reworked.py mit integriertem DataLogger.
 """
 
@@ -63,8 +65,14 @@ log = logging.getLogger("FrankaCubeStacking")
 SEED = 111
 WORLD_ROOT = "/World"
 
+# ============================================================================
+# PARALLELISIERUNG - Setze NUM_ENVS > 1 für parallele Datensammlung
+# ============================================================================
+NUM_ENVS = 4                 # 1 = Single, >1 = Parallel (z.B. 4 für 2x2 Grid)
+ENV_SPACING = 2.5            # Abstand zwischen Umgebungen (Meter)
+
 # Datensammlung Konfiguration
-NUM_EPISODES = 100           # Anzahl zu sammelnder Episoden
+NUM_EPISODES = 100           # Anzahl zu sammelnder Episoden (TOTAL, wird auf Envs verteilt)
 DATASET_PATH = "./dataset"
 DATASET_NAME = "franka_cube_stack_ds"
 SAVE_PNG = True              # Speichere alle Bilder auch als PNG
@@ -107,40 +115,75 @@ Z_STACK_TOLERANCE = 0.02     # Toleranz für Z-Stacking
 
 
 class Franka_Cube_Stack():
+    """
+    Franka Cube Stacking Environment.
     
-    def __init__(self, robot_name: str = "Franka") -> None:
+    Unterstützt sowohl Single-Env als auch Multi-Env (parallel) Modus.
+    Für Parallelisierung: Erstelle mehrere Instanzen mit verschiedenen env_idx.
+    """
+    
+    def __init__(
+        self, 
+        robot_name: str = "Franka",
+        env_idx: int = 0,           # Index der Umgebung (0 für Single-Mode)
+        offset: np.ndarray = None,  # Räumlicher Offset für parallele Envs
+    ) -> None:
         self.robot_name = robot_name
+        self.env_idx = env_idx
+        self.offset = offset if offset is not None else np.array([0.0, 0.0, 0.0])
+        
         self.world = None
         self.stage = None
         self.task = None
-        self.rng = SEED
+        self.rng = SEED + env_idx * 1000  # Unterschiedliche Seeds pro Env
         self.world_prim_path = WORLD_ROOT
         self.robot_prim_path = f"{self.world_prim_path}/{robot_name}"   
         self.materials = None 
         self.logdir = "./logs"
-
-    def setup_world(self):
-        world = World(stage_units_in_meters=1.0)
-        self.world = world
-        world.scene.add_default_ground_plane()
         
-        stage = stage_utils.get_current_stage()
+        # Für parallele Envs: Eindeutige Pfade
+        if env_idx > 0 or NUM_ENVS > 1:
+            self.task_root = f"{self.world_prim_path}/Env_{env_idx}/Task"
+        else:
+            self.task_root = f"{self.world_prim_path}/Task"
+
+    def setup_world(self, world: World = None, stage = None):
+        """
+        Setup der Welt.
+        
+        Args:
+            world: Existierende World (für parallelen Modus) oder None (erstellt neue)
+            stage: Existierende Stage oder None
+        """
+        # Im parallelen Modus wird die World von außen übergeben
+        if world is None:
+            world = World(stage_units_in_meters=1.0)
+            world.scene.add_default_ground_plane()
+            self.world = world
+        else:
+            self.world = world
+        
+        if stage is None:
+            stage = stage_utils.get_current_stage()
         self.stage = stage
         
-        task_name = "stacking_task"
-        self.task_root = f"{self.world_prim_path}/Task"
+        task_name = f"stacking_task_{self.env_idx}"
         
         self.task = Stacking_JW(
             name=task_name,
             cube_size=[CUBE_SIDE] * 3,
-            offset=[0.0, 0.0, 0.0],
+            offset=self.offset.tolist(),  # Offset für parallele Platzierung
             parent_prim_path=self.task_root,
             cube_amount=N_CUBES,
         )
-        world.add_task(self.task)  
-        world.reset()
-        log.info("World Setup Complete")
-        return
+        self.world.add_task(self.task)
+        
+        # Nur im Single-Mode hier resetten (parallel macht es nach allen Tasks)
+        if NUM_ENVS == 1:
+            world.reset()
+            log.info("World Setup Complete")
+        
+        return self.world
 
     def setup_post_load(self):
         log.info("Setup Post Load")
@@ -181,9 +224,12 @@ class Franka_Cube_Stack():
         light_xform_path = f"{self.task_root}/light_xform"
         light_prim_path = f"{light_xform_path}/light"
         
+        # Licht-Position mit Offset für parallele Umgebungen
+        light_pos = np.array([px, py, pz]) + self.offset
+        
         UsdGeom.Xform.Define(self.stage, light_xform_path)
         light_xform_api = UsdGeom.XformCommonAPI(self.stage.GetPrimAtPath(light_xform_path))
-        light_xform_api.SetTranslate(Gf.Vec3d(*np.array([px, py, pz])))     
+        light_xform_api.SetTranslate(Gf.Vec3d(*light_pos))     
 
         light = UsdLux.SphereLight.Define(self.stage, light_prim_path)
         light.GetIntensityAttr().Set(float(rng.uniform(5500.0, 7000.0)))
@@ -197,8 +243,11 @@ class Franka_Cube_Stack():
         UsdGeom.Xform.Define(self.stage, cam_xform_path)
         UsdGeom.Camera.Define(self.stage, cam_prim_path)
 
+        # Kamera-Position mit Offset für parallele Umgebungen
+        cam_pos = SIDE_CAM_BASE_POS + self.offset
+        
         cam_xform_api = UsdGeom.XformCommonAPI(self.stage.GetPrimAtPath(cam_xform_path))
-        cam_xform_api.SetTranslate(Gf.Vec3d(*SIDE_CAM_BASE_POS))     
+        cam_xform_api.SetTranslate(Gf.Vec3d(*cam_pos))     
         cam_xform_api.SetRotate(Gf.Vec3f(*SIDE_CAM_EULER))
 
         cam = Camera(
@@ -415,169 +464,255 @@ def validate_stacking(task, target_position: np.ndarray) -> tuple:
     return True, "Stacking erfolgreich"
 
 
+def compute_grid_offsets(num_envs: int, spacing: float) -> list:
+    """Berechnet Grid-Offsets für parallele Umgebungen."""
+    grid_size = int(np.ceil(np.sqrt(num_envs)))
+    offsets = []
+    for i in range(num_envs):
+        row = i // grid_size
+        col = i % grid_size
+        offset = np.array([col * spacing, row * spacing, 0.0])
+        offsets.append(offset)
+    return offsets
+
+
 def main():
-    seed = SEED
-    env = Franka_Cube_Stack()
-    env.setup_world()
-    controller = env.setup_post_load()
+    """
+    Hauptfunktion - unterstützt Single und Parallel Mode.
+    
+    Single Mode (NUM_ENVS=1): Sequentielle Datensammlung
+    Parallel Mode (NUM_ENVS>1): Parallele Datensammlung mit Grid-Layout
+    """
+    
+    log.info("=" * 60)
+    log.info(f"Franka Cube Stacking - {'PARALLEL' if NUM_ENVS > 1 else 'SINGLE'} Mode")
+    log.info(f"  Anzahl Umgebungen: {NUM_ENVS}")
+    log.info(f"  Episoden gesamt: {NUM_EPISODES}")
+    if NUM_ENVS > 1:
+        log.info(f"  Episoden pro Env: {NUM_EPISODES // NUM_ENVS}")
+    log.info("=" * 60)
+    
+    # ================================================================
+    # SETUP - Single oder Parallel
+    # ================================================================
+    offsets = compute_grid_offsets(NUM_ENVS, ENV_SPACING)
+    
+    # Listen für parallele Objekte
+    envs = []
+    controllers = []
+    articulations = []
+    cameras = []
+    seeds = [SEED + i * 1000 for i in range(NUM_ENVS)]
+    episode_counts = [0] * NUM_ENVS
+    env_done = [False] * NUM_ENVS
+    
+    # Shared World für alle Envs
+    shared_world = None
+    shared_stage = None
+    
+    # Erstelle alle Umgebungen
+    for i in range(NUM_ENVS):
+        log.info(f"Setup Environment {i}...")
+        
+        env = Franka_Cube_Stack(
+            robot_name="Franka",
+            env_idx=i,
+            offset=offsets[i],
+        )
+        
+        # Erste Env erstellt die World, weitere nutzen sie mit
+        if i == 0:
+            shared_world = env.setup_world()
+            shared_stage = env.stage
+        else:
+            env.setup_world(world=shared_world, stage=shared_stage)
+        
+        envs.append(env)
+    
+    # Nach allen Tasks: World reset
+    shared_world.reset()
+    log.info("All environments created, world reset complete")
+    
+    # Controller und Kameras für alle Envs
+    for i, env in enumerate(envs):
+        controller = env.setup_post_load()
+        controllers.append(controller)
+        
+        articulation = env.franka.get_articulation_controller()
+        articulations.append(articulation)
+        
+        camera = env.add_scene_cam()
+        camera.initialize()
+        cameras.append(camera)
     
     simulation_context = SimulationContext()
-    articulation = env.franka.get_articulation_controller()
-    camera = env.add_scene_cam()
-    camera.initialize()
     
     # ================================================================
     # DATA LOGGER SETUP
     # ================================================================
     current_folder = os.path.basename(os.getcwd())
-
-    if current_folder == "ISAACSIM" or current_folder == "isaacsim":
+    if current_folder.lower() == "isaacsim":
         local_save_path = "./00_my_envs/Franka_Cube_Stacking_JW/dataset"
     else: 
         local_save_path = DATASET_PATH
-        
-    logger = FrankaDataLogger(
-        save_path=local_save_path,
-        object_name=DATASET_NAME,
-        image_size=CAM_RESOLUTION,
-        max_timesteps=None,  # Unbegrenzt - läuft bis Controller fertig ist
-        save_png=SAVE_PNG,   # Speichere alle Bilder auch als PNG
-    )
     
-    # Kamera-Kalibrierung speichern
-    try:
-        intrinsic, extrinsic = env.get_camera_matrices(camera)
-        logger.set_camera_calibration(intrinsic, extrinsic)
-    except ImportError:
-        log.warning("scipy nicht verfügbar, überspringe Kamera-Kalibrierung")
+    # Ein Logger pro Env (oder einer für alle im Single-Mode)
+    loggers = []
+    for i in range(NUM_ENVS):
+        dataset_name = f"{DATASET_NAME}_env{i}" if NUM_ENVS > 1 else DATASET_NAME
+        logger = FrankaDataLogger(
+            save_path=local_save_path,
+            object_name=dataset_name,
+            image_size=CAM_RESOLUTION,
+            max_timesteps=None,
+            save_png=SAVE_PNG,
+        )
+        loggers.append(logger)
     
-    episode_count = 0
-    failed_seeds = []  # Liste der fehlgeschlagenen Seeds
-    successful_episodes = 0
+    # Episoden pro Env berechnen
+    episodes_per_env = NUM_EPISODES // NUM_ENVS
+    
+    # Tracking für Validierung
+    failed_seeds = []  # Alle fehlgeschlagenen Seeds
+    successful_counts = [0] * NUM_ENVS  # Erfolgreiche Episoden pro Env
+    target_positions = [None] * NUM_ENVS  # Aktuelle Zielpositionen
     
     # ================================================================
     # HAUPTSCHLEIFE - Datensammlung
     # ================================================================
-    while simulation_app.is_running() and successful_episodes < NUM_EPISODES:
-        # Domain Randomization
-        cube_positions, target_position = env.domain_randomization(seed)
-        
-        # Neue Episode starten
-        logger.start_episode(episode_count)
-        logger.set_episode_params({
-            "seed": seed,
-            "cube_positions": [p.tolist() for p in cube_positions],
-            "target_position": target_position.tolist(),
+    total_episodes = 0
+    total_successful = 0
+    step_counts = [0] * NUM_ENVS
+    
+    # Initial: Domain Randomization und Episode starten für alle Envs
+    for i in range(NUM_ENVS):
+        cube_pos, target_pos = envs[i].domain_randomization(seeds[i])
+        target_positions[i] = target_pos  # Speichere Zielposition
+        loggers[i].start_episode(episode_counts[i])
+        loggers[i].set_episode_params({
+            "seed": seeds[i],
+            "env_idx": i,
+            "cube_positions": [p.tolist() for p in cube_pos],
+            "target_position": target_pos.tolist(),
         })
+    
+    while simulation_app.is_running() and total_episodes < NUM_EPISODES:
+        simulation_app.update()
         
-        step_count = 0
+        # Beobachtungen für alle Envs sammeln
+        all_obs = shared_world.get_observations()
         
-        # Episode durchführen - läuft bis Controller fertig ist
-        while not controller.is_done():
-            simulation_app.update()
-            env.world.step()
+        # ============================================================
+        # STEP für jede Umgebung
+        # ============================================================
+        for i in range(NUM_ENVS):
+            if env_done[i]:
+                continue
             
-            # Beobachtungen sammeln
-            obs = env.task.get_observations()
-            action = controller.forward(observations=obs)
+            env = envs[i]
+            controller = controllers[i]
+            camera = cameras[i]
+            logger = loggers[i]
             
-            # ============================================================
-            # DATEN LOGGEN
-            # ============================================================
+            # Action berechnen
+            action = controller.forward(observations=all_obs)
+            
+            # Daten loggen
             try:
-                # RGB Bild
                 rgba = camera.get_rgba()
                 if rgba is not None:
-                    rgb = rgba[:, :, :3]  # Entferne Alpha-Kanal
-                    
-                    # State extrahieren
+                    rgb = rgba[:, :, :3]
                     state = get_franka_state(env.franka, env.task)
-                    
-                    # Action extrahieren
                     action_vec = get_franka_action(action)
                     
-                    # Optional: Depth
-                    # depth = camera.get_depth()
-                    
-                    # Loggen
                     logger.log_step(
                         rgb_image=rgb,
                         state=state,
                         action=action_vec,
-                        additional_data={
-                            "timestep": step_count,
-                            "cube_0_pos": obs.get(env.task.get_cube_names()[0], {}).get("position", [0,0,0]),
-                        }
+                        additional_data={"timestep": step_counts[i], "env_idx": i}
                     )
             except Exception as e:
-                log.warning(f"Fehler beim Loggen: {e}")
+                log.warning(f"Env {i}: Fehler beim Loggen: {e}")
             
-            # Aktion ausführen
-            articulation.apply_action(action)
-            step_count += 1
-        
-        # ============================================================
-        # VALIDIERUNG - Prüfe ob Würfel korrekt gestapelt wurden
-        # ============================================================
-        is_valid, reason = validate_stacking(env.task, target_position)
-        
-        if is_valid:
-            # Episode erfolgreich - speichern
-            logger.end_episode()
-            successful_episodes += 1
+            # Action ausführen
+            articulations[i].apply_action(action)
+            step_counts[i] += 1
             
-            # Screenshot speichern (optional)
-            try:
-                rgba = camera.get_rgba()
-                if rgba is not None:
-                    image_path = f"{env.logdir}/00_Screenshots/Episode_{successful_episodes:03d}.png"
-                    os.makedirs(os.path.dirname(image_path), exist_ok=True)
-                    plt.imsave(image_path, rgba)
-            except Exception as e:
-                log.warning(f"Screenshot fehlgeschlagen: {e}")
-            
-            log.info(f"✅ Episode {successful_episodes} erfolgreich: {step_count} Schritte (Seed {seed})")
-        else:
-            # Episode fehlgeschlagen - verwerfen
-            logger.discard_episode()
-            failed_seeds.append(seed)
-            log.warning(f"❌ Episode verworfen (Seed {seed}): {reason}")
+            # Episode fertig?
+            if controller.is_done():
+                # Validiere ob Würfel korrekt gestapelt wurden
+                is_valid, reason = validate_stacking(env.task, target_positions[i])
+                
+                if is_valid:
+                    logger.end_episode()
+                    successful_counts[i] += 1
+                    total_successful += 1
+                    log.info(f"✅ Env {i}: Episode {episode_counts[i]} erfolgreich ({step_counts[i]} steps)")
+                else:
+                    logger.discard_episode()
+                    failed_seeds.append(seeds[i])
+                    log.warning(f"❌ Env {i}: Episode verworfen (Seed {seeds[i]}): {reason}")
+                
+                episode_counts[i] += 1
+                total_episodes += 1
+                step_counts[i] = 0
+                seeds[i] += 1
+                
+                # Weitere Episoden? (Basiert auf ERFOLGREICHEN Episoden)
+                if successful_counts[i] < episodes_per_env:
+                    controller.reset()
+                    cube_pos, target_pos = env.domain_randomization(seeds[i])
+                    target_positions[i] = target_pos  # Update Zielposition
+                    logger.start_episode(successful_counts[i])  # Nutze successful count als ID
+                    logger.set_episode_params({
+                        "seed": seeds[i],
+                        "env_idx": i,
+                        "cube_positions": [p.tolist() for p in cube_pos],
+                        "target_position": target_pos.tolist(),
+                    })
+                else:
+                    env_done[i] = True
+                    log.info(f"Env {i}: Alle {episodes_per_env} erfolgreichen Episoden abgeschlossen")
         
-        # Reset
-        env.world.reset()
-        controller.reset()
-        env.world.step()
+        # World Step
+        shared_world.step()
         
-        seed += 1
-        episode_count += 1
+        # Zwischenspeichern
+        if total_successful > 0 and total_successful % 10 == 0:
+            for logger in loggers:
+                logger.save_dataset()
+            log.info(f"Zwischenstand: {total_successful}/{NUM_EPISODES} erfolgreiche Episoden")
         
-        # Zwischenspeichern alle 10 erfolgreichen Episoden
-        if successful_episodes > 0 and successful_episodes % 10 == 0:
-            logger.save_dataset()
-            log.info(f"Zwischenstand: {successful_episodes}/{NUM_EPISODES} erfolgreiche Episoden")
+        # Alle fertig?
+        if all(env_done):
+            break
     
     # ================================================================
     # FINALES SPEICHERN
     # ================================================================
-    logger.save_dataset()
+    for i, logger in enumerate(loggers):
+        logger.save_dataset()
     
     # Speichere fehlgeschlagene Seeds
     if failed_seeds:
-        failed_seeds_path = os.path.join(local_save_path, DATASET_NAME, "failed_seeds.txt")
+        failed_seeds_path = os.path.join(local_save_path, "failed_seeds_parallel.txt")
         os.makedirs(os.path.dirname(failed_seeds_path), exist_ok=True)
         with open(failed_seeds_path, "w") as f:
             f.write("# Fehlgeschlagene Seeds - Würfel nicht korrekt gestapelt\n")
             f.write(f"# Datum: {datetime.now().isoformat()}\n")
-            f.write(f"# Anzahl: {len(failed_seeds)}\n\n")
+            f.write(f"# Anzahl: {len(failed_seeds)}\n")
+            f.write(f"# Envs: {NUM_ENVS}\n\n")
             for s in failed_seeds:
                 f.write(f"{s}\n")
         log.info(f"Fehlgeschlagene Seeds gespeichert: {failed_seeds_path}")
     
     log.info("=" * 60)
     log.info(f"Datensammlung abgeschlossen!")
-    log.info(f"  Erfolgreiche Episoden: {successful_episodes}")
+    log.info(f"  Erfolgreiche Episoden gesamt: {total_successful}")
+    log.info(f"  Erfolgreiche pro Env: {successful_counts}")
     log.info(f"  Fehlgeschlagene Seeds: {len(failed_seeds)}")
-    log.info(f"  Erfolgsrate: {successful_episodes / episode_count * 100:.1f}%")
+    if total_episodes > 0:
+        log.info(f"  Erfolgsrate: {total_successful / total_episodes * 100:.1f}%")
     if failed_seeds:
         log.info(f"  Failed Seeds: {failed_seeds[:10]}{'...' if len(failed_seeds) > 10 else ''}")
     log.info("=" * 60)

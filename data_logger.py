@@ -183,6 +183,22 @@ class FrankaDataLogger:
             raise RuntimeError("Keine Episode gestartet!")
         self.current_episode["property_params"].update(params)
     
+    def discard_episode(self):
+        """
+        Verwirft die aktuelle Episode ohne sie zu speichern.
+        Nützlich für fehlgeschlagene Episoden (z.B. Würfel nicht gestapelt).
+        """
+        if self.current_episode is None:
+            log.warning("Keine Episode zum Verwerfen vorhanden")
+            return
+        
+        episode_id = self.current_episode["id"]
+        timesteps = self.current_episode["timestep"]
+        log.warning(f"Episode {episode_id} verworfen ({timesteps} Timesteps)")
+        
+        self.current_episode = None
+        # episode_count wird NICHT erhöht, sodass die nächste Episode die gleiche ID bekommt
+    
     def end_episode(self, save_immediately: bool = True):
         """
         Beendet die aktuelle Episode und speichert die Daten.
