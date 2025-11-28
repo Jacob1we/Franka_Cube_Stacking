@@ -94,7 +94,11 @@ N_CUBES = 2
 CUBE_SIDE = 0.05
 MIN_DIST = 1.5 * CUBE_SIDE
 MAX_TRIES = 200
-YAW_RANGE = (-180.0, 180.0)
+YAW_RANGE = (-45.0, 45.0)  # REDUZIERT! War (-180, 180) - verursachte EE-Rotation Probleme
+
+# Workspace-Grenzen (Franka Panda)
+FRANKA_MAX_REACH = 0.75     # Maximale Reichweite (konservativ, echte: ~0.855m)
+FRANKA_MIN_REACH = 0.3     # Minimale Reichweite (zu nah = Selbstkollision)
 
 # Materialien
 ALLOWED_AREA_MATS = [
@@ -201,11 +205,11 @@ class Franka_Cube_Stack():
             picking_order_cube_names=self.task.get_cube_names(),
             robot_observation_name=robot_name,
             preferred_joints=PRESET_LOCK_THREE,  # Soft constraint: prefer neutral pose   PRESET_MINIMAL_MOTION, PRESET_ESSENTIAL_ONLY
-            trajectory_resolution=2.0,               # Base resolution (affects ALL phases)
-            air_speed_multiplier=9.0,                # Speed up AIR phases only (0,4,5,8,9)
+            trajectory_resolution=1.5,               # Base resolution (affects ALL phases)
+            air_speed_multiplier=4.0,                # Speed up AIR phases only (0,4,5,8,9)
             height_adaptive_speed=True,              # DYNAMIC: Slow down near ground!
             critical_height_threshold=0.05,           # Below xx cm = critical zone
-            critical_speed_factor=1.0,               # slower in critical zone
+            critical_speed_factor=0.8,               # slower in critical zone
         )
         return controller
     
@@ -351,28 +355,41 @@ class Franka_Cube_Stack():
             w = 0.6 * CUBE_SIDE
 
             def point_valid(point_xy):
-                if np.linalg.norm(point_xy - self.base_pos[:2]) < FRANKA_BASE_CLEARANCE:
+                dist_from_base = np.linalg.norm(point_xy - self.base_pos[:2])
+                
+                # Zu nah am Roboter-Sockel
+                if dist_from_base < FRANKA_MIN_REACH:
                     return False
+                
+                # Außerhalb der Reichweite (Workspace-Limit)
+                if dist_from_base > FRANKA_MAX_REACH:
+                    return False
+                
+                # Zu nah an anderen Würfeln
                 for p in points:
                     if np.linalg.norm(point_xy - p[:2]) < MIN_DIST:
                         return False
                 return True
             
             for _ in range(N_CUBES + 1):
-                fallback_point = np.array([0.5, 0.0, 1.1 * CUBE_SIDE])
+                # Fallback: Sicherer Punkt im Arbeitsbereich
+                fallback_point = self.base_pos + np.array([0.4, 0.0, 1.1 * CUBE_SIDE])
                 found_valid = False
                 for _ in range(MAX_TRIES):
+                    # Sample innerhalb der konfigurierten Szene (SCENE_LENGTH x SCENE_WIDTH)
                     u = self.rng.uniform(0, SCENE_LENGTH)
                     v = self.rng.uniform(-SCENE_WIDTH/2, SCENE_WIDTH/2)
                     point = self.base_pos + np.array([u, v, w])
                     point_xy = point[:2].astype(float)
 
+                    # Validierung: Szene UND Workspace
                     if point_valid(point_xy):
                         points.append(point)
                         found_valid = True
                         break
                     
                 if not found_valid:
+                    log.warning(f"Kein gültiger Punkt gefunden, verwende Fallback")
                     points.append(fallback_point)
             return points
 
@@ -408,6 +425,37 @@ class Franka_Cube_Stack():
         self.set_scene_light(seed)
 
         return cube_positions, target_position
+
+
+def validate_positions_reachable(cube_positions: list, target_position: np.ndarray, base_pos: np.ndarray) -> tuple:
+    """
+    Validiert VOR der Episode, ob alle Positionen im Arbeitsbereich liegen.
+    
+    Args:
+        cube_positions: Liste der Würfelpositionen
+        target_position: Zielposition für das Stapeln
+        base_pos: Position der Roboter-Basis
+    
+    Returns:
+        tuple: (is_valid: bool, reason: str)
+    """
+    all_positions = list(cube_positions) + [target_position]
+    
+    for i, pos in enumerate(all_positions):
+        pos = np.array(pos)
+        dist = np.linalg.norm(pos[:2] - base_pos[:2])
+        
+        # Zu nah
+        if dist < FRANKA_MIN_REACH:
+            name = f"Würfel {i}" if i < len(cube_positions) else "Zielposition"
+            return False, f"{name} zu nah am Roboter (d={dist:.3f}m < {FRANKA_MIN_REACH}m)"
+        
+        # Zu weit
+        if dist > FRANKA_MAX_REACH:
+            name = f"Würfel {i}" if i < len(cube_positions) else "Zielposition"
+            return False, f"{name} außerhalb Reichweite (d={dist:.3f}m > {FRANKA_MAX_REACH}m)"
+    
+    return True, "Alle Positionen erreichbar"
 
 
 def validate_stacking(task, target_position: np.ndarray) -> tuple:
@@ -556,47 +604,62 @@ def main():
     else: 
         local_save_path = DATASET_PATH
     
-    # Ein Logger pro Env (oder einer für alle im Single-Mode)
-    loggers = []
-    for i in range(NUM_ENVS):
-        dataset_name = f"{DATASET_NAME}_env{i}" if NUM_ENVS > 1 else DATASET_NAME
-        logger = FrankaDataLogger(
-            save_path=local_save_path,
-            object_name=dataset_name,
-            image_size=CAM_RESOLUTION,
-            max_timesteps=None,
-            save_png=SAVE_PNG,
-        )
-        loggers.append(logger)
+    # ================================================================
+    # ZENTRALER LOGGER - Ein Datensatz für alle Environments
+    # ================================================================
+    logger = FrankaDataLogger(
+        save_path=local_save_path,
+        object_name=DATASET_NAME,  # Ein gemeinsamer Datensatz
+        image_size=CAM_RESOLUTION,
+        max_timesteps=None,
+        save_png=SAVE_PNG,
+    )
     
-    # Episoden pro Env berechnen
-    episodes_per_env = NUM_EPISODES // NUM_ENVS
+    # Tracking für parallele Episodes (eine pro Env gleichzeitig aktiv)
+    active_episode_ids = [None] * NUM_ENVS  # Globale Episode-ID pro Env
+    episode_data = [{} for _ in range(NUM_ENVS)]  # Temporäre Daten pro Env
     
     # Tracking für Validierung
     failed_seeds = []  # Alle fehlgeschlagenen Seeds
     successful_counts = [0] * NUM_ENVS  # Erfolgreiche Episoden pro Env
     target_positions = [None] * NUM_ENVS  # Aktuelle Zielpositionen
+    cube_positions_list = [None] * NUM_ENVS  # Würfelpositionen pro Env
+    
+    # Globale Episode-Zählung
+    global_episode_id = 0  # Nächste freie Episode-ID
+    total_successful = 0
+    
+    # Episoden pro Env berechnen
+    episodes_per_env = NUM_EPISODES // NUM_ENVS
     
     # ================================================================
     # HAUPTSCHLEIFE - Datensammlung
     # ================================================================
     total_episodes = 0
-    total_successful = 0
     step_counts = [0] * NUM_ENVS
     
     # Initial: Domain Randomization und Episode starten für alle Envs
     for i in range(NUM_ENVS):
         cube_pos, target_pos = envs[i].domain_randomization(seeds[i])
-        target_positions[i] = target_pos  # Speichere Zielposition
-        loggers[i].start_episode(episode_counts[i])
-        loggers[i].set_episode_params({
-            "seed": seeds[i],
-            "env_idx": i,
-            "cube_positions": [p.tolist() for p in cube_pos],
-            "target_position": target_pos.tolist(),
-        })
+        target_positions[i] = target_pos
+        cube_positions_list[i] = cube_pos
+        
+        # Episode-Daten initialisieren (noch nicht im Logger starten)
+        active_episode_ids[i] = global_episode_id
+        episode_data[i] = {
+            "observations": [],
+            "states": [],
+            "actions": [],
+            "params": {
+                "seed": seeds[i],
+                "env_idx": i,
+                "cube_positions": [p.tolist() for p in cube_pos],
+                "target_position": target_pos.tolist(),
+            }
+        }
+        global_episode_id += 1
     
-    while simulation_app.is_running() and total_episodes < NUM_EPISODES:
+    while simulation_app.is_running() and total_successful < NUM_EPISODES:
         simulation_app.update()
         
         # Beobachtungen für alle Envs sammeln
@@ -612,12 +675,11 @@ def main():
             env = envs[i]
             controller = controllers[i]
             camera = cameras[i]
-            logger = loggers[i]
             
             # Action berechnen
             action = controller.forward(observations=all_obs)
             
-            # Daten loggen
+            # Daten in temporärem Buffer sammeln
             try:
                 rgba = camera.get_rgba()
                 if rgba is not None:
@@ -625,14 +687,12 @@ def main():
                     state = get_franka_state(env.franka, env.task)
                     action_vec = get_franka_action(action)
                     
-                    logger.log_step(
-                        rgb_image=rgb,
-                        state=state,
-                        action=action_vec,
-                        additional_data={"timestep": step_counts[i], "env_idx": i}
-                    )
+                    # In Episode-Buffer speichern (nicht direkt im Logger)
+                    episode_data[i]["observations"].append(rgb)
+                    episode_data[i]["states"].append(state)
+                    episode_data[i]["actions"].append(action_vec)
             except Exception as e:
-                log.warning(f"Env {i}: Fehler beim Loggen: {e}")
+                log.warning(f"Env {i}: Fehler beim Sammeln: {e}")
             
             # Action ausführen
             articulations[i].apply_action(action)
@@ -643,13 +703,27 @@ def main():
                 # Validiere ob Würfel korrekt gestapelt wurden
                 is_valid, reason = validate_stacking(env.task, target_positions[i])
                 
-                if is_valid:
+                ep_id = active_episode_ids[i]
+                
+                if is_valid and len(episode_data[i]["observations"]) > 0:
+                    # Episode erfolgreich - in zentralen Logger übertragen
+                    logger.start_episode(total_successful)
+                    logger.set_episode_params(episode_data[i]["params"])
+                    
+                    # Alle gesammelten Daten übertragen
+                    for obs, st, act in zip(
+                        episode_data[i]["observations"],
+                        episode_data[i]["states"],
+                        episode_data[i]["actions"]
+                    ):
+                        logger.log_step(rgb_image=obs, state=st, action=act)
+                    
                     logger.end_episode()
                     successful_counts[i] += 1
                     total_successful += 1
-                    log.info(f"✅ Env {i}: Episode {episode_counts[i]} erfolgreich ({step_counts[i]} steps)")
+                    log.info(f"✅ Env {i}: Episode {total_successful} erfolgreich ({step_counts[i]} steps, Seed {seeds[i]})")
                 else:
-                    logger.discard_episode()
+                    # Episode fehlgeschlagen - Daten verwerfen
                     failed_seeds.append(seeds[i])
                     log.warning(f"❌ Env {i}: Episode verworfen (Seed {seeds[i]}): {reason}")
                 
@@ -658,29 +732,37 @@ def main():
                 step_counts[i] = 0
                 seeds[i] += 1
                 
-                # Weitere Episoden? (Basiert auf ERFOLGREICHEN Episoden)
-                if successful_counts[i] < episodes_per_env:
+                # Weitere Episoden?
+                if successful_counts[i] < episodes_per_env and total_successful < NUM_EPISODES:
                     controller.reset()
                     cube_pos, target_pos = env.domain_randomization(seeds[i])
-                    target_positions[i] = target_pos  # Update Zielposition
-                    logger.start_episode(successful_counts[i])  # Nutze successful count als ID
-                    logger.set_episode_params({
-                        "seed": seeds[i],
-                        "env_idx": i,
-                        "cube_positions": [p.tolist() for p in cube_pos],
-                        "target_position": target_pos.tolist(),
-                    })
+                    target_positions[i] = target_pos
+                    cube_positions_list[i] = cube_pos
+                    
+                    # Neuen Episode-Buffer initialisieren
+                    active_episode_ids[i] = global_episode_id
+                    episode_data[i] = {
+                        "observations": [],
+                        "states": [],
+                        "actions": [],
+                        "params": {
+                            "seed": seeds[i],
+                            "env_idx": i,
+                            "cube_positions": [p.tolist() for p in cube_pos],
+                            "target_position": target_pos.tolist(),
+                        }
+                    }
+                    global_episode_id += 1
                 else:
                     env_done[i] = True
-                    log.info(f"Env {i}: Alle {episodes_per_env} erfolgreichen Episoden abgeschlossen")
+                    log.info(f"Env {i}: Fertig ({successful_counts[i]} erfolgreiche Episoden)")
         
         # World Step
         shared_world.step()
         
-        # Zwischenspeichern
+        # Zwischenspeichern alle 10 erfolgreichen Episoden
         if total_successful > 0 and total_successful % 10 == 0:
-            for logger in loggers:
-                logger.save_dataset()
+            logger.save_dataset()
             log.info(f"Zwischenstand: {total_successful}/{NUM_EPISODES} erfolgreiche Episoden")
         
         # Alle fertig?
@@ -688,33 +770,32 @@ def main():
             break
     
     # ================================================================
-    # FINALES SPEICHERN
+    # FINALES SPEICHERN - Ein zentraler Datensatz
     # ================================================================
-    for i, logger in enumerate(loggers):
-        logger.save_dataset()
+    logger.save_dataset()
+    log.info(f"Zentraler Datensatz gespeichert: {local_save_path}/{DATASET_NAME}/")
     
     # Speichere fehlgeschlagene Seeds
     if failed_seeds:
-        failed_seeds_path = os.path.join(local_save_path, "failed_seeds_parallel.txt")
+        failed_seeds_path = os.path.join(local_save_path, DATASET_NAME, "failed_seeds.txt")
         os.makedirs(os.path.dirname(failed_seeds_path), exist_ok=True)
         with open(failed_seeds_path, "w") as f:
             f.write("# Fehlgeschlagene Seeds - Würfel nicht korrekt gestapelt\n")
             f.write(f"# Datum: {datetime.now().isoformat()}\n")
             f.write(f"# Anzahl: {len(failed_seeds)}\n")
-            f.write(f"# Envs: {NUM_ENVS}\n\n")
+            f.write(f"# Parallele Envs: {NUM_ENVS}\n\n")
             for s in failed_seeds:
                 f.write(f"{s}\n")
         log.info(f"Fehlgeschlagene Seeds gespeichert: {failed_seeds_path}")
     
     log.info("=" * 60)
     log.info(f"Datensammlung abgeschlossen!")
-    log.info(f"  Erfolgreiche Episoden gesamt: {total_successful}")
-    log.info(f"  Erfolgreiche pro Env: {successful_counts}")
+    log.info(f"  Zentraler Datensatz: {DATASET_NAME}")
+    log.info(f"  Erfolgreiche Episoden: {total_successful}")
+    log.info(f"  Episoden pro Env: {successful_counts}")
     log.info(f"  Fehlgeschlagene Seeds: {len(failed_seeds)}")
     if total_episodes > 0:
         log.info(f"  Erfolgsrate: {total_successful / total_episodes * 100:.1f}%")
-    if failed_seeds:
-        log.info(f"  Failed Seeds: {failed_seeds[:10]}{'...' if len(failed_seeds) > 10 else ''}")
     log.info("=" * 60)
     
     simulation_app.close()

@@ -86,7 +86,11 @@ N_CUBES = 2
 CUBE_SIDE = 0.05
 MIN_DIST = 1.5 * CUBE_SIDE
 MAX_TRIES = 200
-YAW_RANGE = (-180.0, 180.0)
+YAW_RANGE = (-45.0, 45.0)  # REDUZIERT! War (-180, 180) - verursachte EE-Rotation Probleme
+
+# Workspace-Grenzen (Franka Panda)
+FRANKA_MAX_REACH = 0.75     # Maximale Reichweite (konservativ, echte: ~0.855m)
+FRANKA_MIN_REACH = 0.25     # Minimale Reichweite (zu nah = Selbstkollision)
 
 # Materialien
 ALLOWED_AREA_MATS = [
@@ -302,28 +306,41 @@ class Franka_Cube_Stack():
             w = 0.6 * CUBE_SIDE
 
             def point_valid(point_xy):
-                if np.linalg.norm(point_xy - self.base_pos[:2]) < FRANKA_BASE_CLEARANCE:
+                dist_from_base = np.linalg.norm(point_xy - self.base_pos[:2])
+                
+                # Zu nah am Roboter-Sockel
+                if dist_from_base < FRANKA_MIN_REACH:
                     return False
+                
+                # Außerhalb der Reichweite (Workspace-Limit)
+                if dist_from_base > FRANKA_MAX_REACH:
+                    return False
+                
+                # Zu nah an anderen Würfeln
                 for p in points:
                     if np.linalg.norm(point_xy - p[:2]) < MIN_DIST:
                         return False
                 return True
             
             for _ in range(N_CUBES + 1):
-                fallback_point = np.array([0.5, 0.0, 1.1 * CUBE_SIDE])
+                # Fallback: Sicherer Punkt im Arbeitsbereich
+                fallback_point = self.base_pos + np.array([0.4, 0.0, 1.1 * CUBE_SIDE])
                 found_valid = False
                 for _ in range(MAX_TRIES):
+                    # Sample innerhalb der konfigurierten Szene (SCENE_LENGTH x SCENE_WIDTH)
                     u = self.rng.uniform(0, SCENE_LENGTH)
                     v = self.rng.uniform(-SCENE_WIDTH/2, SCENE_WIDTH/2)
                     point = self.base_pos + np.array([u, v, w])
                     point_xy = point[:2].astype(float)
 
+                    # Validierung: Szene UND Workspace
                     if point_valid(point_xy):
                         points.append(point)
                         found_valid = True
                         break
                     
                 if not found_valid:
+                    log.warning(f"Kein gültiger Punkt gefunden, verwende Fallback")
                     points.append(fallback_point)
             return points
 
@@ -359,6 +376,37 @@ class Franka_Cube_Stack():
         self.set_scene_light(seed)
 
         return cube_positions, target_position
+
+
+def validate_positions_reachable(cube_positions: list, target_position: np.ndarray, base_pos: np.ndarray) -> tuple:
+    """
+    Validiert VOR der Episode, ob alle Positionen im Arbeitsbereich liegen.
+    
+    Args:
+        cube_positions: Liste der Würfelpositionen
+        target_position: Zielposition für das Stapeln
+        base_pos: Position der Roboter-Basis
+    
+    Returns:
+        tuple: (is_valid: bool, reason: str)
+    """
+    all_positions = list(cube_positions) + [target_position]
+    
+    for i, pos in enumerate(all_positions):
+        pos = np.array(pos)
+        dist = np.linalg.norm(pos[:2] - base_pos[:2])
+        
+        # Zu nah
+        if dist < FRANKA_MIN_REACH:
+            name = f"Würfel {i}" if i < len(cube_positions) else "Zielposition"
+            return False, f"{name} zu nah am Roboter (d={dist:.3f}m < {FRANKA_MIN_REACH}m)"
+        
+        # Zu weit
+        if dist > FRANKA_MAX_REACH:
+            name = f"Würfel {i}" if i < len(cube_positions) else "Zielposition"
+            return False, f"{name} außerhalb Reichweite (d={dist:.3f}m > {FRANKA_MAX_REACH}m)"
+    
+    return True, "Alle Positionen erreichbar"
 
 
 def validate_stacking(task, target_position: np.ndarray) -> tuple:
@@ -453,7 +501,10 @@ def main():
     
     episode_count = 0
     failed_seeds = []  # Liste der fehlgeschlagenen Seeds
+    skipped_seeds = []  # Seeds die wegen unreachable Positionen übersprungen wurden
     successful_episodes = 0
+    max_consecutive_skips = 50  # Sicherheitsabbruch
+    consecutive_skips = 0
     
     # ================================================================
     # HAUPTSCHLEIFE - Datensammlung
@@ -462,8 +513,29 @@ def main():
         # Domain Randomization
         cube_positions, target_position = env.domain_randomization(seed)
         
+        # ============================================================
+        # PRE-VALIDATION: Prüfe ob Positionen erreichbar sind
+        # ============================================================
+        is_reachable, reason = validate_positions_reachable(
+            cube_positions, target_position, env.base_pos
+        )
+        
+        if not is_reachable:
+            log.warning(f"⚠️ Seed {seed} übersprungen (Pre-Validation): {reason}")
+            skipped_seeds.append(seed)
+            seed += 1
+            consecutive_skips += 1
+            
+            # Sicherheitsabbruch bei zu vielen Skips
+            if consecutive_skips >= max_consecutive_skips:
+                log.error(f"Zu viele übersprungene Seeds ({consecutive_skips})! Abbruch.")
+                break
+            continue
+        
+        consecutive_skips = 0  # Reset bei erfolgreicher Validierung
+        
         # Neue Episode starten
-        logger.start_episode(episode_count)
+        logger.start_episode(successful_episodes)  # Nutze successful_episodes als ID
         logger.set_episode_params({
             "seed": seed,
             "cube_positions": [p.tolist() for p in cube_positions],
@@ -561,25 +633,38 @@ def main():
     # ================================================================
     logger.save_dataset()
     
-    # Speichere fehlgeschlagene Seeds
-    if failed_seeds:
-        failed_seeds_path = os.path.join(local_save_path, DATASET_NAME, "failed_seeds.txt")
-        os.makedirs(os.path.dirname(failed_seeds_path), exist_ok=True)
-        with open(failed_seeds_path, "w") as f:
-            f.write("# Fehlgeschlagene Seeds - Würfel nicht korrekt gestapelt\n")
-            f.write(f"# Datum: {datetime.now().isoformat()}\n")
-            f.write(f"# Anzahl: {len(failed_seeds)}\n\n")
+    # Speichere fehlgeschlagene und übersprungene Seeds
+    seeds_log_path = os.path.join(local_save_path, DATASET_NAME, "seed_log.txt")
+    os.makedirs(os.path.dirname(seeds_log_path), exist_ok=True)
+    with open(seeds_log_path, "w") as f:
+        f.write("# Seed Log - Franka Cube Stacking Dataset\n")
+        f.write(f"# Datum: {datetime.now().isoformat()}\n")
+        f.write(f"# Erfolgreiche Episoden: {successful_episodes}\n")
+        f.write(f"# Fehlgeschlagene Seeds (Post-Validation): {len(failed_seeds)}\n")
+        f.write(f"# Übersprungene Seeds (Pre-Validation): {len(skipped_seeds)}\n\n")
+        
+        if failed_seeds:
+            f.write("## Fehlgeschlagene Seeds (Würfel nicht korrekt gestapelt):\n")
             for s in failed_seeds:
                 f.write(f"{s}\n")
-        log.info(f"Fehlgeschlagene Seeds gespeichert: {failed_seeds_path}")
+            f.write("\n")
+        
+        if skipped_seeds:
+            f.write("## Übersprungene Seeds (Position nicht erreichbar):\n")
+            for s in skipped_seeds:
+                f.write(f"{s}\n")
     
+    log.info(f"Seed Log gespeichert: {seeds_log_path}")
+    
+    total_attempted = episode_count + len(skipped_seeds)
     log.info("=" * 60)
     log.info(f"Datensammlung abgeschlossen!")
     log.info(f"  Erfolgreiche Episoden: {successful_episodes}")
-    log.info(f"  Fehlgeschlagene Seeds: {len(failed_seeds)}")
-    log.info(f"  Erfolgsrate: {successful_episodes / episode_count * 100:.1f}%")
-    if failed_seeds:
-        log.info(f"  Failed Seeds: {failed_seeds[:10]}{'...' if len(failed_seeds) > 10 else ''}")
+    log.info(f"  Fehlgeschlagene (Post): {len(failed_seeds)}")
+    log.info(f"  Übersprungene (Pre):   {len(skipped_seeds)}")
+    log.info(f"  Seeds getestet:        {total_attempted}")
+    if total_attempted > 0:
+        log.info(f"  Erfolgsrate:           {successful_episodes / total_attempted * 100:.1f}%")
     log.info("=" * 60)
     
     simulation_app.close()
