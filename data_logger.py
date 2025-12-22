@@ -351,6 +351,10 @@ class FrankaDataLogger:
         with open(self.dataset_path / "metadata.pkl", "wb") as f:
             pickle.dump(metadata, f)
         
+        # Speichere seq_lengths.pkl für DINO WM Kompatibilität
+        with open(self.dataset_path / "seq_lengths.pkl", "wb") as f:
+            pickle.dump(self.all_episode_lengths, f)
+        
         log.info(f"Datensatz gespeichert: {self.dataset_path}")
         log.info(f"  states.pth: {states_padded.shape}")
         log.info(f"  actions.pth: {actions_padded.shape}")
