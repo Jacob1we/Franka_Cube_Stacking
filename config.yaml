@@ -1,0 +1,71 @@
+# Franka Cube Stacking - Konfiguration
+# =====================================
+
+# Simulation
+simulation:
+  headless: true                    # True für schnellere Datensammlung (ohne GUI)
+  seed: 111
+  world_root: "/World"
+
+# Parallelisierung
+parallel:
+  num_envs: 4                       # 1 = Single, >1 = Parallel (z.B. 4 für 2x2 Grid)
+  env_spacing: 2.5                  # Abstand zwischen Umgebungen (Meter)
+
+# Datensammlung
+dataset:
+  num_episodes: 10                  # Anzahl zu sammelnder Episoden (TOTAL)
+  path: "/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/franka_cube_stack_10"
+  name: "franka_cube_stack_ds"
+  save_png: true                    # Speichere alle Bilder auch als PNG
+
+# Kamera
+camera:
+  position: [1.6, -2.0, 1.27]       # SIDE_CAM_BASE_POS
+  euler: [66.0, 0.0, 32.05]         # Roll, Pitch, Yaw in Grad
+  frequency: 20
+  resolution: [256, 256]            # Breite x Höhe
+
+# Szene
+scene:
+  width: 0.60                       # SCENE_WIDTH (Meter)
+  length: 0.75                      # SCENE_LENGTH (Meter)
+  plane_lift: 0.001                 # Ebene leicht über Boden
+
+# Würfel
+cubes:
+  count: 2                          # N_CUBES
+  side: 0.05                        # Kantenlänge (Meter)
+  min_dist_factor: 1.5              # MIN_DIST = factor * CUBE_SIDE
+  max_placement_tries: 200          # MAX_TRIES für Positionierung
+  yaw_range: [-45.0, 45.0]          # Rotation Range in Grad (reduziert wegen EE-Rotation)
+
+# Franka Roboter Workspace
+robot:
+  base_clearance: 0.3               # FRANKA_BASE_CLEARANCE
+  max_reach: 0.75                   # Maximale Reichweite (konservativ, echte: ~0.855m)
+  min_reach: 0.3                    # Minimale Reichweite (zu nah = Selbstkollision)
+
+# Validierung
+validation:
+  xy_tolerance: 0.03                # Toleranz für X/Y Position (3 cm)
+  z_min_height: 0.02                # Mindesthöhe über Boden (2 cm)
+  z_stack_tolerance: 0.02           # Toleranz für Z-Stacking
+
+# Materialien für Domain Randomization
+materials:
+  - name: "AllowedArea_Steel_Brushed"
+    rgba: [0.62, 0.62, 0.62, 1.00]
+  - name: "AllowedArea_Aluminum_Mill"
+    rgba: [0.77, 0.77, 0.78, 1.00]
+  - name: "AllowedArea_Wood_Oak"
+    rgba: [0.65, 0.53, 0.36, 1.00]
+  - name: "AllowedArea_Wood_BirchPly"
+    rgba: [0.85, 0.74, 0.54, 1.00]
+  - name: "AllowedArea_Plastic_HDPE_Black"
+    rgba: [0.08, 0.08, 0.08, 1.00]
+  - name: "AllowedArea_Rubber_Mat"
+    rgba: [0.12, 0.12, 0.12, 1.00]
+  - name: "AllowedArea_Acrylic_Frosted"
+    rgba: [1.00, 1.00, 1.00, 1.00]
+

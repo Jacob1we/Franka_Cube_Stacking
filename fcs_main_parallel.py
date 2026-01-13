@@ -5,16 +5,45 @@ PARALLEL VERSION - Unterstützt mehrere Umgebungen gleichzeitig.
 Basiert auf franka_cube_stack_reworked.py mit integriertem DataLogger.
 """
 
-import isaacsim
-from isaacsim import SimulationApp
-
 from datetime import datetime
 import logging, os, sys
 import numpy as np
+import yaml
+import argparse
 
 os.environ.setdefault("PYTHONUNBUFFERED", "1")
 
-launch_config = {"headless": False}  # True für schnellere Datensammlung
+# ============================================================================
+# KONFIGURATION LADEN (vor SimulationApp für headless-Setting)
+# ============================================================================
+def load_config(config_path: str = None) -> dict:
+    """Lädt Konfiguration aus YAML-Datei."""
+    if config_path is None:
+        # Standard: config.yaml im gleichen Verzeichnis
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        config_path = os.path.join(script_dir, "config.yaml")
+    
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Konfigurationsdatei nicht gefunden: {config_path}")
+    
+    with open(config_path, "r") as f:
+        config = yaml.safe_load(f)
+    
+    return config
+
+# Argument Parser für Config-Pfad
+parser = argparse.ArgumentParser(description="Franka Cube Stacking Data Collection")
+parser.add_argument("--config", type=str, default=None, help="Pfad zur YAML-Konfigurationsdatei")
+args, _ = parser.parse_known_args()
+
+# Config laden
+CFG = load_config(args.config)
+
+# SimulationApp mit headless aus Config starten
+import isaacsim
+from isaacsim import SimulationApp
+
+launch_config = {"headless": CFG["simulation"]["headless"]}
 simulation_app = SimulationApp(launch_config)
 
 import omni
@@ -55,60 +84,52 @@ logging.basicConfig(
 
 log = logging.getLogger("FrankaCubeStacking")
 
-#region: Constants
-SEED = 111
-WORLD_ROOT = "/World"
+#region: Konstanten aus Config
+SEED = CFG["simulation"]["seed"]
+WORLD_ROOT = CFG["simulation"]["world_root"]
 
-# ============================================================================
-# PARALLELISIERUNG - Setze NUM_ENVS > 1 für parallele Datensammlung
-# ============================================================================
-NUM_ENVS = 4                 # 1 = Single, >1 = Parallel (z.B. 4 für 2x2 Grid)
-ENV_SPACING = 2.5            # Abstand zwischen Umgebungen (Meter)
+# Parallelisierung
+NUM_ENVS = CFG["parallel"]["num_envs"]
+ENV_SPACING = CFG["parallel"]["env_spacing"]
 
-# Datensammlung Konfiguration
-NUM_EPISODES = 10 #100           # Anzahl zu sammelnder Episoden (TOTAL, wird auf Envs verteilt)
-DATASET_PATH = "/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/franka_cube_stack_10" #"./dataset"
-DATASET_NAME = "franka_cube_stack_ds"
-SAVE_PNG = True              # Speichere alle Bilder auch als PNG
+# Datensammlung
+NUM_EPISODES = CFG["dataset"]["num_episodes"]
+DATASET_PATH = CFG["dataset"]["path"]
+DATASET_NAME = CFG["dataset"]["name"]
+SAVE_PNG = CFG["dataset"]["save_png"]
 
 # Kamera
-SIDE_CAM_BASE_POS = np.array([1.6, -2.0, 1.27])
-SIDE_CAM_EULER = (66.0, 0.0, 32.05)
-CAM_FREQUENCY = 20
-CAM_RESOLUTION = (256, 256)
+SIDE_CAM_BASE_POS = np.array(CFG["camera"]["position"])
+SIDE_CAM_EULER = tuple(CFG["camera"]["euler"])
+CAM_FREQUENCY = CFG["camera"]["frequency"]
+CAM_RESOLUTION = tuple(CFG["camera"]["resolution"])
 
 # Szene
-SCENE_WIDTH = 0.60
-SCENE_LENGTH = 0.75
-FRANKA_BASE_CLEARANCE = 0.3
-PLANE_LIFT = 0.001
+SCENE_WIDTH = CFG["scene"]["width"]
+SCENE_LENGTH = CFG["scene"]["length"]
+PLANE_LIFT = CFG["scene"]["plane_lift"]
 
 # Würfel
-N_CUBES = 2
-CUBE_SIDE = 0.05
-MIN_DIST = 1.5 * CUBE_SIDE
-MAX_TRIES = 200
-YAW_RANGE = (-45.0, 45.0)  # REDUZIERT! War (-180, 180) - verursachte EE-Rotation Probleme
+N_CUBES = CFG["cubes"]["count"]
+CUBE_SIDE = CFG["cubes"]["side"]
+MIN_DIST = CFG["cubes"]["min_dist_factor"] * CUBE_SIDE
+MAX_TRIES = CFG["cubes"]["max_placement_tries"]
+YAW_RANGE = tuple(CFG["cubes"]["yaw_range"])
 
-# Workspace-Grenzen (Franka Panda)
-FRANKA_MAX_REACH = 0.75     # Maximale Reichweite (konservativ, echte: ~0.855m)
-FRANKA_MIN_REACH = 0.3     # Minimale Reichweite (zu nah = Selbstkollision)
+# Roboter Workspace
+FRANKA_BASE_CLEARANCE = CFG["robot"]["base_clearance"]
+FRANKA_MAX_REACH = CFG["robot"]["max_reach"]
+FRANKA_MIN_REACH = CFG["robot"]["min_reach"]
 
-# Materialien
+# Materialien aus Config laden
 ALLOWED_AREA_MATS = [
-    ("AllowedArea_Steel_Brushed",   (0.62, 0.62, 0.62, 1.00)),
-    ("AllowedArea_Aluminum_Mill",   (0.77, 0.77, 0.78, 1.00)),
-    ("AllowedArea_Wood_Oak",        (0.65, 0.53, 0.36, 1.00)),
-    ("AllowedArea_Wood_BirchPly",   (0.85, 0.74, 0.54, 1.00)),
-    ("AllowedArea_Plastic_HDPE_Black", (0.08, 0.08, 0.08, 1.00)),
-    ("AllowedArea_Rubber_Mat",      (0.12, 0.12, 0.12, 1.00)),
-    ("AllowedArea_Acrylic_Frosted", (1.00, 1.00, 1.00, 1.00)),
+    (mat["name"], tuple(mat["rgba"])) for mat in CFG["materials"]
 ]
 
 # Validierung
-XY_TOLERANCE = 0.03          # Toleranz für X/Y Position (3 cm)
-Z_MIN_HEIGHT = 0.02          # Mindesthöhe über Boden (2 cm)
-Z_STACK_TOLERANCE = 0.02     # Toleranz für Z-Stacking
+XY_TOLERANCE = CFG["validation"]["xy_tolerance"]
+Z_MIN_HEIGHT = CFG["validation"]["z_min_height"]
+Z_STACK_TOLERANCE = CFG["validation"]["z_stack_tolerance"]
 #endregion
 
 
@@ -528,6 +549,8 @@ def main():
     
     log.info("=" * 60)
     log.info(f"Franka Cube Stacking - {'PARALLEL' if NUM_ENVS > 1 else 'SINGLE'} Mode")
+    log.info(f"  Config: {args.config or 'config.yaml (default)'}")
+    log.info(f"  Headless: {CFG['simulation']['headless']}")
     log.info(f"  Anzahl Umgebungen: {NUM_ENVS}")
     log.info(f"  Episoden gesamt: {NUM_EPISODES}")
     if NUM_ENVS > 1:
