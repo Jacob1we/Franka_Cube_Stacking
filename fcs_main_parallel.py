@@ -132,6 +132,8 @@ Z_MIN_HEIGHT = CFG["validation"]["z_min_height"]
 Z_STACK_TOLERANCE = CFG["validation"]["z_stack_tolerance"]
 #endregion
 
+DATASET_NAME = f"{datetime.now().strftime('%Y_%m_%d_%H%M')}_fcs_dset"
+
 
 class Franka_Cube_Stack():
     """
@@ -615,11 +617,7 @@ def main():
     # ================================================================
     # DATA LOGGER SETUP
     # ================================================================
-    current_folder = os.path.basename(os.getcwd())
-    if current_folder.lower() == "isaacsim":
-        local_save_path = "./00_my_envs/Franka_Cube_Stacking_JW/dataset"
-    else: 
-        local_save_path = DATASET_PATH
+    local_save_path = DATASET_PATH
     
     # ================================================================
     # ZENTRALER LOGGER - Ein Datensatz für alle Environments
