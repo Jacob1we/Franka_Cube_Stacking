@@ -8,10 +8,8 @@ Basiert auf franka_cube_stack_reworked.py mit integriertem DataLogger.
 import isaacsim
 from isaacsim import SimulationApp
 
-from pathlib import Path
 from datetime import datetime
 import logging, os, sys
-import matplotlib.pyplot as plt
 import numpy as np
 
 os.environ.setdefault("PYTHONUNBUFFERED", "1")
@@ -24,16 +22,12 @@ from Franka_Env_JW import Stacking_JW
 from Franka_Env_JW import StackingController_JW
 
 from omni.isaac.core import World
-import isaacsim.core.utils.nucleus as nucleus_utils
 import isaacsim.core.utils.stage as stage_utils
-import isaacsim.core.utils.prims as prims_utils
 import isaacsim.core.utils.rotations as rotations_utils
 from isaacsim.core.api.simulation_context import SimulationContext
 from isaacsim.sensors.camera import Camera
-from isaacsim.core.api.robots import Robot
-from pxr import UsdGeom, UsdShade, Gf, Sdf, Usd, UsdLux
-import carb
-from isaacsim.core.cloner import GridCloner
+from pxr import UsdGeom, UsdShade, Gf, Sdf, UsdLux
+
 
 # Data Logger Import
 from data_logger import FrankaDataLogger, get_franka_state, get_franka_action
@@ -72,8 +66,8 @@ NUM_ENVS = 4                 # 1 = Single, >1 = Parallel (z.B. 4 für 2x2 Grid)
 ENV_SPACING = 2.5            # Abstand zwischen Umgebungen (Meter)
 
 # Datensammlung Konfiguration
-NUM_EPISODES = 100           # Anzahl zu sammelnder Episoden (TOTAL, wird auf Envs verteilt)
-DATASET_PATH = "./dataset"
+NUM_EPISODES = 10 #100           # Anzahl zu sammelnder Episoden (TOTAL, wird auf Envs verteilt)
+DATASET_PATH = "/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/franka_cube_stack_10" #"./dataset"
 DATASET_NAME = "franka_cube_stack_ds"
 SAVE_PNG = True              # Speichere alle Bilder auch als PNG
 
