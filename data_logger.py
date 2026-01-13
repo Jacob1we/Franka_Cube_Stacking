@@ -1,6 +1,18 @@
 """
 Data Logger für Isaac Sim - Franka Panda Datensatz-Generierung
-Struktur kompatibel mit dem deformable/rope Format für dino_wm Training.
+Struktur kompatibel mit dem POINT MAZE Format für dino_wm Training.
+
+Ausgabe-Format (Point Maze kompatibel):
+    dataset/
+    ├── states.pth        # (N, T_max, state_dim) float32
+    ├── actions.pth       # (N, T_max, action_dim) float32
+    ├── seq_lengths.pth   # (N,) long - TENSOR, nicht pkl!
+    ├── obses/
+    │   ├── episode_000.pth  # (T, H, W, C) uint8
+    │   ├── episode_001.pth
+    │   └── ...
+    ├── cameras/          # Optional: Kamera-Kalibrierung
+    └── metadata.pkl      # Optional: Zusätzliche Infos
 
 Verwendung:
     1. Importiere DataLogger in dein Environment
@@ -88,6 +100,8 @@ class FrankaDataLogger:
         """Erstellt die Verzeichnisstruktur."""
         self.dataset_path.mkdir(parents=True, exist_ok=True)
         (self.dataset_path / "cameras").mkdir(exist_ok=True)
+        # Point Maze Format: obses/ Ordner für alle Episode-Bilder
+        (self.dataset_path / "obses").mkdir(exist_ok=True)
     
     def set_camera_calibration(
         self, 
@@ -246,35 +260,34 @@ class FrankaDataLogger:
         h5_data: List[Dict],
         property_params: Dict
     ):
-        """Speichert die Daten eines einzelnen Rollouts."""
+        """
+        Speichert die Daten eines einzelnen Rollouts.
         
-        # Erstelle Episode-Ordner (6-stellig, zero-padded)
-        episode_path = self.dataset_path / f"{episode_id:06d}"
-        episode_path.mkdir(exist_ok=True)
+        Format: Point Maze kompatibel
+        - Bilder: obses/episode_XXX.pth (statt XXXXXX/obses.pth)
+        """
         
-        # 1. obses.pth - Bilder als PyTorch Tensor
+        # Point Maze Format: Bilder in obses/episode_XXX.pth
         obses_tensor = torch.from_numpy(observations)  # (T, H, W, C) uint8
-        torch.save(obses_tensor, episode_path / "obses.pth")
+        obses_path = self.dataset_path / "obses" / f"episode_{episode_id:03d}.pth"
+        torch.save(obses_tensor, obses_path)
         
-        # 2. PNG Bilder speichern (optional)
+        # Optional: PNG Bilder speichern (für Visualisierung)
         if self.save_png:
-            png_folder = episode_path / "images"
-            png_folder.mkdir(exist_ok=True)
+            png_folder = self.dataset_path / "png_preview" / f"episode_{episode_id:03d}"
+            png_folder.mkdir(parents=True, exist_ok=True)
 
-            # Jeden n-ten Frame speichern (1 = alle, 10 = jeden 10ten, etc.)
+            # Jeden n-ten Frame speichern (1 = alle, 50 = jeden 50ten)
             frame_step = 50
             
-            # Direkt über die gewünschten Indizes iterieren
             saved_count = 0
             for img_idx in range(0, len(observations), frame_step):
                 img = observations[img_idx]  # (H, W, C) uint8
                 png_path = png_folder / f"frame_{saved_count:04d}.png"
                 
                 if HAS_PIL:
-                    # Schneller mit PIL
                     Image.fromarray(img).save(png_path)
                 else:
-                    # Fallback mit matplotlib
                     try:
                         import matplotlib.pyplot as plt
                         plt.imsave(str(png_path), img)
@@ -283,27 +296,22 @@ class FrankaDataLogger:
                 
                 saved_count += 1
             
-            log.info(f"  {saved_count} PNG-Bilder gespeichert in {png_folder}")
+            log.debug(f"  {saved_count} PNG-Bilder gespeichert in {png_folder}")
         
-        # 3. property_params.pkl
-        with open(episode_path / "property_params.pkl", "wb") as f:
-            pickle.dump(property_params, f)
-        
-        # 4. H5 Dateien für jeden Timestep (optional, für Kompatibilität)
-        if HAS_H5PY:
-            for t, h5_entry in enumerate(h5_data):
-                h5_path = episode_path / f"{t:02d}.h5"
-                with h5py.File(h5_path, "w") as f:
-                    for key, value in h5_entry.items():
-                        if isinstance(value, np.ndarray):
-                            f.create_dataset(key, data=value)
-                        else:
-                            f.attrs[key] = value
+        # Optional: property_params.pkl (für Kompatibilität)
+        if property_params:
+            params_folder = self.dataset_path / "params"
+            params_folder.mkdir(exist_ok=True)
+            with open(params_folder / f"episode_{episode_id:03d}.pkl", "wb") as f:
+                pickle.dump(property_params, f)
     
     def save_dataset(self):
         """
-        Speichert den gesamten Datensatz (states.pth, actions.pth, cameras/).
-        Sollte am Ende der Datensammlung aufgerufen werden.
+        Speichert den gesamten Datensatz im Point Maze Format:
+        - states.pth (N, T, state_dim)
+        - actions.pth (N, T, action_dim)
+        - seq_lengths.pth (N,) - Tensor!
+        - obses/episode_XXX.pth (bereits beim end_episode gespeichert)
         """
         if len(self.all_states) == 0:
             log.warning("Keine Daten zum Speichern!")
@@ -315,7 +323,7 @@ class FrankaDataLogger:
         action_dim = self.all_actions[0].shape[-1]
         n_rollouts = len(self.all_states)
         
-        log.info(f"Speichere Datensatz: {n_rollouts} Rollouts, max_len={max_len}")
+        log.info(f"Speichere Datensatz (Point Maze Format): {n_rollouts} Rollouts, max_len={max_len}")
         log.info(f"State dim: {state_dim}, Action dim: {action_dim}")
         
         # Erstelle gepaddte Tensoren
@@ -332,13 +340,17 @@ class FrankaDataLogger:
         torch.save(states_padded, self.dataset_path / "states.pth")
         torch.save(actions_padded, self.dataset_path / "actions.pth")
         
+        # Point Maze Format: seq_lengths als TENSOR (.pth), nicht Liste (.pkl)!
+        seq_lengths_tensor = torch.tensor(self.all_episode_lengths, dtype=torch.long)
+        torch.save(seq_lengths_tensor, self.dataset_path / "seq_lengths.pth")
+        
         # Speichere Kamera-Kalibrierung (falls vorhanden)
         if self.camera_intrinsic is not None:
             np.save(self.dataset_path / "cameras" / "intrinsic.npy", self.camera_intrinsic)
         if self.camera_extrinsic is not None:
             np.save(self.dataset_path / "cameras" / "extrinsic.npy", self.camera_extrinsic)
         
-        # Speichere Metadaten
+        # Optional: Metadaten für Debugging (nicht vom Point Maze Loader benötigt)
         metadata = {
             "n_rollouts": n_rollouts,
             "max_timesteps": max_len,
@@ -347,17 +359,16 @@ class FrankaDataLogger:
             "episode_lengths": self.all_episode_lengths,
             "image_size": self.image_size,
             "created": datetime.now().isoformat(),
+            "format": "point_maze_compatible",
         }
         with open(self.dataset_path / "metadata.pkl", "wb") as f:
             pickle.dump(metadata, f)
         
-        # Speichere seq_lengths.pkl für DINO WM Kompatibilität
-        with open(self.dataset_path / "seq_lengths.pkl", "wb") as f:
-            pickle.dump(self.all_episode_lengths, f)
-        
         log.info(f"Datensatz gespeichert: {self.dataset_path}")
-        log.info(f"  states.pth: {states_padded.shape}")
-        log.info(f"  actions.pth: {actions_padded.shape}")
+        log.info(f"  states.pth:      {states_padded.shape}")
+        log.info(f"  actions.pth:     {actions_padded.shape}")
+        log.info(f"  seq_lengths.pth: {seq_lengths_tensor.shape}")
+        log.info(f"  obses/:          {n_rollouts} episode_XXX.pth Dateien")
 
 
 def get_franka_state(franka, task) -> np.ndarray:

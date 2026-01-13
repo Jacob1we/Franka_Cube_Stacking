@@ -9,7 +9,7 @@ simulation:
 
 # Parallelisierung
 parallel:
-  num_envs: 10                       # 1 = Single, >1 = Parallel (z.B. 4 für 2x2 Grid)
+  num_envs: 5                       # 1 = Single, >1 = Parallel (z.B. 4 für 2x2 Grid)
   env_spacing: 2.5                  # Abstand zwischen Umgebungen (Meter)
 
 # Datensammlung
