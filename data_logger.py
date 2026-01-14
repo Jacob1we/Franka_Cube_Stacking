@@ -26,6 +26,7 @@ import torch
 import numpy as np
 import pickle
 import yaml
+import shutil
 from pathlib import Path
 from datetime import datetime
 from typing import Optional, Dict, Any, List, Tuple
@@ -128,6 +129,9 @@ class FrankaDataLogger:
         # Erstelle Verzeichnisstruktur
         self._setup_directories()
         
+        # Prüfe verfügbaren Speicherplatz
+        self._check_disk_space()
+        
         log.info(f"DataLogger initialisiert: {self.dataset_path}")
         log.info(f"  Action Mode: {self.action_mode}")
         log.info(f"  Image Size: {self.image_size}")
@@ -137,6 +141,24 @@ class FrankaDataLogger:
         """Erstellt die Verzeichnisstruktur."""
         self.dataset_path.mkdir(parents=True, exist_ok=True)
         (self.dataset_path / "cameras").mkdir(exist_ok=True)
+    
+    def _check_disk_space(self):
+        """Prüft verfügbaren Speicherplatz und warnt bei wenig Platz."""
+        try:
+            total, used, free = shutil.disk_usage(self.dataset_path)
+            free_gb = free / (1024**3)
+            total_gb = total / (1024**3)
+            free_percent = (free / total) * 100
+            
+            log.info(f"Speicherplatz: {free_gb:.2f} GB frei von {total_gb:.2f} GB ({free_percent:.1f}%)")
+            
+            if free_gb < 1.0:
+                log.error(f"⚠️  WARNUNG: Weniger als 1 GB Speicherplatz frei! ({free_gb:.2f} GB)")
+                log.error("   Datensammlung könnte fehlschlagen!")
+            elif free_gb < 5.0:
+                log.warning(f"⚠️  WARNUNG: Weniger als 5 GB Speicherplatz frei! ({free_gb:.2f} GB)")
+        except Exception as e:
+            log.warning(f"Konnte Speicherplatz nicht prüfen: {e}")
     
     def set_camera_calibration(
         self, 
@@ -337,43 +359,70 @@ class FrankaDataLogger:
         if not HAS_H5PY:
             raise RuntimeError("h5py nicht verfügbar!")
         
-        with h5py.File(h5_path, "w") as f:
-            # Action
-            f.create_dataset("action", data=action.astype(np.float64), dtype=np.float64)
-            
-            # EEF States
-            f.create_dataset("eef_states", data=eef_states, dtype=np.float64)
-            
-            # Positions
-            f.create_dataset("positions", data=positions, dtype=np.float32)
-            
-            # Info-Gruppe
-            info_group = f.create_group("info")
-            info_group.create_dataset("n_cams", data=np.int64(1), dtype=np.int64)
-            info_group.create_dataset("n_cubes", data=np.int64(self.n_cubes), dtype=np.int64)  # n_particles im Rope-Format, hier n_cubes
-            info_group.create_dataset("timestamp", data=np.int64(timestep + 1), dtype=np.int64)  # +1 für Kompatibilität (Rope startet bei 1)
-            
-            # Observations-Gruppe
-            obs_group = f.create_group("observations")
-            
-            # Color
-            color_group = obs_group.create_group("color")
+        try:
+            with h5py.File(h5_path, "w") as f:
+                # Action
+                f.create_dataset("action", data=action.astype(np.float64), dtype=np.float64)
+                
+                # EEF States
+                f.create_dataset("eef_states", data=eef_states, dtype=np.float64)
+                
+                # Positions
+                f.create_dataset("positions", data=positions, dtype=np.float32)
+                
+                # Info-Gruppe
+                info_group = f.create_group("info")
+                info_group.create_dataset("n_cams", data=np.int64(1), dtype=np.int64)
+                info_group.create_dataset("n_cubes", data=np.int64(self.n_cubes), dtype=np.int64)  # n_particles im Rope-Format, hier n_cubes
+                info_group.create_dataset("timestamp", data=np.int64(timestep + 1), dtype=np.int64)  # +1 für Kompatibilität (Rope startet bei 1)
+                
+                # Observations-Gruppe
+                obs_group = f.create_group("observations")
+                
+                # Color
+                color_group = obs_group.create_group("color")
                 # RGB-Bild: (H, W, 3) -> (1, H, W, 3) für Kompatibilität
-            # Konvertiere uint8 zu float32, Werte bleiben 0-255
-            rgb_float = rgb_image.astype(np.float32)
-            rgb_expanded = np.expand_dims(rgb_float, axis=0)
-            color_group.create_dataset("cam_0", data=rgb_expanded, dtype=np.float32)
-            
-            # Depth
-            depth_group = obs_group.create_group("depth")
-            # Depth-Bild: (H, W) -> (1, H, W) für Kompatibilität
-            if depth_image.dtype == np.uint16:
-                depth_expanded = np.expand_dims(depth_image, axis=0)
+                # Konvertiere uint8 zu float32, Werte bleiben 0-255
+                rgb_float = rgb_image.astype(np.float32)
+                rgb_expanded = np.expand_dims(rgb_float, axis=0)
+                color_group.create_dataset("cam_0", data=rgb_expanded, dtype=np.float32)
+                
+                # Depth
+                depth_group = obs_group.create_group("depth")
+                # Depth-Bild: (H, W) -> (1, H, W) für Kompatibilität
+                if depth_image.dtype == np.uint16:
+                    depth_expanded = np.expand_dims(depth_image, axis=0)
+                else:
+                    # Konvertiere float32 zu uint16 (Millimeter)
+                    depth_mm = (depth_image * 1000.0).astype(np.uint16)
+                    depth_expanded = np.expand_dims(depth_mm, axis=0)
+                depth_group.create_dataset("cam_0", data=depth_expanded, dtype=np.uint16)
+        except OSError as e:
+            if "No space left on device" in str(e):
+                log.error("=" * 80)
+                log.error("❌ SPEICHERPLATZ VOLL!")
+                log.error(f"   Konnte H5-Datei nicht speichern: {h5_path}")
+                log.error(f"   Episode: {self.current_episode['id']}")
+                log.error(f"   Timestep: {timestep}")
+                log.error(f"   Episode wird abgebrochen. Bitte Speicherplatz freigeben.")
+                log.error("=" * 80)
+                raise RuntimeError("Speicherplatz voll - Episode abgebrochen") from e
             else:
-                # Konvertiere float32 zu uint16 (Millimeter)
-                depth_mm = (depth_image * 1000.0).astype(np.uint16)
-                depth_expanded = np.expand_dims(depth_mm, axis=0)
-            depth_group.create_dataset("cam_0", data=depth_expanded, dtype=np.uint16)
+                log.error(f"OSError beim Speichern von {h5_path}:")
+                log.error(f"  Error Code: {e.errno}")
+                log.error(f"  Error Message: {str(e)}")
+                import traceback
+                log.error(f"  Traceback:\n{traceback.format_exc()}")
+                raise
+        except Exception as e:
+            log.error(f"Unerwarteter Fehler beim Speichern von {h5_path}:")
+            log.error(f"  Exception Type: {type(e).__name__}")
+            log.error(f"  Exception Message: {str(e)}")
+            log.error(f"  Episode: {self.current_episode['id']}")
+            log.error(f"  Timestep: {timestep}")
+            import traceback
+            log.error(f"  Traceback:\n{traceback.format_exc()}")
+            raise
     
     def discard_episode(self):
         """
@@ -405,20 +454,34 @@ class FrankaDataLogger:
             return
         
         episode_length = self.current_episode["timestep"]
+        episode_id = self.current_episode["id"]
+        
         if episode_length == 0:
-            log.warning("Leere Episode, überspringe...")
+            log.warning(f"Episode {episode_id}: Leere Episode, überspringe...")
             self.current_episode = None
             return
         
-        # Speichere obses.pth
-        observations = np.stack(self.current_episode["observations"], axis=0)  # (T, H, W, C)
-        obses_tensor = torch.from_numpy(observations)  # (T, H, W, C) uint8
-        obses_path = self.current_episode["folder"] / "obses.pth"
-        torch.save(obses_tensor, obses_path)
-        
-        log.info(f"Episode {self.episode_count} beendet: {episode_length} Timesteps")
-        log.info(f"  obses.pth: {obses_tensor.shape}")
-        log.info(f"  H5-Dateien: {episode_length} Dateien (00.h5 bis {episode_length-1:02d}.h5)")
+        try:
+            # Speichere obses.pth
+            log.debug(f"Episode {episode_id}: Speichere obses.pth ({episode_length} Timesteps)...")
+            observations = np.stack(self.current_episode["observations"], axis=0)  # (T, H, W, C)
+            obses_tensor = torch.from_numpy(observations)  # (T, H, W, C) uint8
+            obses_path = self.current_episode["folder"] / "obses.pth"
+            torch.save(obses_tensor, obses_path)
+            log.debug(f"Episode {episode_id}: obses.pth gespeichert: {obses_tensor.shape}")
+            
+            log.info(f"Episode {episode_id} beendet: {episode_length} Timesteps")
+            log.info(f"  obses.pth: {obses_tensor.shape}")
+            log.info(f"  H5-Dateien: {episode_length} Dateien (00.h5 bis {episode_length-1:02d}.h5)")
+            log.info(f"  Speicherort: {self.current_episode['folder']}")
+        except Exception as e:
+            log.error(f"Episode {episode_id}: Fehler beim Beenden der Episode!")
+            log.error(f"  Exception Type: {type(e).__name__}")
+            log.error(f"  Exception Message: {str(e)}")
+            log.error(f"  Episode Length: {episode_length}")
+            import traceback
+            log.error(f"  Traceback:\n{traceback.format_exc()}")
+            raise
         
         self.episode_count += 1
         self.current_episode = None

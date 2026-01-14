@@ -74,9 +74,10 @@ from Franka_Env_JW.rmpflow_controller_jw import (
     PRESET_LOCK_THREE,
 )
 
+# Erweiterte Logging-Konfiguration mit mehr Details
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    format="%(asctime)s [%(levelname)8s] %(name)s: %(message)s",
     handlers=[
         logging.StreamHandler(sys.stdout),
         logging.FileHandler("data_collection.log", encoding="utf-8")
@@ -85,6 +86,27 @@ logging.basicConfig(
 )
 
 log = logging.getLogger("FrankaCubeStacking")
+
+# Detailliertes Exception-Logging aktivieren
+def log_exception(exc_type, exc_value, exc_traceback):
+    """Detailliertes Exception-Logging mit vollem Stack Trace."""
+    if issubclass(exc_type, KeyboardInterrupt):
+        sys.__excepthook__(exc_type, exc_value, exc_traceback)
+        return
+    
+    log.error(
+        "=" * 80,
+        exc_info=(exc_type, exc_value, exc_traceback)
+    )
+    log.error(f"Exception Type: {exc_type.__name__}")
+    log.error(f"Exception Value: {exc_value}")
+    log.error("Full Traceback:")
+    import traceback
+    for line in traceback.format_exception(exc_type, exc_value, exc_traceback):
+        log.error(line.rstrip())
+
+# Setze custom exception handler
+sys.excepthook = log_exception
 
 #region: Konstanten aus Config
 SEED = CFG["simulation"]["seed"]
@@ -615,6 +637,13 @@ def main():
     
     simulation_context = SimulationContext()
     
+    # Warte ein paar Frames, damit Kameras initialisiert werden können
+    log.info("Warte auf Kamera-Initialisierung...")
+    for _ in range(10):
+        simulation_app.update()
+        shared_world.step(render=False)  # render=False für schnellere Initialisierung
+    log.info("Kamera-Initialisierung abgeschlossen")
+    
     # ================================================================
     # DATA LOGGER SETUP
     # ================================================================
@@ -683,6 +712,13 @@ def main():
         }
         global_episode_id += 1
     
+    # Warte ein paar Frames, damit Kameras initialisiert werden können
+    log.info("Warte auf Kamera-Initialisierung...")
+    for _ in range(10):
+        simulation_app.update()
+        shared_world.step(render=False)  # render=False für schnellere Initialisierung
+    log.info("Kamera-Initialisierung abgeschlossen")
+    
     while simulation_app.is_running() and total_successful < NUM_EPISODES:
         simulation_app.update()
         
@@ -705,14 +741,76 @@ def main():
             
             # Daten in temporärem Buffer sammeln
             try:
+                # Prüfe ob Kamera bereit ist
+                if not hasattr(camera, 'get_rgba'):
+                    log.warning(f"Env {i}: Kamera hat keine get_rgba() Methode, überspringe")
+                    continue
+                
                 rgba = camera.get_rgba()
+                
+                # Prüfe Format von rgba und konvertiere falls nötig
+                if rgba is None:
+                    log.debug(f"Env {i}: rgba ist None (Kamera noch nicht bereit?), überspringe Timestep")
+                    continue
+                
+                # Konvertiere zu numpy array falls nötig
+                if not isinstance(rgba, np.ndarray):
+                    rgba = np.array(rgba)
+                
+                # Prüfe ob Array leer ist (Kamera noch nicht bereit)
+                if rgba.size == 0:
+                    # Kamera noch nicht bereit - überspringe stillschweigend (nur bei ersten Frames)
+                    # Verwende debug statt warning, um Log-Spam zu vermeiden
+                    continue
+                
+                # Prüfe Shape und konvertiere falls nötig
+                if rgba.ndim == 1:
+                    # 1D Array - möglicherweise flach, versuche zu reshapen
+                    expected_size = CAM_RESOLUTION[0] * CAM_RESOLUTION[1] * 4  # RGBA
+                    if rgba.size == expected_size:
+                        rgba = rgba.reshape((CAM_RESOLUTION[0], CAM_RESOLUTION[1], 4))
+                    else:
+                        log.debug(f"Env {i}: rgba Shape {rgba.shape} != erwartet {expected_size} (Kamera noch nicht bereit?), überspringe")
+                        continue
+                elif rgba.ndim == 2:
+                    # 2D Array - möglicherweise Graustufen, konvertiere zu RGB
+                    if rgba.size == 0:
+                        continue
+                    log.debug(f"Env {i}: rgba ist 2D, konvertiere zu RGB")
+                    rgba = np.stack([rgba, rgba, rgba, np.ones_like(rgba) * 255], axis=-1)
+                elif rgba.ndim == 3:
+                    # 3D Array - sollte (H, W, C) sein
+                    if rgba.shape[2] == 1:
+                        # Graustufen, konvertiere zu RGBA
+                        rgba = np.repeat(rgba, 4, axis=2)
+                        rgba[:, :, 3] = 255  # Alpha = 255
+                    elif rgba.shape[2] == 3:
+                        # RGB, füge Alpha-Kanal hinzu
+                        alpha = np.ones((rgba.shape[0], rgba.shape[1], 1), dtype=rgba.dtype) * 255
+                        rgba = np.concatenate([rgba, alpha], axis=2)
+                    # rgba.shape[2] == 4 ist OK
+                else:
+                    # Unerwartete Dimensionen
+                    log.debug(f"Env {i}: Unerwartete rgba Dimensionen: {rgba.ndim}, Shape: {rgba.shape}, überspringe")
+                    continue
+                
+                # Extrahiere RGB (erste 3 Kanäle)
+                rgb = rgba[:, :, :3].copy()
+                
+                # Stelle sicher, dass es uint8 ist
+                if rgb.dtype != np.uint8:
+                    if rgb.max() <= 1.0:
+                        rgb = (rgb * 255).astype(np.uint8)
+                    else:
+                        rgb = rgb.astype(np.uint8)
+                
                 # Depth-Bild: Versuche verschiedene API-Methoden
                 try:
                     # Methode 1: get_current_frame()
                     frame = camera.get_current_frame()
-                    if "distance_to_image_plane" in frame:
+                    if frame and "distance_to_image_plane" in frame:
                         depth = frame["distance_to_image_plane"]
-                    elif "depth" in frame:
+                    elif frame and "depth" in frame:
                         depth = frame["depth"]
                     else:
                         depth = None
@@ -724,8 +822,7 @@ def main():
                         # Fallback: Leeres Depth-Bild
                         depth = None
                 
-                if rgba is not None:
-                    rgb = rgba[:, :, :3]
+                if rgb is not None and rgb.size > 0:
                     
                     # Endeffektor-Pose extrahieren
                     ee_pos, ee_quat = env.franka.end_effector.get_world_pose()
@@ -754,6 +851,32 @@ def main():
                     
                     # Depth-Bild konvertieren falls nötig
                     if depth is not None:
+                        # Konvertiere zu numpy falls nötig
+                        if not isinstance(depth, np.ndarray):
+                            depth = np.array(depth)
+                        
+                        # Prüfe Shape
+                        if depth.ndim == 1:
+                            # 1D Array - versuche zu reshapen
+                            expected_size = CAM_RESOLUTION[0] * CAM_RESOLUTION[1]
+                            if depth.size == expected_size:
+                                depth = depth.reshape(CAM_RESOLUTION)
+                            else:
+                                log.warning(f"Env {i}: Unerwartete depth Shape: {depth.shape}, erstelle leeres Bild")
+                                depth = np.zeros((CAM_RESOLUTION[0], CAM_RESOLUTION[1]), dtype=np.float32)
+                        elif depth.ndim == 2:
+                            # 2D Array - sollte (H, W) sein
+                            if depth.shape != tuple(CAM_RESOLUTION):
+                                log.warning(f"Env {i}: Depth Shape {depth.shape} != {CAM_RESOLUTION}, resizing...")
+                                from PIL import Image
+                                depth_img = Image.fromarray(depth.astype(np.uint16))
+                                depth_img = depth_img.resize((CAM_RESOLUTION[1], CAM_RESOLUTION[0]))
+                                depth = np.array(depth_img).astype(np.float32)
+                        else:
+                            log.warning(f"Env {i}: Unerwartete depth Dimensionen: {depth.ndim}, erstelle leeres Bild")
+                            depth = np.zeros((CAM_RESOLUTION[0], CAM_RESOLUTION[1]), dtype=np.float32)
+                        
+                        # Konvertiere zu float32
                         if depth.dtype != np.float32:
                             depth = depth.astype(np.float32)
                     else:
@@ -768,9 +891,15 @@ def main():
                     episode_data[i]["cube_positions"].append(cube_positions)
                     episode_data[i]["actions"].append(action)  # Controller-Action direkt speichern
             except Exception as e:
-                log.warning(f"Env {i}: Fehler beim Sammeln: {e}")
+                log.error(f"Env {i}: Fehler beim Datensammeln!")
+                log.error(f"  Exception Type: {type(e).__name__}")
+                log.error(f"  Exception Message: {str(e)}")
+                log.error(f"  Timestep: {step_counts[i]}")
+                log.error(f"  Episode ID: {active_episode_ids[i]}")
                 import traceback
-                log.warning(traceback.format_exc())
+                log.error(f"  Full Traceback:\n{traceback.format_exc()}")
+                # Re-raise für besseres Debugging
+                raise
             
             # Action ausführen
             articulations[i].apply_action(action)
@@ -785,32 +914,49 @@ def main():
                 
                 if is_valid and len(episode_data[i]["observations"]) > 0:
                     # Episode erfolgreich - in zentralen Logger übertragen
-                    logger.start_episode(total_successful)
-                    # property_params werden nicht mehr gespeichert (wie gewünscht)
-                    # logger.set_episode_params(episode_data[i]["params"])  # Auskommentiert
-                    
-                    # Alle gesammelten Daten übertragen (neues Format)
-                    for obs, depth, ee_pos, ee_quat, cube_pos, controller_act in zip(
-                        episode_data[i]["observations"],
-                        episode_data[i]["depths"],
-                        episode_data[i]["ee_positions"],
-                        episode_data[i]["ee_quaternions"],
-                        episode_data[i]["cube_positions"],
-                        episode_data[i]["actions"]
-                    ):
-                        logger.log_step(
-                            rgb_image=obs,
-                            depth_image=depth,
-                            ee_pos=ee_pos,
-                            ee_quat=ee_quat,
-                            controller_action=controller_act,
-                            cube_positions=cube_pos
-                        )
-                    
-                    logger.end_episode()
-                    successful_counts[i] += 1
-                    total_successful += 1
-                    log.info(f"✅ Env {i}: Episode {total_successful} erfolgreich ({step_counts[i]} steps, Seed {seeds[i]})")
+                    try:
+                        logger.start_episode(total_successful)
+                        # property_params werden nicht mehr gespeichert (wie gewünscht)
+                        # logger.set_episode_params(episode_data[i]["params"])  # Auskommentiert
+                        
+                        # Alle gesammelten Daten übertragen (neues Format)
+                        log.debug(f"Env {i}: Übertrage {len(episode_data[i]['observations'])} Timesteps in Logger...")
+                        for t_idx, (obs, depth, ee_pos, ee_quat, cube_pos, controller_act) in enumerate(zip(
+                            episode_data[i]["observations"],
+                            episode_data[i]["depths"],
+                            episode_data[i]["ee_positions"],
+                            episode_data[i]["ee_quaternions"],
+                            episode_data[i]["cube_positions"],
+                            episode_data[i]["actions"]
+                        )):
+                            try:
+                                logger.log_step(
+                                    rgb_image=obs,
+                                    depth_image=depth,
+                                    ee_pos=ee_pos,
+                                    ee_quat=ee_quat,
+                                    controller_action=controller_act,
+                                    cube_positions=cube_pos
+                                )
+                            except Exception as e:
+                                log.error(f"Env {i}: Fehler beim log_step (Timestep {t_idx}):")
+                                log.error(f"  Exception: {type(e).__name__}: {str(e)}")
+                                import traceback
+                                log.error(f"  Traceback:\n{traceback.format_exc()}")
+                                raise
+                        
+                        logger.end_episode()
+                        successful_counts[i] += 1
+                        total_successful += 1
+                        log.info(f"✅ Env {i}: Episode {total_successful} erfolgreich ({step_counts[i]} steps, Seed {seeds[i]})")
+                    except Exception as e:
+                        log.error(f"Env {i}: Fehler beim Speichern der Episode {total_successful}:")
+                        log.error(f"  Exception: {type(e).__name__}: {str(e)}")
+                        import traceback
+                        log.error(f"  Traceback:\n{traceback.format_exc()}")
+                        # Episode verwerfen
+                        failed_seeds.append(seeds[i])
+                        log.error(f"  Episode wird verworfen")
                 else:
                     # Episode fehlgeschlagen - Daten verwerfen
                     failed_seeds.append(seeds[i])
@@ -871,7 +1017,7 @@ def main():
     
     # Speichere fehlgeschlagene Seeds
     if failed_seeds:
-        failed_seeds_path = os.path.join(local_save_path, DATASET_NAME, "failed_seeds.txt")
+        failed_seeds_path = logger.dataset_path / "failed_seeds.txt"
         os.makedirs(os.path.dirname(failed_seeds_path), exist_ok=True)
         with open(failed_seeds_path, "w") as f:
             f.write("# Fehlgeschlagene Seeds - Würfel nicht korrekt gestapelt\n")
@@ -892,9 +1038,30 @@ def main():
         log.info(f"  Erfolgsrate: {total_successful / total_episodes * 100:.1f}%")
     log.info("=" * 60)
     
-    simulation_app.close()
+    try:
+        simulation_app.close()
+    except Exception as e:
+        log.error(f"Fehler beim Schließen der Simulation:")
+        log.error(f"  Exception: {type(e).__name__}: {str(e)}")
+        import traceback
+        log.error(f"  Traceback:\n{traceback.format_exc()}")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        log.warning("Programm durch Benutzer unterbrochen (Ctrl+C)")
+        raise
+    except Exception as e:
+        log.error("=" * 80)
+        log.error("KRITISCHER FEHLER - Programm wird beendet")
+        log.error(f"Exception Type: {type(e).__name__}")
+        log.error(f"Exception Message: {str(e)}")
+        import traceback
+        log.error("Full Traceback:")
+        for line in traceback.format_exception(type(e), e, e.__traceback__):
+            log.error(line.rstrip())
+        log.error("=" * 80)
+        raise
 
