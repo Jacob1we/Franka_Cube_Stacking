@@ -18,6 +18,9 @@ dataset:
   path: "/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets"
   name: "franka_cube_stack_ds"
   save_png: true                    # Speichere alle Bilder auch als PNG
+  action_mode: "delta_pose"         # Action-Codierung:
+                                    #   "delta_pose": [dx, dy, dz, d_yaw] - relative Positionsänderung
+                                    #   "velocity":   [vx, vy, vz, omega_z] - Geschwindigkeiten
 
 # Kamera
 camera:

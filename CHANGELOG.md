@@ -2,6 +2,81 @@
 
 Diese Datei dokumentiert alle Änderungen und Entwicklungsfortschritte am Data Logger für das Franka Cube Stacking Projekt.
 
+## [2026-01-14] - Action-Format: Zwei konfigurierbare Modi
+
+### ✅ Zwei Action-Modi
+
+Das Action-Format ist jetzt über `action_mode` Parameter (in config.yaml) konfigurierbar:
+
+**Option 1: `action_mode="delta_pose"` (Default)**
+```
+action = [delta_x, delta_y, delta_z, delta_yaw]
+```
+- **delta_x/y/z**: Relative Position-Änderung des EE in Metern
+- **delta_yaw**: Rotation um Z-Achse in Radiant
+
+**Option 2: `action_mode="velocity"`**
+```
+action = [vx, vy, vz, omega_z]
+```
+- **vx/vy/vz**: Translatorische Geschwindigkeit in m/s
+- **omega_z**: Rotatorische Geschwindigkeit um Z-Achse in rad/s
+
+### Änderungen in config.yaml
+
+```yaml
+dataset:
+  action_mode: "delta_pose"   # oder "velocity"
+```
+
+### Änderungen in data_logger.py
+
+1. **Neuer Parameter**: `action_mode` ("delta_pose" oder "velocity")
+2. **Parameter**: `dt` für Timestep (Default: 1/60s = 60Hz)
+3. **Neue Methoden**:
+   - `_quaternion_to_yaw()`: Extrahiert Yaw aus Quaternion
+   - `_normalize_angle()`: Normalisiert Winkel auf [-π, π]
+4. **Action-Berechnung** automatisch aus EE-Pose:
+   ```python
+   # delta_pose Modus
+   delta_pos = ee_pos - prev_ee_pos
+   delta_yaw = current_yaw - prev_yaw
+   action = [delta_pos[0], delta_pos[1], delta_pos[2], delta_yaw]
+   
+   # velocity Modus
+   velocity = delta_pos / dt
+   omega_z = delta_yaw / dt
+   action = [velocity[0], velocity[1], velocity[2], omega_z]
+   ```
+5. **H5-Info**: `action_mode` wird als Attribut in `info/` gespeichert
+
+### Änderungen in fcs_main_parallel.py
+
+1. **Logger-Initialisierung** liest `action_mode` aus Config:
+   ```python
+   action_mode = CFG.get("dataset", {}).get("action_mode", "delta_pose")
+   logger = FrankaDataLogger(config=CFG, action_mode=action_mode, dt=1.0/60.0)
+   ```
+
+### Änderungen in franka_cube_stack_dset.py
+
+1. **Automatische Erkennung** des `action_mode` aus H5-Dateien
+2. **Einheitliche Z-Score Normalisierung** für alle 4 Dimensionen
+3. **Info-Ausgabe** zeigt erkannten action_mode und Format
+
+### Rope-Kompatibilität
+
+Das neue Format ist vollständig kompatibel mit dem Rope-Dataset:
+- `obses.pth`: (T, H, W, C) float32, Werte 0-255
+- `action` in H5: (4,) float64
+- `eef_states`: (1, 1, 14) float64
+- `positions`: (1, n_cubes, 4) float32
+- `observations/color/cam_0`: (1, H, W, 3) float32
+- `observations/depth/cam_0`: (1, H, W) uint16
+- `info/action_mode`: String-Attribut ("delta_pose" oder "velocity")
+
+---
+
 ## [2024-XX-XX] - Integration in fcs_main_parallel.py
 
 ### ✅ Hauptskript-Anpassungen

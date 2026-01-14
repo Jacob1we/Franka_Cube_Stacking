@@ -647,10 +647,18 @@ def main():
     # ================================================================
     # DATA LOGGER SETUP
     # ================================================================
-    # Logger mit Config initialisieren (neues Format)
+    # Logger mit Config initialisieren
+    # Action wird automatisch aus EE-Bewegung berechnet
+    #
+    # action_mode Optionen:
+    #   "delta_pose": [delta_x, delta_y, delta_z, delta_yaw] - relative Positionsänderung
+    #   "velocity":   [vx, vy, vz, omega_z] - Geschwindigkeiten
+    #
+    action_mode = CFG.get("dataset", {}).get("action_mode", "delta_pose")
     logger = FrankaDataLogger(
-        config=CFG,  # Verwende bereits geladene Config
-        action_mode="controller",  # oder "ee_velocity" für EE-Position+Velocity
+        config=CFG,
+        action_mode=action_mode,  # Aus Config oder Default "delta_pose"
+        dt=1.0 / 60.0,  # Simulation läuft mit 60 Hz
     )
     
     # Überschreibe Dataset-Name mit Timestamp (wird in Config verwendet, aber wir überschreiben)
@@ -695,6 +703,7 @@ def main():
         cube_positions_list[i] = cube_pos
         
         # Episode-Daten initialisieren (noch nicht im Logger starten)
+        # Action wird im Logger automatisch aus EE-Bewegung berechnet!
         active_episode_ids[i] = global_episode_id
         episode_data[i] = {
             "observations": [],
@@ -702,7 +711,6 @@ def main():
             "ee_positions": [],
             "ee_quaternions": [],
             "cube_positions": [],
-            "actions": [],
             "params": {
                 "seed": seeds[i],
                 "env_idx": i,
@@ -884,12 +892,12 @@ def main():
                         depth = np.zeros((CAM_RESOLUTION[0], CAM_RESOLUTION[1]), dtype=np.float32)
                     
                     # In Episode-Buffer speichern (nicht direkt im Logger)
+                    # Action wird im Logger aus EE-Bewegung berechnet, nicht hier!
                     episode_data[i]["observations"].append(rgb)
                     episode_data[i]["depths"].append(depth)
                     episode_data[i]["ee_positions"].append(ee_pos)
                     episode_data[i]["ee_quaternions"].append(ee_quat)
                     episode_data[i]["cube_positions"].append(cube_positions)
-                    episode_data[i]["actions"].append(action)  # Controller-Action direkt speichern
             except Exception as e:
                 log.error(f"Env {i}: Fehler beim Datensammeln!")
                 log.error(f"  Exception Type: {type(e).__name__}")
@@ -920,14 +928,14 @@ def main():
                         # logger.set_episode_params(episode_data[i]["params"])  # Auskommentiert
                         
                         # Alle gesammelten Daten übertragen (neues Format)
+                        # Action wird im Logger automatisch aus EE-Bewegung berechnet!
                         log.debug(f"Env {i}: Übertrage {len(episode_data[i]['observations'])} Timesteps in Logger...")
-                        for t_idx, (obs, depth, ee_pos, ee_quat, cube_pos, controller_act) in enumerate(zip(
+                        for t_idx, (obs, depth, ee_pos, ee_quat, cube_pos) in enumerate(zip(
                             episode_data[i]["observations"],
                             episode_data[i]["depths"],
                             episode_data[i]["ee_positions"],
                             episode_data[i]["ee_quaternions"],
                             episode_data[i]["cube_positions"],
-                            episode_data[i]["actions"]
                         )):
                             try:
                                 logger.log_step(
@@ -935,7 +943,6 @@ def main():
                                     depth_image=depth,
                                     ee_pos=ee_pos,
                                     ee_quat=ee_quat,
-                                    controller_action=controller_act,
                                     cube_positions=cube_pos
                                 )
                             except Exception as e:
@@ -975,6 +982,7 @@ def main():
                     cube_positions_list[i] = cube_pos
                     
                     # Neuen Episode-Buffer initialisieren
+                    # Action wird im Logger automatisch aus EE-Bewegung berechnet!
                     active_episode_ids[i] = global_episode_id
                     episode_data[i] = {
                         "observations": [],
@@ -982,7 +990,6 @@ def main():
                         "ee_positions": [],
                         "ee_quaternions": [],
                         "cube_positions": [],
-                        "actions": [],
                         "params": {
                             "seed": seeds[i],
                             "env_idx": i,

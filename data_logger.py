@@ -2,14 +2,31 @@
 Data Logger für Isaac Sim - Franka Panda + 2 Würfel Datensatz-Generierung
 Struktur kompatibel mit dem ROPE/DEFORMABLE Format.
 
+Action-Format (2 Optionen, via action_mode Parameter):
+
+    Option 1: "delta_pose" - 3D Translation + 1D Rotation
+        action = [delta_x, delta_y, delta_z, delta_yaw]
+        - delta_x/y/z: Relative Position-Änderung des EE in Metern
+        - delta_yaw: Rotation um Z-Achse in Radiant
+
+    Option 2: "velocity" - Geschwindigkeitsbasierte Steuerung
+        action = [vx, vy, vz, omega_z]
+        - vx/vy/vz: Translatorische Geschwindigkeit in m/s
+        - omega_z: Rotatorische Geschwindigkeit um Z-Achse in rad/s
+
 Ausgabe-Format (Rope-kompatibel):
     dataset/
     ├── cameras/
     │   ├── intrinsic.npy      # (4, 4) float64 - Intrinsische Parameter
-    │   └── extrinsic.npy      # (4, 4) float64 - Extrinsische Parameter (1 Kamera)
-    ├── 000001/                 # Episode 1 (6-stellig, 0-padded)
-    │   ├── obses.pth          # (T, H, W, C) uint8 - Alle Beobachtungsbilder
+    │   └── extrinsic.npy      # (4, 4, 4) float64 - Extrinsische Parameter (4x für Kompatibilität)
+    ├── 000000/                 # Episode 0 (6-stellig, 0-padded)
+    │   ├── obses.pth          # (T, H, W, C) float32 - Alle Beobachtungsbilder (Werte 0-255)
     │   ├── 00.h5              # HDF5 - Timestep 0 Daten
+    │   │   ├── action         # (4,) float64 - siehe Action-Format
+    │   │   ├── eef_states     # (1, 1, 14) float64 - EE Position + Quaternion (dupliziert)
+    │   │   ├── positions      # (1, n_cubes, 4) float32 - Würfel (x, y, z, yaw)
+    │   │   ├── info/          # n_cams, n_cubes, timestamp, action_mode
+    │   │   └── observations/  # color/cam_0, depth/cam_0
     │   ├── 01.h5              # HDF5 - Timestep 1 Daten
     │   └── ...
     └── ...
@@ -18,7 +35,7 @@ Verwendung:
     1. Importiere DataLogger in dein Environment
     2. Lade Config mit load_config_from_yaml()
     3. Rufe logger.start_episode() am Anfang jeder Episode auf
-    4. Rufe logger.log_step(...) bei jedem Timestep auf
+    4. Rufe logger.log_step(rgb, depth, ee_pos, ee_quat, cube_positions) bei jedem Timestep auf
     5. Rufe logger.end_episode() am Ende jeder Episode auf
 """
 
@@ -29,8 +46,16 @@ import yaml
 import shutil
 from pathlib import Path
 from datetime import datetime
-from typing import Optional, Dict, Any, List, Tuple
+from typing import Optional, Dict, Any, List, Tuple, Literal
 import logging
+
+# Für Quaternion -> Euler Konvertierung
+try:
+    from scipy.spatial.transform import Rotation as R
+    HAS_SCIPY = True
+except ImportError:
+    HAS_SCIPY = False
+    logging.warning("scipy nicht verfügbar - Yaw-Berechnung aus Quaternion nicht möglich")
 
 # Für PNG-Speicherung
 try:
@@ -87,13 +112,17 @@ class FrankaDataLogger:
         self,
         config: Optional[dict] = None,
         config_path: Optional[str] = None,
-        action_mode: str = "controller",  # "controller" oder "ee_velocity"
+        action_mode: Literal["delta_pose", "velocity"] = "delta_pose",
+        dt: float = 1.0 / 60.0,  # Simulation timestep (60 Hz default)
     ):
         """
         Args:
             config: Dictionary mit Konfiguration (wird aus config_path geladen falls None)
             config_path: Pfad zur config.yaml (wird verwendet falls config=None)
-            action_mode: "controller" = Controller-Action, "ee_velocity" = EE-Position+Velocity
+            action_mode: Action-Codierung:
+                - "delta_pose": [delta_x, delta_y, delta_z, delta_yaw] - relative Positionsänderung
+                - "velocity": [vx, vy, vz, omega_z] - Geschwindigkeiten
+            dt: Simulation timestep für Geschwindigkeitsberechnung (Default: 1/60 = 60Hz)
         """
         # Lade Config
         if config is None:
@@ -109,6 +138,11 @@ class FrankaDataLogger:
         self.save_png = config["dataset"].get("save_png", True)
         self.n_cubes = config["cubes"]["count"]
         self.action_mode = action_mode
+        self.dt = dt  # Timestep für Geschwindigkeitsberechnung
+        
+        # Validiere action_mode
+        if action_mode not in ["delta_pose", "velocity"]:
+            raise ValueError(f"Ungültiger action_mode: {action_mode}. Erlaubt: 'delta_pose', 'velocity'")
         
         # Kamera-Parameter aus Config
         self.camera_position = np.array(config["camera"]["position"], dtype=np.float64)
@@ -134,6 +168,13 @@ class FrankaDataLogger:
         
         log.info(f"DataLogger initialisiert: {self.dataset_path}")
         log.info(f"  Action Mode: {self.action_mode}")
+        if self.action_mode == "delta_pose":
+            log.info(f"    Format: [delta_x, delta_y, delta_z, delta_yaw]")
+            log.info(f"    Bedeutung: Relative Positionsänderung (m) + Rotation (rad)")
+        else:  # velocity
+            log.info(f"    Format: [vx, vy, vz, omega_z]")
+            log.info(f"    Bedeutung: Geschwindigkeit (m/s) + Rotationsgeschwindigkeit (rad/s)")
+        log.info(f"  Timestep (dt): {self.dt:.4f}s ({1.0/self.dt:.1f} Hz)")
         log.info(f"  Image Size: {self.image_size}")
         log.info(f"  Number of Cubes: {self.n_cubes}")
     
@@ -222,18 +263,28 @@ class FrankaDataLogger:
         depth_image: np.ndarray,
         ee_pos: np.ndarray,
         ee_quat: np.ndarray,
-        controller_action: Optional[Any] = None,
         cube_positions: List[Tuple[float, float, float, float]] = None,  # [(x, y, z, yaw), ...]
     ):
         """
         Loggt einen einzelnen Timestep.
         
+        Action wird automatisch aus EE-Bewegung berechnet (abhängig von action_mode):
+        
+        action_mode="delta_pose":
+            [delta_x, delta_y, delta_z, delta_yaw]
+            - delta_x/y/z: Relative Position-Änderung in Metern
+            - delta_yaw: Rotation um Z-Achse in Radiant
+        
+        action_mode="velocity":
+            [vx, vy, vz, omega_z]
+            - vx/vy/vz: Translatorische Geschwindigkeit in m/s
+            - omega_z: Rotatorische Geschwindigkeit um Z-Achse in rad/s
+        
         Args:
             rgb_image: RGB Bild (H, W, 3) uint8, Werte 0-255
             depth_image: Tiefenbild (H, W) float32 oder uint16
             ee_pos: Endeffektor Position (3,) float32
-            ee_quat: Endeffektor Orientierung (4,) float32 [w, x, y, z]
-            controller_action: Optional Controller-Action (für action_mode="controller")
+            ee_quat: Endeffektor Orientierung (4,) float32 [w, x, y, z] (wxyz Format)
             cube_positions: Liste von (x, y, z, yaw) für jeden Würfel
         """
         if self.current_episode is None:
@@ -251,29 +302,41 @@ class FrankaDataLogger:
         
         self.current_episode["observations"].append(rgb_image.astype(np.uint8))
         
-        # Berechne Action basierend auf Mode
-        if self.action_mode == "controller":
-            if controller_action is None:
-                log.warning("controller_action ist None, verwende Null-Action")
-                action = np.zeros(4, dtype=np.float64)
-            else:
-                # Extrahiere Action aus Controller
-                action = self._extract_controller_action(controller_action)
-        elif self.action_mode == "ee_velocity":
-            # Berechne EE-Velocity aus Position
-            if self.prev_ee_pos is not None:
-                # Velocity = Delta Position (vereinfacht, sollte eigentlich durch dt geteilt werden)
-                ee_velocity = ee_pos - self.prev_ee_pos
-            else:
-                ee_velocity = np.zeros(3, dtype=np.float64)
+        # Extrahiere aktuellen Yaw aus Quaternion
+        current_yaw = self._quaternion_to_yaw(ee_quat)
+        
+        # Berechne Action basierend auf action_mode
+        if self.prev_ee_pos is not None and self.prev_ee_quat is not None:
+            # Delta Position
+            delta_pos = ee_pos.astype(np.float64) - self.prev_ee_pos
             
-            # Action = [x, y, z, velocity_magnitude]
-            action = np.concatenate([
-                ee_pos.astype(np.float64),
-                [np.linalg.norm(ee_velocity)]
-            ])
+            # Delta Yaw (Rotation um Z-Achse)
+            prev_yaw = self._quaternion_to_yaw(self.prev_ee_quat)
+            delta_yaw = self._normalize_angle(current_yaw - prev_yaw)
+            
+            if self.action_mode == "delta_pose":
+                # Option 1: 3D Translation + 1D Rotation (relative Änderungen)
+                action = np.array([
+                    delta_pos[0],  # delta_x (m)
+                    delta_pos[1],  # delta_y (m)
+                    delta_pos[2],  # delta_z (m)
+                    delta_yaw,     # delta_yaw (rad)
+                ], dtype=np.float64)
+            
+            elif self.action_mode == "velocity":
+                # Option 2: Geschwindigkeitsbasierte Steuerung
+                velocity = delta_pos / self.dt  # m/s
+                omega_z = delta_yaw / self.dt   # rad/s
+                
+                action = np.array([
+                    velocity[0],  # vx (m/s)
+                    velocity[1],  # vy (m/s)
+                    velocity[2],  # vz (m/s)
+                    omega_z,      # omega_z (rad/s)
+                ], dtype=np.float64)
         else:
-            raise ValueError(f"Unbekannter action_mode: {self.action_mode}")
+            # Erster Timestep: Keine Bewegung bekannt
+            action = np.zeros(4, dtype=np.float64)
         
         # Berechne EEF States (1, 1, 14) Format
         # Format: [[[x, y, z, x, y, z, qw, qx, qy, qz, qw, qx, qy, qz]]]]
@@ -315,24 +378,44 @@ class FrankaDataLogger:
         self.prev_ee_quat = ee_quat.copy()
         self.current_episode["timestep"] += 1
     
-    def _extract_controller_action(self, controller_action) -> np.ndarray:
+    def _quaternion_to_yaw(self, quat: np.ndarray) -> float:
         """
-        Extrahiert Action aus Controller-Action.
+        Extrahiert Yaw (Z-Rotation) aus Quaternion.
+        
+        Args:
+            quat: Quaternion im Format [w, x, y, z] (wxyz)
         
         Returns:
-            action: (4,) float64 - [x, y, z, ?] oder ähnlich
+            yaw: Rotation um Z-Achse in Radiant [-pi, pi]
         """
-        # Versuche verschiedene Attribute
-        if hasattr(controller_action, 'joint_positions') and controller_action.joint_positions is not None:
-            joint_cmd = np.array(controller_action.joint_positions[:7], dtype=np.float64)
-            # Nimm erste 4 Joints als Action
-            return joint_cmd[:4]
-        elif hasattr(controller_action, 'joint_velocities') and controller_action.joint_velocities is not None:
-            joint_cmd = np.array(controller_action.joint_velocities[:7], dtype=np.float64)
-            return joint_cmd[:4]
+        if HAS_SCIPY:
+            # scipy erwartet [x, y, z, w] Format
+            quat_xyzw = np.array([quat[1], quat[2], quat[3], quat[0]])
+            rot = R.from_quat(quat_xyzw)
+            euler = rot.as_euler('xyz', degrees=False)
+            return float(euler[2])  # Z-Rotation = Yaw
         else:
-            log.warning("Konnte Action nicht aus Controller extrahieren, verwende Null-Action")
-            return np.zeros(4, dtype=np.float64)
+            # Fallback: Manuelle Berechnung (nur Yaw)
+            w, x, y, z = quat[0], quat[1], quat[2], quat[3]
+            siny_cosp = 2.0 * (w * z + x * y)
+            cosy_cosp = 1.0 - 2.0 * (y * y + z * z)
+            return float(np.arctan2(siny_cosp, cosy_cosp))
+    
+    def _normalize_angle(self, angle: float) -> float:
+        """
+        Normalisiert Winkel auf [-pi, pi].
+        
+        Args:
+            angle: Winkel in Radiant
+        
+        Returns:
+            Normalisierter Winkel in [-pi, pi]
+        """
+        while angle > np.pi:
+            angle -= 2.0 * np.pi
+        while angle < -np.pi:
+            angle += 2.0 * np.pi
+        return angle
     
     def _save_h5_timestep(
         self,
@@ -375,6 +458,8 @@ class FrankaDataLogger:
                 info_group.create_dataset("n_cams", data=np.int64(1), dtype=np.int64)
                 info_group.create_dataset("n_cubes", data=np.int64(self.n_cubes), dtype=np.int64)  # n_particles im Rope-Format, hier n_cubes
                 info_group.create_dataset("timestamp", data=np.int64(timestep + 1), dtype=np.int64)  # +1 für Kompatibilität (Rope startet bei 1)
+                # Speichere action_mode als String-Attribut
+                info_group.attrs["action_mode"] = self.action_mode
                 
                 # Observations-Gruppe
                 obs_group = f.create_group("observations")
@@ -462,13 +547,15 @@ class FrankaDataLogger:
             return
         
         try:
-            # Speichere obses.pth
+            # Speichere obses.pth (Rope-Format: float32, Werte 0-255)
             log.debug(f"Episode {episode_id}: Speichere obses.pth ({episode_length} Timesteps)...")
-            observations = np.stack(self.current_episode["observations"], axis=0)  # (T, H, W, C)
-            obses_tensor = torch.from_numpy(observations)  # (T, H, W, C) uint8
+            observations = np.stack(self.current_episode["observations"], axis=0)  # (T, H, W, C) uint8
+            # Konvertiere zu float32 für Rope-Kompatibilität (Werte bleiben 0-255)
+            observations_float = observations.astype(np.float32)
+            obses_tensor = torch.from_numpy(observations_float)  # (T, H, W, C) float32
             obses_path = self.current_episode["folder"] / "obses.pth"
             torch.save(obses_tensor, obses_path)
-            log.debug(f"Episode {episode_id}: obses.pth gespeichert: {obses_tensor.shape}")
+            log.debug(f"Episode {episode_id}: obses.pth gespeichert: {obses_tensor.shape}, dtype={obses_tensor.dtype}")
             
             log.info(f"Episode {episode_id} beendet: {episode_length} Timesteps")
             log.info(f"  obses.pth: {obses_tensor.shape}")
