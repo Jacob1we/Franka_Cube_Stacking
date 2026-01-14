@@ -1,33 +1,34 @@
 """
-Data Logger für Isaac Sim - Franka Panda Datensatz-Generierung
-Struktur kompatibel mit dem POINT MAZE Format für dino_wm Training.
+Data Logger für Isaac Sim - Franka Panda + 2 Würfel Datensatz-Generierung
+Struktur kompatibel mit dem ROPE/DEFORMABLE Format.
 
-Ausgabe-Format (Point Maze kompatibel):
+Ausgabe-Format (Rope-kompatibel):
     dataset/
-    ├── states.pth        # (N, T_max, state_dim) float32
-    ├── actions.pth       # (N, T_max, action_dim) float32
-    ├── seq_lengths.pth   # (N,) long - TENSOR, nicht pkl!
-    ├── obses/
-    │   ├── episode_000.pth  # (T, H, W, C) uint8
-    │   ├── episode_001.pth
+    ├── cameras/
+    │   ├── intrinsic.npy      # (4, 4) float64 - Intrinsische Parameter
+    │   └── extrinsic.npy      # (4, 4) float64 - Extrinsische Parameter (1 Kamera)
+    ├── 000001/                 # Episode 1 (6-stellig, 0-padded)
+    │   ├── obses.pth          # (T, H, W, C) uint8 - Alle Beobachtungsbilder
+    │   ├── 00.h5              # HDF5 - Timestep 0 Daten
+    │   ├── 01.h5              # HDF5 - Timestep 1 Daten
     │   └── ...
-    ├── cameras/          # Optional: Kamera-Kalibrierung
-    └── metadata.pkl      # Optional: Zusätzliche Infos
+    └── ...
 
 Verwendung:
     1. Importiere DataLogger in dein Environment
-    2. Rufe logger.start_episode() am Anfang jeder Episode auf
-    3. Rufe logger.log_step(...) bei jedem Timestep auf
-    4. Rufe logger.end_episode() am Ende jeder Episode auf
-    5. Rufe logger.save_dataset() am Ende des Trainings auf
+    2. Lade Config mit load_config_from_yaml()
+    3. Rufe logger.start_episode() am Anfang jeder Episode auf
+    4. Rufe logger.log_step(...) bei jedem Timestep auf
+    5. Rufe logger.end_episode() am Ende jeder Episode auf
 """
 
 import torch
 import numpy as np
 import pickle
+import yaml
 from pathlib import Path
 from datetime import datetime
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Tuple
 import logging
 
 # Für PNG-Speicherung
@@ -38,70 +39,104 @@ except ImportError:
     HAS_PIL = False
     logging.warning("PIL nicht verfügbar - versuche matplotlib für PNG-Speicherung")
 
-# h5py ist optional - nur für Kompatibilität mit dem Original-Datensatz
+# h5py ist erforderlich für Rope-Format
 try:
     import h5py
     HAS_H5PY = True
 except ImportError:
     HAS_H5PY = False
-    logging.warning("h5py nicht verfügbar - H5-Dateien werden nicht gespeichert")
+    raise ImportError("h5py ist erforderlich für Rope-Format! Installiere mit: pip install h5py")
 
 log = logging.getLogger("DataLogger")
 
 
+def load_config_from_yaml(config_path: Optional[str] = None) -> dict:
+    """
+    Lädt Konfiguration aus YAML-Datei.
+    
+    Args:
+        config_path: Pfad zur config.yaml (None = im gleichen Verzeichnis suchen)
+    
+    Returns:
+        config: Dictionary mit Konfiguration
+    """
+    if config_path is None:
+        # Standard: config.yaml im gleichen Verzeichnis wie dieses Skript
+        script_dir = Path(__file__).parent
+        config_path = script_dir / "config.yaml"
+    else:
+        config_path = Path(config_path)
+    
+    if not config_path.exists():
+        raise FileNotFoundError(f"Konfigurationsdatei nicht gefunden: {config_path}")
+    
+    with open(config_path, "r") as f:
+        config = yaml.safe_load(f)
+    
+    return config
+
+
 class FrankaDataLogger:
     """
-    Data Logger für Franka Panda Robot in Isaac Sim.
-    Speichert Daten im Format kompatibel mit DeformDataset.
+    Data Logger für Franka Panda Robot + 2 Würfel in Isaac Sim.
+    Speichert Daten im Format kompatibel mit Rope/D deformable Dataset.
     """
     
     def __init__(
         self,
-        save_path: str = "./dataset",
-        object_name: str = "franka_cube_stack",
-        image_size: tuple = (256, 256),
-        max_timesteps: Optional[int] = None,  # None = unbegrenzt (bis Controller fertig)
-        save_png: bool = True,  # Speichere Bilder auch als PNG
+        config: Optional[dict] = None,
+        config_path: Optional[str] = None,
+        action_mode: str = "controller",  # "controller" oder "ee_velocity"
     ):
         """
         Args:
-            save_path: Basis-Verzeichnis für den Datensatz
-            object_name: Name des Datensatzes (Unterordner)
-            image_size: (H, W) der Kamerabilder
-            max_timesteps: Maximale Anzahl Timesteps pro Episode (None = unbegrenzt)
-            save_png: Wenn True, werden alle Bilder auch als PNG gespeichert
+            config: Dictionary mit Konfiguration (wird aus config_path geladen falls None)
+            config_path: Pfad zur config.yaml (wird verwendet falls config=None)
+            action_mode: "controller" = Controller-Action, "ee_velocity" = EE-Position+Velocity
         """
-        self.save_path = Path(save_path)
-        self.object_name = object_name
-        self.dataset_path = self.save_path / object_name
-        self.image_size = image_size
-        self.max_timesteps = max_timesteps
-        self.save_png = save_png
+        # Lade Config
+        if config is None:
+            config = load_config_from_yaml(config_path)
+        
+        self.config = config
+        
+        # Extrahiere Konfiguration
+        self.save_path = Path(config["dataset"]["path"])
+        self.object_name = config["dataset"]["name"]
+        self.dataset_path = self.save_path / self.object_name
+        self.image_size = tuple(config["camera"]["resolution"])  # (H, W)
+        self.save_png = config["dataset"].get("save_png", True)
+        self.n_cubes = config["cubes"]["count"]
+        self.action_mode = action_mode
+        
+        # Kamera-Parameter aus Config
+        self.camera_position = np.array(config["camera"]["position"], dtype=np.float64)
+        self.camera_euler = np.array(config["camera"]["euler"], dtype=np.float64)
         
         # Temporärer Speicher für aktuelle Episode
         self.current_episode = None
         self.episode_count = 0
         
-        # Akkumulierte Daten über alle Episoden
-        self.all_states: List[torch.Tensor] = []
-        self.all_actions: List[torch.Tensor] = []
-        self.all_episode_lengths: List[int] = []
-        
-        # Kamera-Kalibrierung (optional)
+        # Kamera-Kalibrierung
         self.camera_intrinsic: Optional[np.ndarray] = None
         self.camera_extrinsic: Optional[np.ndarray] = None
+        
+        # Vorheriger EE-State für Velocity-Berechnung
+        self.prev_ee_pos: Optional[np.ndarray] = None
+        self.prev_ee_quat: Optional[np.ndarray] = None
         
         # Erstelle Verzeichnisstruktur
         self._setup_directories()
         
         log.info(f"DataLogger initialisiert: {self.dataset_path}")
+        log.info(f"  Action Mode: {self.action_mode}")
+        log.info(f"  Image Size: {self.image_size}")
+        log.info(f"  Number of Cubes: {self.n_cubes}")
     
     def _setup_directories(self):
         """Erstellt die Verzeichnisstruktur."""
         self.dataset_path.mkdir(parents=True, exist_ok=True)
         (self.dataset_path / "cameras").mkdir(exist_ok=True)
-        # Point Maze Format: obses/ Ordner für alle Episode-Bilder
-        (self.dataset_path / "obses").mkdir(exist_ok=True)
     
     def set_camera_calibration(
         self, 
@@ -112,11 +147,24 @@ class FrankaDataLogger:
         Setzt die Kamera-Kalibrierungsmatrizen.
         
         Args:
-            intrinsic: 3x3 Kamera-Intrinsik-Matrix
+            intrinsic: 3x3 oder 4x4 Kamera-Intrinsik-Matrix
             extrinsic: 4x4 Kamera-Extrinsik-Matrix (World -> Camera)
         """
-        self.camera_intrinsic = intrinsic
-        self.camera_extrinsic = extrinsic
+        # Konvertiere zu 4x4 falls nötig
+        if intrinsic.shape == (3, 3):
+            intrinsic_4x4 = np.eye(4, dtype=np.float64)
+            intrinsic_4x4[:3, :3] = intrinsic
+            self.camera_intrinsic = intrinsic_4x4
+        else:
+            self.camera_intrinsic = intrinsic.astype(np.float64)
+        
+        # Extrinsic: (4, 4) für 1 Kamera
+        if extrinsic.ndim == 2:
+            # Einzelne Kamera: (4, 4) -> (4, 4) (bleibt gleich)
+            self.camera_extrinsic = extrinsic.astype(np.float64)
+        else:
+            # Mehrere Kameras: (N, 4, 4) -> nur erste nehmen
+            self.camera_extrinsic = extrinsic[0].astype(np.float64)
     
     def start_episode(self, episode_id: Optional[int] = None):
         """
@@ -128,79 +176,208 @@ class FrankaDataLogger:
         if episode_id is not None:
             self.episode_count = episode_id
         
+        # Erstelle Episode-Ordner
+        episode_folder = self.dataset_path / f"{self.episode_count:06d}"
+        episode_folder.mkdir(exist_ok=True)
+        
         self.current_episode = {
             "id": self.episode_count,
+            "folder": episode_folder,
             "timestep": 0,
             "observations": [],  # RGB Bilder (T, H, W, C)
-            "states": [],        # Roboter/Objekt-Zustände (T, state_dim)
-            "actions": [],       # Aktionen (T, action_dim)
-            "h5_data": [],       # Zusätzliche Daten pro Timestep
-            "property_params": {}
+            "h5_files": [],        # Pfade zu H5-Dateien
         }
+        
+        # Reset für Velocity-Berechnung
+        self.prev_ee_pos = None
+        self.prev_ee_quat = None
         
         log.info(f"Episode {self.episode_count} gestartet")
     
     def log_step(
         self,
         rgb_image: np.ndarray,
-        state: np.ndarray,
-        action: np.ndarray,
-        depth_image: Optional[np.ndarray] = None,
-        additional_data: Optional[Dict[str, Any]] = None,
+        depth_image: np.ndarray,
+        ee_pos: np.ndarray,
+        ee_quat: np.ndarray,
+        controller_action: Optional[Any] = None,
+        cube_positions: List[Tuple[float, float, float, float]] = None,  # [(x, y, z, yaw), ...]
     ):
         """
         Loggt einen einzelnen Timestep.
         
         Args:
             rgb_image: RGB Bild (H, W, 3) uint8, Werte 0-255
-            state: Zustandsvektor (state_dim,) - z.B. EE-Pose + Joints
-            action: Aktionsvektor (action_dim,) - z.B. Joint-Velocities
-            depth_image: Optional Tiefenbild (H, W) float32
-            additional_data: Optional zusätzliche Daten für H5-Datei
+            depth_image: Tiefenbild (H, W) float32 oder uint16
+            ee_pos: Endeffektor Position (3,) float32
+            ee_quat: Endeffektor Orientierung (4,) float32 [w, x, y, z]
+            controller_action: Optional Controller-Action (für action_mode="controller")
+            cube_positions: Liste von (x, y, z, yaw) für jeden Würfel
         """
         if self.current_episode is None:
             raise RuntimeError("Keine Episode gestartet! Rufe start_episode() auf.")
         
-        # Prüfe max_timesteps nur wenn gesetzt
-        if self.max_timesteps is not None and self.current_episode["timestep"] >= self.max_timesteps:
-            log.warning(f"Max timesteps ({self.max_timesteps}) erreicht, überspringe...")
-            return
+        timestep = self.current_episode["timestep"]
         
         # Bild speichern
         if rgb_image.shape[:2] != self.image_size:
-            log.warning(f"Bildgröße {rgb_image.shape[:2]} != {self.image_size}")
+            log.warning(f"Bildgröße {rgb_image.shape[:2]} != {self.image_size}, resizing...")
+            from PIL import Image
+            img = Image.fromarray(rgb_image)
+            img = img.resize((self.image_size[1], self.image_size[0]))  # (W, H)
+            rgb_image = np.array(img)
+        
         self.current_episode["observations"].append(rgb_image.astype(np.uint8))
         
-        # State und Action speichern
-        self.current_episode["states"].append(state.astype(np.float32))
-        self.current_episode["actions"].append(action.astype(np.float32))
+        # Berechne Action basierend auf Mode
+        if self.action_mode == "controller":
+            if controller_action is None:
+                log.warning("controller_action ist None, verwende Null-Action")
+                action = np.zeros(4, dtype=np.float64)
+            else:
+                # Extrahiere Action aus Controller
+                action = self._extract_controller_action(controller_action)
+        elif self.action_mode == "ee_velocity":
+            # Berechne EE-Velocity aus Position
+            if self.prev_ee_pos is not None:
+                # Velocity = Delta Position (vereinfacht, sollte eigentlich durch dt geteilt werden)
+                ee_velocity = ee_pos - self.prev_ee_pos
+            else:
+                ee_velocity = np.zeros(3, dtype=np.float64)
+            
+            # Action = [x, y, z, velocity_magnitude]
+            action = np.concatenate([
+                ee_pos.astype(np.float64),
+                [np.linalg.norm(ee_velocity)]
+            ])
+        else:
+            raise ValueError(f"Unbekannter action_mode: {self.action_mode}")
         
-        # H5 Zusatzdaten (optional)
-        h5_entry = {"timestep": self.current_episode["timestep"]}
-        if depth_image is not None:
-            h5_entry["depth"] = depth_image.astype(np.float32)
-        if additional_data:
-            h5_entry.update(additional_data)
-        self.current_episode["h5_data"].append(h5_entry)
+        # Berechne EEF States (1, 1, 14) Format
+        # Format: [[[x, y, z, x, y, z, qw, qx, qy, qz, qw, qx, qy, qz]]]]
+        eef_states = np.array([[[
+            ee_pos[0], ee_pos[1], ee_pos[2],  # Position 1
+            ee_pos[0], ee_pos[1], ee_pos[2],  # Position 2 (dupliziert)
+            ee_quat[0], ee_quat[1], ee_quat[2], ee_quat[3],  # Quaternion 1
+            ee_quat[0], ee_quat[1], ee_quat[2], ee_quat[3],  # Quaternion 2 (dupliziert)
+        ]]], dtype=np.float64)
         
+        # Cube Positions: (1, n_cubes, 4) - (x, y, z, yaw)
+        if cube_positions is None:
+            cube_positions = [(0.0, 0.0, 0.0, 0.0)] * self.n_cubes
+        
+        # Stelle sicher, dass wir genau n_cubes haben
+        if len(cube_positions) < self.n_cubes:
+            cube_positions = list(cube_positions) + [(0.0, 0.0, 0.0, 0.0)] * (self.n_cubes - len(cube_positions))
+        elif len(cube_positions) > self.n_cubes:
+            cube_positions = cube_positions[:self.n_cubes]
+        
+        positions = np.array([cube_positions], dtype=np.float32)  # (1, n_cubes, 4)
+        
+        # Speichere H5-Datei für diesen Timestep
+        h5_path = self.current_episode["folder"] / f"{timestep:02d}.h5"
+        self._save_h5_timestep(
+            h5_path=h5_path,
+            timestep=timestep,
+            action=action,
+            eef_states=eef_states,
+            positions=positions,
+            rgb_image=rgb_image,
+            depth_image=depth_image,
+        )
+        
+        self.current_episode["h5_files"].append(h5_path)
+        
+        # Update für nächsten Timestep
+        self.prev_ee_pos = ee_pos.copy()
+        self.prev_ee_quat = ee_quat.copy()
         self.current_episode["timestep"] += 1
     
-    def set_episode_params(self, params: Dict[str, Any]):
+    def _extract_controller_action(self, controller_action) -> np.ndarray:
         """
-        Setzt zusätzliche Parameter für die aktuelle Episode.
-        Wird als property_params.pkl gespeichert.
+        Extrahiert Action aus Controller-Action.
+        
+        Returns:
+            action: (4,) float64 - [x, y, z, ?] oder ähnlich
+        """
+        # Versuche verschiedene Attribute
+        if hasattr(controller_action, 'joint_positions') and controller_action.joint_positions is not None:
+            joint_cmd = np.array(controller_action.joint_positions[:7], dtype=np.float64)
+            # Nimm erste 4 Joints als Action
+            return joint_cmd[:4]
+        elif hasattr(controller_action, 'joint_velocities') and controller_action.joint_velocities is not None:
+            joint_cmd = np.array(controller_action.joint_velocities[:7], dtype=np.float64)
+            return joint_cmd[:4]
+        else:
+            log.warning("Konnte Action nicht aus Controller extrahieren, verwende Null-Action")
+            return np.zeros(4, dtype=np.float64)
+    
+    def _save_h5_timestep(
+        self,
+        h5_path: Path,
+        timestep: int,
+        action: np.ndarray,
+        eef_states: np.ndarray,
+        positions: np.ndarray,
+        rgb_image: np.ndarray,
+        depth_image: np.ndarray,
+    ):
+        """
+        Speichert einen Timestep als H5-Datei.
         
         Args:
-            params: Dictionary mit beliebigen Parametern
+            h5_path: Pfad zur H5-Datei
+            timestep: Timestep-Nummer
+            action: Action-Vektor (4,) float64
+            eef_states: Endeffektor-States (1, 1, 14) float64
+            positions: Cube-Positionen (1, n_cubes, 4) float32
+            rgb_image: RGB-Bild (H, W, 3) uint8
+            depth_image: Tiefenbild (H, W) float32 oder uint16
         """
-        if self.current_episode is None:
-            raise RuntimeError("Keine Episode gestartet!")
-        self.current_episode["property_params"].update(params)
+        if not HAS_H5PY:
+            raise RuntimeError("h5py nicht verfügbar!")
+        
+        with h5py.File(h5_path, "w") as f:
+            # Action
+            f.create_dataset("action", data=action.astype(np.float64), dtype=np.float64)
+            
+            # EEF States
+            f.create_dataset("eef_states", data=eef_states, dtype=np.float64)
+            
+            # Positions
+            f.create_dataset("positions", data=positions, dtype=np.float32)
+            
+            # Info-Gruppe
+            info_group = f.create_group("info")
+            info_group.create_dataset("n_cams", data=np.int64(1), dtype=np.int64)
+            info_group.create_dataset("n_cubes", data=np.int64(self.n_cubes), dtype=np.int64)  # n_particles im Rope-Format, hier n_cubes
+            info_group.create_dataset("timestamp", data=np.int64(timestep + 1), dtype=np.int64)  # +1 für Kompatibilität (Rope startet bei 1)
+            
+            # Observations-Gruppe
+            obs_group = f.create_group("observations")
+            
+            # Color
+            color_group = obs_group.create_group("color")
+                # RGB-Bild: (H, W, 3) -> (1, H, W, 3) für Kompatibilität
+            # Konvertiere uint8 zu float32, Werte bleiben 0-255
+            rgb_float = rgb_image.astype(np.float32)
+            rgb_expanded = np.expand_dims(rgb_float, axis=0)
+            color_group.create_dataset("cam_0", data=rgb_expanded, dtype=np.float32)
+            
+            # Depth
+            depth_group = obs_group.create_group("depth")
+            # Depth-Bild: (H, W) -> (1, H, W) für Kompatibilität
+            if depth_image.dtype == np.uint16:
+                depth_expanded = np.expand_dims(depth_image, axis=0)
+            else:
+                # Konvertiere float32 zu uint16 (Millimeter)
+                depth_mm = (depth_image * 1000.0).astype(np.uint16)
+                depth_expanded = np.expand_dims(depth_mm, axis=0)
+            depth_group.create_dataset("cam_0", data=depth_expanded, dtype=np.uint16)
     
     def discard_episode(self):
         """
         Verwirft die aktuelle Episode ohne sie zu speichern.
-        Nützlich für fehlgeschlagene Episoden (z.B. Würfel nicht gestapelt).
         """
         if self.current_episode is None:
             log.warning("Keine Episode zum Verwerfen vorhanden")
@@ -208,17 +385,20 @@ class FrankaDataLogger:
         
         episode_id = self.current_episode["id"]
         timesteps = self.current_episode["timestep"]
+        
+        # Lösche Episode-Ordner
+        import shutil
+        if self.current_episode["folder"].exists():
+            shutil.rmtree(self.current_episode["folder"])
+        
         log.warning(f"Episode {episode_id} verworfen ({timesteps} Timesteps)")
         
         self.current_episode = None
-        # episode_count wird NICHT erhöht, sodass die nächste Episode die gleiche ID bekommt
+        # episode_count wird NICHT erhöht
     
-    def end_episode(self, save_immediately: bool = True):
+    def end_episode(self):
         """
         Beendet die aktuelle Episode und speichert die Daten.
-        
-        Args:
-            save_immediately: Wenn True, werden Episode-Daten sofort auf Disk gespeichert
         """
         if self.current_episode is None:
             log.warning("Keine Episode zum Beenden vorhanden")
@@ -230,145 +410,47 @@ class FrankaDataLogger:
             self.current_episode = None
             return
         
-        # Konvertiere Listen zu Tensoren
+        # Speichere obses.pth
         observations = np.stack(self.current_episode["observations"], axis=0)  # (T, H, W, C)
-        states = np.stack(self.current_episode["states"], axis=0)  # (T, state_dim)
-        actions = np.stack(self.current_episode["actions"], axis=0)  # (T, action_dim)
-        
-        # Speichere in akkumulierten Listen
-        self.all_states.append(torch.from_numpy(states))
-        self.all_actions.append(torch.from_numpy(actions))
-        self.all_episode_lengths.append(episode_length)
-        
-        if save_immediately:
-            self._save_episode_folder(
-                episode_id=self.current_episode["id"],
-                observations=observations,
-                h5_data=self.current_episode["h5_data"],
-                property_params=self.current_episode["property_params"]
-            )
+        obses_tensor = torch.from_numpy(observations)  # (T, H, W, C) uint8
+        obses_path = self.current_episode["folder"] / "obses.pth"
+        torch.save(obses_tensor, obses_path)
         
         log.info(f"Episode {self.episode_count} beendet: {episode_length} Timesteps")
+        log.info(f"  obses.pth: {obses_tensor.shape}")
+        log.info(f"  H5-Dateien: {episode_length} Dateien (00.h5 bis {episode_length-1:02d}.h5)")
         
         self.episode_count += 1
         self.current_episode = None
     
-    def _save_episode_folder(
-        self,
-        episode_id: int,
-        observations: np.ndarray,
-        h5_data: List[Dict],
-        property_params: Dict
-    ):
+    def save_camera_calibration(self):
         """
-        Speichert die Daten eines einzelnen Rollouts.
-        
-        Format: Point Maze kompatibel
-        - Bilder: obses/episode_XXX.pth (statt XXXXXX/obses.pth)
+        Speichert die Kamera-Kalibrierung.
         """
-        
-        # Point Maze Format: Bilder in obses/episode_XXX.pth
-        obses_tensor = torch.from_numpy(observations)  # (T, H, W, C) uint8
-        obses_path = self.dataset_path / "obses" / f"episode_{episode_id:03d}.pth"
-        torch.save(obses_tensor, obses_path)
-        
-        # Optional: PNG Bilder speichern (für Visualisierung)
-        if self.save_png:
-            png_folder = self.dataset_path / "png_preview" / f"episode_{episode_id:03d}"
-            png_folder.mkdir(parents=True, exist_ok=True)
-
-            # Jeden n-ten Frame speichern (1 = alle, 50 = jeden 50ten)
-            frame_step = 50
-            
-            saved_count = 0
-            for img_idx in range(0, len(observations), frame_step):
-                img = observations[img_idx]  # (H, W, C) uint8
-                png_path = png_folder / f"frame_{saved_count:04d}.png"
-                
-                if HAS_PIL:
-                    Image.fromarray(img).save(png_path)
-                else:
-                    try:
-                        import matplotlib.pyplot as plt
-                        plt.imsave(str(png_path), img)
-                    except Exception as e:
-                        log.warning(f"PNG-Speicherung fehlgeschlagen: {e}")
-                
-                saved_count += 1
-            
-            log.debug(f"  {saved_count} PNG-Bilder gespeichert in {png_folder}")
-        
-        # Optional: property_params.pkl (für Kompatibilität)
-        if property_params:
-            params_folder = self.dataset_path / "params"
-            params_folder.mkdir(exist_ok=True)
-            with open(params_folder / f"episode_{episode_id:03d}.pkl", "wb") as f:
-                pickle.dump(property_params, f)
-    
-    def save_dataset(self):
-        """
-        Speichert den gesamten Datensatz im Point Maze Format:
-        - states.pth (N, T, state_dim)
-        - actions.pth (N, T, action_dim)
-        - seq_lengths.pth (N,) - Tensor!
-        - obses/episode_XXX.pth (bereits beim end_episode gespeichert)
-        """
-        if len(self.all_states) == 0:
-            log.warning("Keine Daten zum Speichern!")
+        if self.camera_intrinsic is None or self.camera_extrinsic is None:
+            log.warning("Kamera-Kalibrierung nicht gesetzt, überspringe Speicherung")
             return
         
-        # Finde maximale Länge für Padding
-        max_len = max(self.all_episode_lengths)
-        state_dim = self.all_states[0].shape[-1]
-        action_dim = self.all_actions[0].shape[-1]
-        n_rollouts = len(self.all_states)
+        # Rope-Format: intrinsic (4, 4), extrinsic (4, 4) für 1 Kamera
+        # Aber Format erwartet (4, 4) für intrinsic und (4, 4, 4) für extrinsic (4 Kameras)
+        # Wir speichern für 1 Kamera, also (4, 4) für beide
         
-        log.info(f"Speichere Datensatz (Point Maze Format): {n_rollouts} Rollouts, max_len={max_len}")
-        log.info(f"State dim: {state_dim}, Action dim: {action_dim}")
+        intrinsic_path = self.dataset_path / "cameras" / "intrinsic.npy"
+        extrinsic_path = self.dataset_path / "cameras" / "extrinsic.npy"
         
-        # Erstelle gepaddte Tensoren
-        states_padded = torch.zeros((n_rollouts, max_len, state_dim), dtype=torch.float32)
-        actions_padded = torch.zeros((n_rollouts, max_len, action_dim), dtype=torch.float32)
+        # Intrinsic: (4, 4) - bleibt gleich
+        np.save(intrinsic_path, self.camera_intrinsic)
         
-        for i, (states, actions, length) in enumerate(
-            zip(self.all_states, self.all_actions, self.all_episode_lengths)
-        ):
-            states_padded[i, :length] = states
-            actions_padded[i, :length] = actions
+        # Extrinsic: (4, 4) -> erweitere zu (1, 4, 4) für Kompatibilität
+        # Aber Rope-Format erwartet (4, 4, 4) für 4 Kameras
+        # Wir haben nur 1 Kamera, also (1, 4, 4) -> aber Format erwartet (4, 4, 4)
+        # Lösung: Wiederhole die Matrix 4x für Kompatibilität
+        extrinsic_expanded = np.stack([self.camera_extrinsic] * 4, axis=0)  # (4, 4, 4)
+        np.save(extrinsic_path, extrinsic_expanded)
         
-        # Speichere Hauptdateien
-        torch.save(states_padded, self.dataset_path / "states.pth")
-        torch.save(actions_padded, self.dataset_path / "actions.pth")
-        
-        # Point Maze Format: seq_lengths als TENSOR (.pth), nicht Liste (.pkl)!
-        seq_lengths_tensor = torch.tensor(self.all_episode_lengths, dtype=torch.long)
-        torch.save(seq_lengths_tensor, self.dataset_path / "seq_lengths.pth")
-        
-        # Speichere Kamera-Kalibrierung (falls vorhanden)
-        if self.camera_intrinsic is not None:
-            np.save(self.dataset_path / "cameras" / "intrinsic.npy", self.camera_intrinsic)
-        if self.camera_extrinsic is not None:
-            np.save(self.dataset_path / "cameras" / "extrinsic.npy", self.camera_extrinsic)
-        
-        # Optional: Metadaten für Debugging (nicht vom Point Maze Loader benötigt)
-        metadata = {
-            "n_rollouts": n_rollouts,
-            "max_timesteps": max_len,
-            "state_dim": state_dim,
-            "action_dim": action_dim,
-            "episode_lengths": self.all_episode_lengths,
-            "image_size": self.image_size,
-            "created": datetime.now().isoformat(),
-            "format": "point_maze_compatible",
-        }
-        with open(self.dataset_path / "metadata.pkl", "wb") as f:
-            pickle.dump(metadata, f)
-        
-        log.info(f"Datensatz gespeichert: {self.dataset_path}")
-        log.info(f"  states.pth:      {states_padded.shape}")
-        log.info(f"  actions.pth:     {actions_padded.shape}")
-        log.info(f"  seq_lengths.pth: {seq_lengths_tensor.shape}")
-        log.info(f"  obses/:          {n_rollouts} episode_XXX.pth Dateien")
+        log.info(f"Kamera-Kalibrierung gespeichert:")
+        log.info(f"  intrinsic: {self.camera_intrinsic.shape}")
+        log.info(f"  extrinsic: {extrinsic_expanded.shape}")
 
 
 def get_franka_state(franka, task) -> np.ndarray:
@@ -458,4 +540,3 @@ def get_franka_action(controller_action) -> np.ndarray:
     
     action = np.concatenate([joint_cmd, gripper_cmd]).astype(np.float32)
     return action  # Total: 9 Dimensionen
-

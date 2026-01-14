@@ -10,6 +10,7 @@ import logging, os, sys
 import numpy as np
 import yaml
 import argparse
+from pathlib import Path
 
 os.environ.setdefault("PYTHONUNBUFFERED", "1")
 
@@ -56,6 +57,7 @@ import isaacsim.core.utils.rotations as rotations_utils
 from isaacsim.core.api.simulation_context import SimulationContext
 from isaacsim.sensors.camera import Camera
 from pxr import UsdGeom, UsdShade, Gf, Sdf, UsdLux
+from scipy.spatial.transform import Rotation as R
 
 
 # Data Logger Import
@@ -299,7 +301,6 @@ class Franka_Cube_Stack():
         cam_euler = np.array(SIDE_CAM_EULER)
         
         # Rotation Matrix aus Euler-Winkeln
-        from scipy.spatial.transform import Rotation as R
         rot = R.from_euler('xyz', cam_euler, degrees=True)
         rot_matrix = rot.as_matrix()
         
@@ -617,18 +618,23 @@ def main():
     # ================================================================
     # DATA LOGGER SETUP
     # ================================================================
-    local_save_path = DATASET_PATH
-    
-    # ================================================================
-    # ZENTRALER LOGGER - Ein Datensatz für alle Environments
-    # ================================================================
+    # Logger mit Config initialisieren (neues Format)
     logger = FrankaDataLogger(
-        save_path=local_save_path,
-        object_name=DATASET_NAME,  # Ein gemeinsamer Datensatz
-        image_size=CAM_RESOLUTION,
-        max_timesteps=None,
-        save_png=SAVE_PNG,
+        config=CFG,  # Verwende bereits geladene Config
+        action_mode="controller",  # oder "ee_velocity" für EE-Position+Velocity
     )
+    
+    # Überschreibe Dataset-Name mit Timestamp (wird in Config verwendet, aber wir überschreiben)
+    logger.object_name = DATASET_NAME
+    logger.dataset_path = Path(DATASET_PATH) / DATASET_NAME
+    logger.dataset_path.mkdir(parents=True, exist_ok=True)
+    (logger.dataset_path / "cameras").mkdir(exist_ok=True)
+    
+    # Kamera-Kalibrierung setzen (für erste Kamera)
+    if len(cameras) > 0:
+        intrinsic, extrinsic = envs[0].get_camera_matrices(cameras[0])
+        logger.set_camera_calibration(intrinsic, extrinsic)
+        log.info("Kamera-Kalibrierung gesetzt")
     
     # Tracking für parallele Episodes (eine pro Env gleichzeitig aktiv)
     active_episode_ids = [None] * NUM_ENVS  # Globale Episode-ID pro Env
@@ -663,7 +669,10 @@ def main():
         active_episode_ids[i] = global_episode_id
         episode_data[i] = {
             "observations": [],
-            "states": [],
+            "depths": [],
+            "ee_positions": [],
+            "ee_quaternions": [],
+            "cube_positions": [],
             "actions": [],
             "params": {
                 "seed": seeds[i],
@@ -697,17 +706,71 @@ def main():
             # Daten in temporärem Buffer sammeln
             try:
                 rgba = camera.get_rgba()
+                # Depth-Bild: Versuche verschiedene API-Methoden
+                try:
+                    # Methode 1: get_current_frame()
+                    frame = camera.get_current_frame()
+                    if "distance_to_image_plane" in frame:
+                        depth = frame["distance_to_image_plane"]
+                    elif "depth" in frame:
+                        depth = frame["depth"]
+                    else:
+                        depth = None
+                except:
+                    try:
+                        # Methode 2: get_depth()
+                        depth = camera.get_depth()
+                    except:
+                        # Fallback: Leeres Depth-Bild
+                        depth = None
+                
                 if rgba is not None:
                     rgb = rgba[:, :, :3]
-                    state = get_franka_state(env.franka, env.task)
-                    action_vec = get_franka_action(action)
+                    
+                    # Endeffektor-Pose extrahieren
+                    ee_pos, ee_quat = env.franka.end_effector.get_world_pose()
+                    ee_pos = np.atleast_1d(ee_pos).flatten()[:3].astype(np.float32)
+                    ee_quat = np.atleast_1d(ee_quat).flatten()[:4].astype(np.float32)
+                    
+                    # Würfel-Positionen extrahieren (x, y, z, yaw)
+                    cube_positions = []
+                    cube_names = env.task.get_cube_names()
+                    for cube_name in cube_names:
+                        try:
+                            cube = env.task.scene.get_object(cube_name)
+                            cube_pos, cube_quat = cube.get_world_pose()
+                            cube_pos = np.atleast_1d(cube_pos).flatten()[:3]
+                            cube_quat = np.atleast_1d(cube_quat).flatten()[:4]
+                            
+                            # Yaw aus Quaternion extrahieren
+                            rot = R.from_quat([cube_quat[1], cube_quat[2], cube_quat[3], cube_quat[0]])  # [x, y, z, w]
+                            euler = rot.as_euler('xyz', degrees=False)
+                            yaw = float(euler[2])  # Z-Rotation = Yaw
+                            
+                            cube_positions.append((float(cube_pos[0]), float(cube_pos[1]), float(cube_pos[2]), yaw))
+                        except Exception as e:
+                            log.warning(f"Env {i}: Konnte Würfel {cube_name} nicht finden: {e}")
+                            cube_positions.append((0.0, 0.0, 0.0, 0.0))
+                    
+                    # Depth-Bild konvertieren falls nötig
+                    if depth is not None:
+                        if depth.dtype != np.float32:
+                            depth = depth.astype(np.float32)
+                    else:
+                        # Fallback: Erstelle leeres Depth-Bild
+                        depth = np.zeros((CAM_RESOLUTION[0], CAM_RESOLUTION[1]), dtype=np.float32)
                     
                     # In Episode-Buffer speichern (nicht direkt im Logger)
                     episode_data[i]["observations"].append(rgb)
-                    episode_data[i]["states"].append(state)
-                    episode_data[i]["actions"].append(action_vec)
+                    episode_data[i]["depths"].append(depth)
+                    episode_data[i]["ee_positions"].append(ee_pos)
+                    episode_data[i]["ee_quaternions"].append(ee_quat)
+                    episode_data[i]["cube_positions"].append(cube_positions)
+                    episode_data[i]["actions"].append(action)  # Controller-Action direkt speichern
             except Exception as e:
                 log.warning(f"Env {i}: Fehler beim Sammeln: {e}")
+                import traceback
+                log.warning(traceback.format_exc())
             
             # Action ausführen
             articulations[i].apply_action(action)
@@ -723,15 +786,26 @@ def main():
                 if is_valid and len(episode_data[i]["observations"]) > 0:
                     # Episode erfolgreich - in zentralen Logger übertragen
                     logger.start_episode(total_successful)
-                    logger.set_episode_params(episode_data[i]["params"])
+                    # property_params werden nicht mehr gespeichert (wie gewünscht)
+                    # logger.set_episode_params(episode_data[i]["params"])  # Auskommentiert
                     
-                    # Alle gesammelten Daten übertragen
-                    for obs, st, act in zip(
+                    # Alle gesammelten Daten übertragen (neues Format)
+                    for obs, depth, ee_pos, ee_quat, cube_pos, controller_act in zip(
                         episode_data[i]["observations"],
-                        episode_data[i]["states"],
+                        episode_data[i]["depths"],
+                        episode_data[i]["ee_positions"],
+                        episode_data[i]["ee_quaternions"],
+                        episode_data[i]["cube_positions"],
                         episode_data[i]["actions"]
                     ):
-                        logger.log_step(rgb_image=obs, state=st, action=act)
+                        logger.log_step(
+                            rgb_image=obs,
+                            depth_image=depth,
+                            ee_pos=ee_pos,
+                            ee_quat=ee_quat,
+                            controller_action=controller_act,
+                            cube_positions=cube_pos
+                        )
                     
                     logger.end_episode()
                     successful_counts[i] += 1
@@ -758,7 +832,10 @@ def main():
                     active_episode_ids[i] = global_episode_id
                     episode_data[i] = {
                         "observations": [],
-                        "states": [],
+                        "depths": [],
+                        "ee_positions": [],
+                        "ee_quaternions": [],
+                        "cube_positions": [],
                         "actions": [],
                         "params": {
                             "seed": seeds[i],
@@ -775,9 +852,8 @@ def main():
         # World Step
         shared_world.step()
         
-        # Zwischenspeichern alle 10 erfolgreichen Episoden
+        # Zwischenstand loggen (Daten werden bereits bei end_episode() gespeichert)
         if total_successful > 0 and total_successful % 10 == 0:
-            logger.save_dataset()
             log.info(f"Zwischenstand: {total_successful}/{NUM_EPISODES} erfolgreiche Episoden")
         
         # Alle fertig?
@@ -787,8 +863,11 @@ def main():
     # ================================================================
     # FINALES SPEICHERN - Ein zentraler Datensatz
     # ================================================================
-    logger.save_dataset()
-    log.info(f"Zentraler Datensatz gespeichert: {local_save_path}/{DATASET_NAME}/")
+    # Speichere Kamera-Kalibrierung (wird am Ende gespeichert)
+    logger.save_camera_calibration()
+    log.info(f"Zentraler Datensatz gespeichert: {logger.dataset_path}/")
+    log.info(f"  Episoden: {total_successful}")
+    log.info(f"  Format: Rope-kompatibel (H5-Dateien pro Timestep)")
     
     # Speichere fehlgeschlagene Seeds
     if failed_seeds:
