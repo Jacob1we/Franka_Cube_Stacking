@@ -18,9 +18,14 @@ dataset:
   path: "/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets"
   name: "franka_cube_stack_ds"
   save_png: true                    # Speichere alle Bilder auch als PNG
-  action_mode: "delta_pose"         # Action-Codierung:
-                                    #   "delta_pose": [dx, dy, dz, d_yaw] - relative Positionsänderung
-                                    #   "velocity":   [vx, vy, vz, omega_z] - Geschwindigkeiten
+  action_mode: "ee_pos"             # Action-Codierung:
+                                    #   "delta_pose": [dx, dy, dz, d_yaw] - relative Positionsänderung (4D)
+                                    #   "velocity":   [vx, vy, vz, omega_z] - Geschwindigkeiten (4D)
+                                    #   "ee_pos":     [x_s, y_s, z_s, x_e, y_e, z_e] - EE Start/End Position (6D, wie DINO WM)
+  action_interval: 10               # Frames pro Action (wie Rope-Format):
+                                    #   1 = jeder Frame wird gespeichert
+                                    #   10 = alle 10 Frames wird eine Action/H5 gespeichert
+                                    #   Die Action beschreibt dann die Bewegung über N Frames
 
 # Kamera
 camera:

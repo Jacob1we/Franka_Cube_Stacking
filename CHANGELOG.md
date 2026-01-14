@@ -2,31 +2,113 @@
 
 Diese Datei dokumentiert alle Änderungen und Entwicklungsfortschritte am Data Logger für das Franka Cube Stacking Projekt.
 
-## [2026-01-14] - Action-Format: Zwei konfigurierbare Modi
+## [2026-01-14] - Action Interval: Frame-Aggregation wie im Rope-Format
 
-### ✅ Zwei Action-Modi
+### ✅ Neuer Parameter: `action_interval`
+
+Wie im Rope-Format können jetzt mehrere Frames zu einer Action zusammengefasst werden.
+Der Parameter `action_interval` in `config.yaml` steuert dies zentral.
+
+**Konfiguration (config.yaml):**
+```yaml
+dataset:
+  action_interval: 10    # Alle 10 Frames wird eine H5-Datei gespeichert
+                         # 1 = jeder Frame (Standard)
+```
+
+### Verhalten
+
+| action_interval | obses.pth | H5-Dateien | Action beschreibt |
+|-----------------|-----------|------------|-------------------|
+| 1 (Standard)    | 100 Frames | 100 Dateien | 1 Frame |
+| 10              | 100 Frames | 10 Dateien  | 10 Frames |
+| 50              | 100 Frames | 2 Dateien   | 50 Frames |
+
+**Wichtig:**
+- `obses.pth` enthält **immer alle Frames** (für Video-Rekonstruktion)
+- H5-Dateien werden **nur alle N Frames** gespeichert
+- Die Action beschreibt die **Bewegung über N Frames**
+
+### Action-Format bei action_interval > 1
+
+**"delta_pose" (4D):** Gesamte Positionsänderung über N Frames
+```
+action = [Σdelta_x, Σdelta_y, Σdelta_z, Σdelta_yaw]
+```
+
+**"velocity" (4D):** Durchschnittsgeschwindigkeit über N Frames
+```
+action = [avg_vx, avg_vy, avg_vz, avg_omega_z]
+```
+
+**"ee_pos" (6D):** Start- und Endposition des Intervalls
+```
+action = [x_start, y_start, z_start, x_end, y_end, z_end]
+```
+- `x/y/z_start`: EE-Position am **Anfang** des Intervalls
+- `x/y/z_end`: EE-Position am **Ende** des Intervalls
+
+### Änderungen in data_logger.py
+
+1. **Neuer Parameter**: `action_interval` aus config.yaml
+2. **Intervall-Buffer**: Speichert Start-Position und akkumuliert Frames
+3. **Neue Methode**: `_save_interval_h5()` - speichert H5 am Ende eines Intervalls
+4. **Überarbeitete `log_step()`**:
+   - Alle Frames → `observations` (für obses.pth)
+   - Am Anfang des Intervalls: Start-Position merken
+   - Am Ende des Intervalls: H5 mit Action über N Frames speichern
+5. **Überarbeitete `end_episode()`**: Speichert übrige Frames im Buffer
+
+### Beispiel
+
+Mit `action_interval=10` und 95 Frames:
+- `obses.pth`: Shape (95, H, W, C) - alle 95 Frames
+- H5-Dateien: 10 Dateien (00.h5 bis 09.h5)
+  - 00.h5: Frames 1-10 (Action: EE-Bewegung von Frame 1 bis 10)
+  - 01.h5: Frames 11-20
+  - ...
+  - 09.h5: Frames 91-95 (nur 5 Frames, aber trotzdem gespeichert)
+
+---
+
+## [2026-01-14] - Action-Format: Drei konfigurierbare Modi
+
+### ✅ Drei Action-Modi
 
 Das Action-Format ist jetzt über `action_mode` Parameter (in config.yaml) konfigurierbar:
 
-**Option 1: `action_mode="delta_pose"` (Default)**
+**Option 1: `action_mode="delta_pose"` (4D)**
 ```
 action = [delta_x, delta_y, delta_z, delta_yaw]
 ```
 - **delta_x/y/z**: Relative Position-Änderung des EE in Metern
 - **delta_yaw**: Rotation um Z-Achse in Radiant
 
-**Option 2: `action_mode="velocity"`**
+**Option 2: `action_mode="velocity"` (4D)**
 ```
 action = [vx, vy, vz, omega_z]
 ```
 - **vx/vy/vz**: Translatorische Geschwindigkeit in m/s
 - **omega_z**: Rotatorische Geschwindigkeit um Z-Achse in rad/s
 
+**Option 3: `action_mode="ee_pos"` (6D, wie DINO WM Rope) - DEFAULT**
+```
+action = [x_start, y_start, z_start, x_end, y_end, z_end]
+```
+- **x/y/z_start**: EE-Position am Anfang der Bewegung (vorheriger Timestep)
+- **x/y/z_end**: EE-Position am Ende der Bewegung (aktueller Timestep)
+
+Diese Option ist analog zum Rope-Format im DINO World Model, wo Actions als
+`[start_x, start_z, end_x, end_z]` (2D) codiert sind. Für Franka in 3D sind
+es entsprechend 6 Dimensionen.
+
 ### Änderungen in config.yaml
 
 ```yaml
 dataset:
-  action_mode: "delta_pose"   # oder "velocity"
+  action_mode: "ee_pos"       # Default (6D, wie DINO WM)
+  # action_mode: "delta_pose" # Alternative (4D)
+  # action_mode: "velocity"   # Alternative (4D)
 ```
 
 ### Änderungen in data_logger.py

@@ -1709,3 +1709,523 @@ IndexError: too many indices for array: array is 1-dimensional, but 3 were index
 2026-01-14 14:55:27,045 [    INFO] FrankaCubeStacking:   Fehlgeschlagene Seeds: 0
 2026-01-14 14:55:27,046 [    INFO] FrankaCubeStacking:   Erfolgsrate: 100.0%
 2026-01-14 14:55:27,046 [    INFO] FrankaCubeStacking: ============================================================
+2026-01-14 16:24:26,893 [    INFO] FrankaCubeStacking: ============================================================
+2026-01-14 16:24:26,893 [    INFO] FrankaCubeStacking: Franka Cube Stacking - PARALLEL Mode
+2026-01-14 16:24:26,894 [    INFO] FrankaCubeStacking:   Config: config.yaml (default)
+2026-01-14 16:24:26,894 [    INFO] FrankaCubeStacking:   Headless: True
+2026-01-14 16:24:26,894 [    INFO] FrankaCubeStacking:   Anzahl Umgebungen: 5
+2026-01-14 16:24:26,894 [    INFO] FrankaCubeStacking:   Episoden gesamt: 10
+2026-01-14 16:24:26,894 [    INFO] FrankaCubeStacking:   Episoden pro Env: 2
+2026-01-14 16:24:26,894 [    INFO] FrankaCubeStacking: ============================================================
+2026-01-14 16:24:26,894 [    INFO] FrankaCubeStacking: Setup Environment 0...
+2026-01-14 16:24:27,742 [    INFO] FrankaCubeStacking: Setup Environment 1...
+2026-01-14 16:24:27,742 [    INFO] FrankaCubeStacking: Setup Environment 2...
+2026-01-14 16:24:27,742 [    INFO] FrankaCubeStacking: Setup Environment 3...
+2026-01-14 16:24:27,742 [    INFO] FrankaCubeStacking: Setup Environment 4...
+2026-01-14 16:24:29,538 [    INFO] FrankaCubeStacking: All environments created, world reset complete
+2026-01-14 16:24:29,539 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-14 16:24:29,539 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-14 16:24:29,539 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:24:29,539 [    INFO] StackingController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:24:29,539 [    INFO] StackingController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:24:29,539 [    INFO] StackingController_JW:   - height_adaptive_speed: True
+2026-01-14 16:24:29,539 [    INFO] StackingController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:24:29,539 [    INFO] StackingController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:24:29,539 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-14 16:24:29,539 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:24:29,539 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:24:29,539 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:24:29,539 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: True
+2026-01-14 16:24:29,539 [    INFO] PickAndPlaceController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:24:29,539 [    INFO] PickAndPlaceController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:24:29,539 [    INFO] PickAndPlaceController_JW:   - events_dt: [0.048, 0.0075, 1.5, 0.15000000000000002, 0.30000000000000004, 0.30000000000000004, 0.00375, 1.5, 0.048, 0.48]
+2026-01-14 16:24:29,539 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-14 16:24:29,559 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.5
+2026-01-14 16:24:29,560 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-14 16:24:29,560 [    INFO] Base_PickAndPlaceController:   Height-adaptive speed enabled:
+2026-01-14 16:24:29,560 [    INFO] Base_PickAndPlaceController:     - Critical height threshold: 0.05m
+2026-01-14 16:24:29,560 [    INFO] Base_PickAndPlaceController:     - Critical speed factor: 0.8
+2026-01-14 16:24:29,560 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-14 16:24:29,568 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-14 16:24:29,642 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-14 16:24:29,642 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-14 16:24:29,642 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:24:29,642 [    INFO] StackingController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:24:29,642 [    INFO] StackingController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:24:29,642 [    INFO] StackingController_JW:   - height_adaptive_speed: True
+2026-01-14 16:24:29,642 [    INFO] StackingController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:24:29,642 [    INFO] StackingController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:24:29,642 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-14 16:24:29,642 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:24:29,642 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:24:29,642 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:24:29,642 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: True
+2026-01-14 16:24:29,642 [    INFO] PickAndPlaceController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:24:29,642 [    INFO] PickAndPlaceController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:24:29,642 [    INFO] PickAndPlaceController_JW:   - events_dt: [0.048, 0.0075, 1.5, 0.15000000000000002, 0.30000000000000004, 0.30000000000000004, 0.00375, 1.5, 0.048, 0.48]
+2026-01-14 16:24:29,642 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-14 16:24:29,652 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.5
+2026-01-14 16:24:29,652 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-14 16:24:29,652 [    INFO] Base_PickAndPlaceController:   Height-adaptive speed enabled:
+2026-01-14 16:24:29,652 [    INFO] Base_PickAndPlaceController:     - Critical height threshold: 0.05m
+2026-01-14 16:24:29,652 [    INFO] Base_PickAndPlaceController:     - Critical speed factor: 0.8
+2026-01-14 16:24:29,652 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-14 16:24:29,660 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-14 16:24:29,711 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-14 16:24:29,712 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-14 16:24:29,712 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:24:29,712 [    INFO] StackingController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:24:29,712 [    INFO] StackingController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:24:29,712 [    INFO] StackingController_JW:   - height_adaptive_speed: True
+2026-01-14 16:24:29,712 [    INFO] StackingController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:24:29,712 [    INFO] StackingController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:24:29,712 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-14 16:24:29,712 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:24:29,712 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:24:29,712 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:24:29,712 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: True
+2026-01-14 16:24:29,712 [    INFO] PickAndPlaceController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:24:29,712 [    INFO] PickAndPlaceController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:24:29,712 [    INFO] PickAndPlaceController_JW:   - events_dt: [0.048, 0.0075, 1.5, 0.15000000000000002, 0.30000000000000004, 0.30000000000000004, 0.00375, 1.5, 0.048, 0.48]
+2026-01-14 16:24:29,712 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-14 16:24:29,722 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.5
+2026-01-14 16:24:29,722 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-14 16:24:29,722 [    INFO] Base_PickAndPlaceController:   Height-adaptive speed enabled:
+2026-01-14 16:24:29,722 [    INFO] Base_PickAndPlaceController:     - Critical height threshold: 0.05m
+2026-01-14 16:24:29,722 [    INFO] Base_PickAndPlaceController:     - Critical speed factor: 0.8
+2026-01-14 16:24:29,722 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-14 16:24:29,730 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-14 16:24:29,784 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-14 16:24:29,784 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-14 16:24:29,784 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:24:29,784 [    INFO] StackingController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:24:29,784 [    INFO] StackingController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:24:29,784 [    INFO] StackingController_JW:   - height_adaptive_speed: True
+2026-01-14 16:24:29,784 [    INFO] StackingController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:24:29,784 [    INFO] StackingController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:24:29,784 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-14 16:24:29,784 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:24:29,784 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:24:29,784 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:24:29,784 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: True
+2026-01-14 16:24:29,784 [    INFO] PickAndPlaceController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:24:29,784 [    INFO] PickAndPlaceController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:24:29,784 [    INFO] PickAndPlaceController_JW:   - events_dt: [0.048, 0.0075, 1.5, 0.15000000000000002, 0.30000000000000004, 0.30000000000000004, 0.00375, 1.5, 0.048, 0.48]
+2026-01-14 16:24:29,784 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-14 16:24:29,794 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.5
+2026-01-14 16:24:29,794 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-14 16:24:29,794 [    INFO] Base_PickAndPlaceController:   Height-adaptive speed enabled:
+2026-01-14 16:24:29,794 [    INFO] Base_PickAndPlaceController:     - Critical height threshold: 0.05m
+2026-01-14 16:24:29,794 [    INFO] Base_PickAndPlaceController:     - Critical speed factor: 0.8
+2026-01-14 16:24:29,794 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-14 16:24:29,802 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-14 16:24:29,862 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-14 16:24:29,863 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-14 16:24:29,863 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:24:29,863 [    INFO] StackingController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:24:29,863 [    INFO] StackingController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:24:29,863 [    INFO] StackingController_JW:   - height_adaptive_speed: True
+2026-01-14 16:24:29,863 [    INFO] StackingController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:24:29,863 [    INFO] StackingController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:24:29,864 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-14 16:24:29,864 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:24:29,864 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:24:29,864 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:24:29,864 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: True
+2026-01-14 16:24:29,864 [    INFO] PickAndPlaceController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:24:29,864 [    INFO] PickAndPlaceController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:24:29,864 [    INFO] PickAndPlaceController_JW:   - events_dt: [0.048, 0.0075, 1.5, 0.15000000000000002, 0.30000000000000004, 0.30000000000000004, 0.00375, 1.5, 0.048, 0.48]
+2026-01-14 16:24:29,864 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-14 16:24:29,875 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.5
+2026-01-14 16:24:29,875 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-14 16:24:29,875 [    INFO] Base_PickAndPlaceController:   Height-adaptive speed enabled:
+2026-01-14 16:24:29,875 [    INFO] Base_PickAndPlaceController:     - Critical height threshold: 0.05m
+2026-01-14 16:24:29,875 [    INFO] Base_PickAndPlaceController:     - Critical speed factor: 0.8
+2026-01-14 16:24:29,875 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-14 16:24:29,883 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-14 16:24:29,950 [    INFO] FrankaCubeStacking: Warte auf Kamera-Initialisierung...
+2026-01-14 16:24:30,628 [    INFO] FrankaCubeStacking: Kamera-Initialisierung abgeschlossen
+2026-01-14 16:24:30,629 [    INFO] DataLogger: Speicherplatz: 125.45 GB frei von 293.29 GB (42.8%)
+2026-01-14 16:24:30,629 [    INFO] DataLogger: DataLogger initialisiert: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/franka_cube_stack_ds
+2026-01-14 16:24:30,629 [    INFO] DataLogger:   Action Mode: ee_pos
+2026-01-14 16:24:30,629 [    INFO] DataLogger:     Format: [x_start, y_start, z_start, x_end, y_end, z_end] (6D)
+2026-01-14 16:24:30,629 [    INFO] DataLogger:     Bedeutung: EE Start-Position + EE End-Position (wie DINO WM Rope)
+2026-01-14 16:24:30,629 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action (wie Rope-Format)
+2026-01-14 16:24:30,629 [    INFO] DataLogger:     → Alle 10 Frames wird eine H5-Datei gespeichert
+2026-01-14 16:24:30,629 [    INFO] DataLogger:     → Action beschreibt Bewegung über 10 Frames
+2026-01-14 16:24:30,629 [    INFO] DataLogger:   Timestep (dt): 0.0167s (60.0 Hz)
+2026-01-14 16:24:30,629 [    INFO] DataLogger:   Image Size: (256, 256)
+2026-01-14 16:24:30,629 [    INFO] DataLogger:   Number of Cubes: 2
+2026-01-14 16:24:30,629 [    INFO] FrankaCubeStacking: Kamera-Kalibrierung gesetzt
+2026-01-14 16:24:30,629 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:24:30,646 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:24:30,659 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:24:30,674 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:24:30,689 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:24:30,701 [    INFO] FrankaCubeStacking: Warte auf Kamera-Initialisierung...
+2026-01-14 16:24:31,275 [    INFO] FrankaCubeStacking: Kamera-Initialisierung abgeschlossen
+2026-01-14 16:26:38,214 [    INFO] DataLogger: Episode 0 gestartet (action_interval=10)
+2026-01-14 16:26:38,782 [    INFO] DataLogger: Episode 0 beendet:
+2026-01-14 16:26:38,782 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:26:38,782 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:26:38,782 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:26:38,782 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:26:38,782 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1624_fcs_dset/000000
+2026-01-14 16:26:38,785 [    INFO] FrankaCubeStacking: ✅ Env 0: Episode 1 erfolgreich (935 steps, Seed 111)
+2026-01-14 16:26:38,793 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:26:38,807 [    INFO] DataLogger: Episode 1 gestartet (action_interval=10)
+2026-01-14 16:26:39,320 [    INFO] DataLogger: Episode 1 beendet:
+2026-01-14 16:26:39,320 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:26:39,320 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:26:39,320 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:26:39,320 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:26:39,320 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1624_fcs_dset/000001
+2026-01-14 16:26:39,321 [    INFO] FrankaCubeStacking: ✅ Env 1: Episode 2 erfolgreich (935 steps, Seed 1111)
+2026-01-14 16:26:39,330 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:26:39,349 [    INFO] DataLogger: Episode 2 gestartet (action_interval=10)
+2026-01-14 16:26:39,872 [    INFO] DataLogger: Episode 2 beendet:
+2026-01-14 16:26:39,872 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:26:39,872 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:26:39,872 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:26:39,872 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:26:39,872 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1624_fcs_dset/000002
+2026-01-14 16:26:39,873 [    INFO] FrankaCubeStacking: ✅ Env 2: Episode 3 erfolgreich (935 steps, Seed 2111)
+2026-01-14 16:26:39,882 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:26:39,901 [    INFO] DataLogger: Episode 3 gestartet (action_interval=10)
+2026-01-14 16:26:40,421 [    INFO] DataLogger: Episode 3 beendet:
+2026-01-14 16:26:40,422 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:26:40,422 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:26:40,422 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:26:40,422 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:26:40,422 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1624_fcs_dset/000003
+2026-01-14 16:26:40,423 [    INFO] FrankaCubeStacking: ✅ Env 3: Episode 4 erfolgreich (935 steps, Seed 3111)
+2026-01-14 16:26:40,431 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:26:40,450 [    INFO] DataLogger: Episode 4 gestartet (action_interval=10)
+2026-01-14 16:26:40,980 [    INFO] DataLogger: Episode 4 beendet:
+2026-01-14 16:26:40,980 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:26:40,980 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:26:40,980 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:26:40,980 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:26:40,980 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1624_fcs_dset/000004
+2026-01-14 16:26:40,981 [    INFO] FrankaCubeStacking: ✅ Env 4: Episode 5 erfolgreich (935 steps, Seed 4111)
+2026-01-14 16:26:40,989 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:28:51,619 [    INFO] DataLogger: Episode 5 gestartet (action_interval=10)
+2026-01-14 16:28:52,163 [    INFO] DataLogger: Episode 5 beendet:
+2026-01-14 16:28:52,163 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:28:52,163 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:28:52,163 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:28:52,163 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:28:52,163 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1624_fcs_dset/000005
+2026-01-14 16:28:52,167 [    INFO] FrankaCubeStacking: ✅ Env 0: Episode 6 erfolgreich (935 steps, Seed 112)
+2026-01-14 16:28:52,167 [    INFO] FrankaCubeStacking: Env 0: Fertig (2 erfolgreiche Episoden)
+2026-01-14 16:28:52,176 [    INFO] DataLogger: Episode 6 gestartet (action_interval=10)
+2026-01-14 16:28:52,720 [    INFO] DataLogger: Episode 6 beendet:
+2026-01-14 16:28:52,720 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:28:52,720 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:28:52,720 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:28:52,720 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:28:52,720 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1624_fcs_dset/000006
+2026-01-14 16:28:52,723 [    INFO] FrankaCubeStacking: ✅ Env 1: Episode 7 erfolgreich (935 steps, Seed 1112)
+2026-01-14 16:28:52,723 [    INFO] FrankaCubeStacking: Env 1: Fertig (2 erfolgreiche Episoden)
+2026-01-14 16:28:52,733 [    INFO] DataLogger: Episode 7 gestartet (action_interval=10)
+2026-01-14 16:28:53,276 [    INFO] DataLogger: Episode 7 beendet:
+2026-01-14 16:28:53,276 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:28:53,276 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:28:53,276 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:28:53,276 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:28:53,276 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1624_fcs_dset/000007
+2026-01-14 16:28:53,279 [    INFO] FrankaCubeStacking: ✅ Env 2: Episode 8 erfolgreich (935 steps, Seed 2112)
+2026-01-14 16:28:53,279 [    INFO] FrankaCubeStacking: Env 2: Fertig (2 erfolgreiche Episoden)
+2026-01-14 16:28:53,289 [    INFO] DataLogger: Episode 8 gestartet (action_interval=10)
+2026-01-14 16:28:53,836 [    INFO] DataLogger: Episode 8 beendet:
+2026-01-14 16:28:53,836 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:28:53,836 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:28:53,836 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:28:53,836 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:28:53,836 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1624_fcs_dset/000008
+2026-01-14 16:28:53,839 [    INFO] FrankaCubeStacking: ✅ Env 3: Episode 9 erfolgreich (935 steps, Seed 3112)
+2026-01-14 16:28:53,839 [    INFO] FrankaCubeStacking: Env 3: Fertig (2 erfolgreiche Episoden)
+2026-01-14 16:28:53,849 [    INFO] DataLogger: Episode 9 gestartet (action_interval=10)
+2026-01-14 16:28:54,391 [    INFO] DataLogger: Episode 9 beendet:
+2026-01-14 16:28:54,392 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:28:54,392 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:28:54,392 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:28:54,392 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:28:54,392 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1624_fcs_dset/000009
+2026-01-14 16:28:54,395 [    INFO] FrankaCubeStacking: ✅ Env 4: Episode 10 erfolgreich (935 steps, Seed 4112)
+2026-01-14 16:28:54,395 [    INFO] FrankaCubeStacking: Env 4: Fertig (2 erfolgreiche Episoden)
+2026-01-14 16:28:54,420 [    INFO] FrankaCubeStacking: Zwischenstand: 10/10 erfolgreiche Episoden
+2026-01-14 16:28:54,421 [    INFO] DataLogger: Kamera-Kalibrierung gespeichert:
+2026-01-14 16:28:54,421 [    INFO] DataLogger:   intrinsic: (4, 4)
+2026-01-14 16:28:54,421 [    INFO] DataLogger:   extrinsic: (4, 4, 4)
+2026-01-14 16:28:54,421 [    INFO] FrankaCubeStacking: Zentraler Datensatz gespeichert: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1624_fcs_dset/
+2026-01-14 16:28:54,421 [    INFO] FrankaCubeStacking:   Episoden: 10
+2026-01-14 16:28:54,421 [    INFO] FrankaCubeStacking:   Format: Rope-kompatibel (H5-Dateien pro Timestep)
+2026-01-14 16:28:54,421 [    INFO] FrankaCubeStacking: ============================================================
+2026-01-14 16:28:54,421 [    INFO] FrankaCubeStacking: Datensammlung abgeschlossen!
+2026-01-14 16:28:54,421 [    INFO] FrankaCubeStacking:   Zentraler Datensatz: 2026_01_14_1624_fcs_dset
+2026-01-14 16:28:54,421 [    INFO] FrankaCubeStacking:   Erfolgreiche Episoden: 10
+2026-01-14 16:28:54,421 [    INFO] FrankaCubeStacking:   Episoden pro Env: [2, 2, 2, 2, 2]
+2026-01-14 16:28:54,421 [    INFO] FrankaCubeStacking:   Fehlgeschlagene Seeds: 0
+2026-01-14 16:28:54,421 [    INFO] FrankaCubeStacking:   Erfolgsrate: 100.0%
+2026-01-14 16:28:54,421 [    INFO] FrankaCubeStacking: ============================================================
+2026-01-14 16:39:43,692 [    INFO] FrankaCubeStacking: ============================================================
+2026-01-14 16:39:43,692 [    INFO] FrankaCubeStacking: Franka Cube Stacking - PARALLEL Mode
+2026-01-14 16:39:43,692 [    INFO] FrankaCubeStacking:   Config: config.yaml (default)
+2026-01-14 16:39:43,692 [    INFO] FrankaCubeStacking:   Headless: True
+2026-01-14 16:39:43,692 [    INFO] FrankaCubeStacking:   Anzahl Umgebungen: 5
+2026-01-14 16:39:43,692 [    INFO] FrankaCubeStacking:   Episoden gesamt: 10
+2026-01-14 16:39:43,692 [    INFO] FrankaCubeStacking:   Episoden pro Env: 2
+2026-01-14 16:39:43,692 [    INFO] FrankaCubeStacking: ============================================================
+2026-01-14 16:39:43,692 [    INFO] FrankaCubeStacking: Setup Environment 0...
+2026-01-14 16:39:44,601 [    INFO] FrankaCubeStacking: Setup Environment 1...
+2026-01-14 16:39:44,602 [    INFO] FrankaCubeStacking: Setup Environment 2...
+2026-01-14 16:39:44,602 [    INFO] FrankaCubeStacking: Setup Environment 3...
+2026-01-14 16:39:44,603 [    INFO] FrankaCubeStacking: Setup Environment 4...
+2026-01-14 16:39:46,409 [    INFO] FrankaCubeStacking: All environments created, world reset complete
+2026-01-14 16:39:46,409 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-14 16:39:46,409 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-14 16:39:46,410 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:39:46,410 [    INFO] StackingController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:39:46,410 [    INFO] StackingController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:39:46,410 [    INFO] StackingController_JW:   - height_adaptive_speed: True
+2026-01-14 16:39:46,410 [    INFO] StackingController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:39:46,410 [    INFO] StackingController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:39:46,410 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-14 16:39:46,410 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:39:46,410 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:39:46,410 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:39:46,410 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: True
+2026-01-14 16:39:46,410 [    INFO] PickAndPlaceController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:39:46,410 [    INFO] PickAndPlaceController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:39:46,410 [    INFO] PickAndPlaceController_JW:   - events_dt: [0.048, 0.0075, 1.5, 0.15000000000000002, 0.30000000000000004, 0.30000000000000004, 0.00375, 1.5, 0.048, 0.48]
+2026-01-14 16:39:46,410 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-14 16:39:46,420 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.5
+2026-01-14 16:39:46,420 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-14 16:39:46,420 [    INFO] Base_PickAndPlaceController:   Height-adaptive speed enabled:
+2026-01-14 16:39:46,420 [    INFO] Base_PickAndPlaceController:     - Critical height threshold: 0.05m
+2026-01-14 16:39:46,420 [    INFO] Base_PickAndPlaceController:     - Critical speed factor: 0.8
+2026-01-14 16:39:46,420 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-14 16:39:46,428 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-14 16:39:46,493 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-14 16:39:46,493 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-14 16:39:46,493 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:39:46,493 [    INFO] StackingController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:39:46,494 [    INFO] StackingController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:39:46,494 [    INFO] StackingController_JW:   - height_adaptive_speed: True
+2026-01-14 16:39:46,494 [    INFO] StackingController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:39:46,494 [    INFO] StackingController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:39:46,494 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-14 16:39:46,494 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:39:46,494 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:39:46,494 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:39:46,494 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: True
+2026-01-14 16:39:46,494 [    INFO] PickAndPlaceController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:39:46,494 [    INFO] PickAndPlaceController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:39:46,494 [    INFO] PickAndPlaceController_JW:   - events_dt: [0.048, 0.0075, 1.5, 0.15000000000000002, 0.30000000000000004, 0.30000000000000004, 0.00375, 1.5, 0.048, 0.48]
+2026-01-14 16:39:46,494 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-14 16:39:46,503 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.5
+2026-01-14 16:39:46,503 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-14 16:39:46,503 [    INFO] Base_PickAndPlaceController:   Height-adaptive speed enabled:
+2026-01-14 16:39:46,503 [    INFO] Base_PickAndPlaceController:     - Critical height threshold: 0.05m
+2026-01-14 16:39:46,503 [    INFO] Base_PickAndPlaceController:     - Critical speed factor: 0.8
+2026-01-14 16:39:46,503 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-14 16:39:46,511 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-14 16:39:46,559 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-14 16:39:46,560 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-14 16:39:46,560 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:39:46,560 [    INFO] StackingController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:39:46,560 [    INFO] StackingController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:39:46,560 [    INFO] StackingController_JW:   - height_adaptive_speed: True
+2026-01-14 16:39:46,560 [    INFO] StackingController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:39:46,560 [    INFO] StackingController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:39:46,560 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-14 16:39:46,560 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:39:46,560 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:39:46,560 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:39:46,560 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: True
+2026-01-14 16:39:46,560 [    INFO] PickAndPlaceController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:39:46,560 [    INFO] PickAndPlaceController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:39:46,560 [    INFO] PickAndPlaceController_JW:   - events_dt: [0.048, 0.0075, 1.5, 0.15000000000000002, 0.30000000000000004, 0.30000000000000004, 0.00375, 1.5, 0.048, 0.48]
+2026-01-14 16:39:46,560 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-14 16:39:46,569 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.5
+2026-01-14 16:39:46,570 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-14 16:39:46,570 [    INFO] Base_PickAndPlaceController:   Height-adaptive speed enabled:
+2026-01-14 16:39:46,570 [    INFO] Base_PickAndPlaceController:     - Critical height threshold: 0.05m
+2026-01-14 16:39:46,570 [    INFO] Base_PickAndPlaceController:     - Critical speed factor: 0.8
+2026-01-14 16:39:46,570 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-14 16:39:46,578 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-14 16:39:46,634 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-14 16:39:46,635 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-14 16:39:46,635 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:39:46,635 [    INFO] StackingController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:39:46,635 [    INFO] StackingController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:39:46,635 [    INFO] StackingController_JW:   - height_adaptive_speed: True
+2026-01-14 16:39:46,635 [    INFO] StackingController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:39:46,635 [    INFO] StackingController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:39:46,635 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-14 16:39:46,635 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:39:46,635 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:39:46,635 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:39:46,635 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: True
+2026-01-14 16:39:46,635 [    INFO] PickAndPlaceController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:39:46,635 [    INFO] PickAndPlaceController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:39:46,635 [    INFO] PickAndPlaceController_JW:   - events_dt: [0.048, 0.0075, 1.5, 0.15000000000000002, 0.30000000000000004, 0.30000000000000004, 0.00375, 1.5, 0.048, 0.48]
+2026-01-14 16:39:46,635 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-14 16:39:46,645 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.5
+2026-01-14 16:39:46,645 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-14 16:39:46,645 [    INFO] Base_PickAndPlaceController:   Height-adaptive speed enabled:
+2026-01-14 16:39:46,645 [    INFO] Base_PickAndPlaceController:     - Critical height threshold: 0.05m
+2026-01-14 16:39:46,645 [    INFO] Base_PickAndPlaceController:     - Critical speed factor: 0.8
+2026-01-14 16:39:46,645 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-14 16:39:46,653 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-14 16:39:46,715 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-14 16:39:46,715 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-14 16:39:46,715 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:39:46,715 [    INFO] StackingController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:39:46,715 [    INFO] StackingController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:39:46,715 [    INFO] StackingController_JW:   - height_adaptive_speed: True
+2026-01-14 16:39:46,715 [    INFO] StackingController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:39:46,715 [    INFO] StackingController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:39:46,715 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-14 16:39:46,715 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-14 16:39:46,715 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.5
+2026-01-14 16:39:46,715 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 4.0
+2026-01-14 16:39:46,715 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: True
+2026-01-14 16:39:46,715 [    INFO] PickAndPlaceController_JW:     - critical_height_threshold: 0.05m
+2026-01-14 16:39:46,715 [    INFO] PickAndPlaceController_JW:     - critical_speed_factor: 0.8
+2026-01-14 16:39:46,715 [    INFO] PickAndPlaceController_JW:   - events_dt: [0.048, 0.0075, 1.5, 0.15000000000000002, 0.30000000000000004, 0.30000000000000004, 0.00375, 1.5, 0.048, 0.48]
+2026-01-14 16:39:46,715 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-14 16:39:46,725 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.5
+2026-01-14 16:39:46,725 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-14 16:39:46,725 [    INFO] Base_PickAndPlaceController:   Height-adaptive speed enabled:
+2026-01-14 16:39:46,725 [    INFO] Base_PickAndPlaceController:     - Critical height threshold: 0.05m
+2026-01-14 16:39:46,725 [    INFO] Base_PickAndPlaceController:     - Critical speed factor: 0.8
+2026-01-14 16:39:46,725 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-14 16:39:46,733 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-14 16:39:46,796 [    INFO] FrankaCubeStacking: Warte auf Kamera-Initialisierung...
+2026-01-14 16:39:47,500 [    INFO] FrankaCubeStacking: Kamera-Initialisierung abgeschlossen
+2026-01-14 16:39:47,500 [    INFO] DataLogger: Speicherplatz: 117.77 GB frei von 293.29 GB (40.2%)
+2026-01-14 16:39:47,500 [    INFO] DataLogger: DataLogger initialisiert: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/franka_cube_stack_ds
+2026-01-14 16:39:47,500 [    INFO] DataLogger:   Action Mode: ee_pos
+2026-01-14 16:39:47,500 [    INFO] DataLogger:     Format: [x_start, y_start, z_start, x_end, y_end, z_end] (6D)
+2026-01-14 16:39:47,500 [    INFO] DataLogger:     Bedeutung: EE Start-Position + EE End-Position (wie DINO WM Rope)
+2026-01-14 16:39:47,500 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action (wie Rope-Format)
+2026-01-14 16:39:47,501 [    INFO] DataLogger:     → Alle 10 Frames wird eine H5-Datei gespeichert
+2026-01-14 16:39:47,501 [    INFO] DataLogger:     → Action beschreibt Bewegung über 10 Frames
+2026-01-14 16:39:47,501 [    INFO] DataLogger:   Timestep (dt): 0.0167s (60.0 Hz)
+2026-01-14 16:39:47,501 [    INFO] DataLogger:   Image Size: (256, 256)
+2026-01-14 16:39:47,501 [    INFO] DataLogger:   Number of Cubes: 2
+2026-01-14 16:39:47,501 [    INFO] FrankaCubeStacking: Kamera-Kalibrierung gesetzt
+2026-01-14 16:39:47,501 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:39:47,507 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:39:47,520 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:39:47,534 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:39:47,548 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:39:47,559 [    INFO] FrankaCubeStacking: Warte auf Kamera-Initialisierung...
+2026-01-14 16:39:48,153 [    INFO] FrankaCubeStacking: Kamera-Initialisierung abgeschlossen
+2026-01-14 16:41:57,305 [    INFO] DataLogger: Episode 0 gestartet (action_interval=10)
+2026-01-14 16:41:57,863 [    INFO] DataLogger: Episode 0 beendet:
+2026-01-14 16:41:57,863 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:41:57,863 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:41:57,863 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:41:57,863 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:41:57,863 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1639_fcs_dset/000000
+2026-01-14 16:41:57,867 [    INFO] FrankaCubeStacking: ✅ Env 0: Episode 1 erfolgreich (935 steps, Seed 111)
+2026-01-14 16:41:57,875 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:41:57,889 [    INFO] DataLogger: Episode 1 gestartet (action_interval=10)
+2026-01-14 16:41:58,407 [    INFO] DataLogger: Episode 1 beendet:
+2026-01-14 16:41:58,407 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:41:58,407 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:41:58,407 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:41:58,407 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:41:58,407 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1639_fcs_dset/000001
+2026-01-14 16:41:58,408 [    INFO] FrankaCubeStacking: ✅ Env 1: Episode 2 erfolgreich (935 steps, Seed 1111)
+2026-01-14 16:41:58,416 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:41:58,436 [    INFO] DataLogger: Episode 2 gestartet (action_interval=10)
+2026-01-14 16:41:58,951 [    INFO] DataLogger: Episode 2 beendet:
+2026-01-14 16:41:58,951 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:41:58,951 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:41:58,951 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:41:58,951 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:41:58,951 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1639_fcs_dset/000002
+2026-01-14 16:41:58,952 [    INFO] FrankaCubeStacking: ✅ Env 2: Episode 3 erfolgreich (935 steps, Seed 2111)
+2026-01-14 16:41:58,960 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:41:58,989 [    INFO] DataLogger: Episode 3 gestartet (action_interval=10)
+2026-01-14 16:41:59,503 [    INFO] DataLogger: Episode 3 beendet:
+2026-01-14 16:41:59,504 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:41:59,504 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:41:59,504 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:41:59,504 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:41:59,504 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1639_fcs_dset/000003
+2026-01-14 16:41:59,504 [    INFO] FrankaCubeStacking: ✅ Env 3: Episode 4 erfolgreich (935 steps, Seed 3111)
+2026-01-14 16:41:59,513 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:41:59,532 [    INFO] DataLogger: Episode 4 gestartet (action_interval=10)
+2026-01-14 16:42:00,058 [    INFO] DataLogger: Episode 4 beendet:
+2026-01-14 16:42:00,059 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:42:00,059 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:42:00,059 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:42:00,059 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:42:00,059 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1639_fcs_dset/000004
+2026-01-14 16:42:00,059 [    INFO] FrankaCubeStacking: ✅ Env 4: Episode 5 erfolgreich (935 steps, Seed 4111)
+2026-01-14 16:42:00,068 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-14 16:44:13,097 [    INFO] DataLogger: Episode 5 gestartet (action_interval=10)
+2026-01-14 16:44:13,659 [    INFO] DataLogger: Episode 5 beendet:
+2026-01-14 16:44:13,659 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:44:13,659 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:44:13,659 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:44:13,659 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:44:13,659 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1639_fcs_dset/000005
+2026-01-14 16:44:13,662 [    INFO] FrankaCubeStacking: ✅ Env 0: Episode 6 erfolgreich (935 steps, Seed 112)
+2026-01-14 16:44:13,662 [    INFO] FrankaCubeStacking: Env 0: Fertig (2 erfolgreiche Episoden)
+2026-01-14 16:44:13,672 [    INFO] DataLogger: Episode 6 gestartet (action_interval=10)
+2026-01-14 16:44:14,218 [    INFO] DataLogger: Episode 6 beendet:
+2026-01-14 16:44:14,218 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:44:14,218 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:44:14,218 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:44:14,218 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:44:14,218 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1639_fcs_dset/000006
+2026-01-14 16:44:14,221 [    INFO] FrankaCubeStacking: ✅ Env 1: Episode 7 erfolgreich (935 steps, Seed 1112)
+2026-01-14 16:44:14,221 [    INFO] FrankaCubeStacking: Env 1: Fertig (2 erfolgreiche Episoden)
+2026-01-14 16:44:14,231 [    INFO] DataLogger: Episode 7 gestartet (action_interval=10)
+2026-01-14 16:44:14,777 [    INFO] DataLogger: Episode 7 beendet:
+2026-01-14 16:44:14,778 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:44:14,778 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:44:14,778 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:44:14,778 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:44:14,778 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1639_fcs_dset/000007
+2026-01-14 16:44:14,781 [    INFO] FrankaCubeStacking: ✅ Env 2: Episode 8 erfolgreich (935 steps, Seed 2112)
+2026-01-14 16:44:14,781 [    INFO] FrankaCubeStacking: Env 2: Fertig (2 erfolgreiche Episoden)
+2026-01-14 16:44:14,790 [    INFO] DataLogger: Episode 8 gestartet (action_interval=10)
+2026-01-14 16:44:15,338 [    INFO] DataLogger: Episode 8 beendet:
+2026-01-14 16:44:15,338 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:44:15,338 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:44:15,338 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:44:15,338 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:44:15,338 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1639_fcs_dset/000008
+2026-01-14 16:44:15,341 [    INFO] FrankaCubeStacking: ✅ Env 3: Episode 9 erfolgreich (935 steps, Seed 3112)
+2026-01-14 16:44:15,341 [    INFO] FrankaCubeStacking: Env 3: Fertig (2 erfolgreiche Episoden)
+2026-01-14 16:44:15,351 [    INFO] DataLogger: Episode 9 gestartet (action_interval=10)
+2026-01-14 16:44:15,899 [    INFO] DataLogger: Episode 9 beendet:
+2026-01-14 16:44:15,899 [    INFO] DataLogger:   Frames gesamt: 935
+2026-01-14 16:44:15,899 [    INFO] DataLogger:   H5-Dateien (Actions): 94 (00.h5 bis 93.h5)
+2026-01-14 16:44:15,899 [    INFO] DataLogger:   Action Interval: 10 Frames pro Action
+2026-01-14 16:44:15,899 [    INFO] DataLogger:   obses.pth: torch.Size([935, 256, 256, 3])
+2026-01-14 16:44:15,899 [    INFO] DataLogger:   Speicherort: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1639_fcs_dset/000009
+2026-01-14 16:44:15,902 [    INFO] FrankaCubeStacking: ✅ Env 4: Episode 10 erfolgreich (935 steps, Seed 4112)
+2026-01-14 16:44:15,902 [    INFO] FrankaCubeStacking: Env 4: Fertig (2 erfolgreiche Episoden)
+2026-01-14 16:44:15,929 [    INFO] FrankaCubeStacking: Zwischenstand: 10/10 erfolgreiche Episoden
+2026-01-14 16:44:15,929 [    INFO] DataLogger: Kamera-Kalibrierung gespeichert:
+2026-01-14 16:44:15,929 [    INFO] DataLogger:   intrinsic: (4, 4)
+2026-01-14 16:44:15,929 [    INFO] DataLogger:   extrinsic: (4, 4, 4)
+2026-01-14 16:44:15,929 [    INFO] FrankaCubeStacking: Zentraler Datensatz gespeichert: /media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1639_fcs_dset/
+2026-01-14 16:44:15,929 [    INFO] FrankaCubeStacking:   Episoden: 10
+2026-01-14 16:44:15,929 [    INFO] FrankaCubeStacking:   Format: Rope-kompatibel (H5-Dateien pro Timestep)
+2026-01-14 16:44:15,929 [    INFO] FrankaCubeStacking: ============================================================
+2026-01-14 16:44:15,929 [    INFO] FrankaCubeStacking: Datensammlung abgeschlossen!
+2026-01-14 16:44:15,929 [    INFO] FrankaCubeStacking:   Zentraler Datensatz: 2026_01_14_1639_fcs_dset
+2026-01-14 16:44:15,929 [    INFO] FrankaCubeStacking:   Erfolgreiche Episoden: 10
+2026-01-14 16:44:15,929 [    INFO] FrankaCubeStacking:   Episoden pro Env: [2, 2, 2, 2, 2]
+2026-01-14 16:44:15,929 [    INFO] FrankaCubeStacking:   Fehlgeschlagene Seeds: 0
+2026-01-14 16:44:15,929 [    INFO] FrankaCubeStacking:   Erfolgsrate: 100.0%
+2026-01-14 16:44:15,929 [    INFO] FrankaCubeStacking: ============================================================

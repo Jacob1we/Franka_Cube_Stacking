@@ -2,41 +2,55 @@
 Data Logger für Isaac Sim - Franka Panda + 2 Würfel Datensatz-Generierung
 Struktur kompatibel mit dem ROPE/DEFORMABLE Format.
 
-Action-Format (2 Optionen, via action_mode Parameter):
+Action Interval (config.yaml: dataset.action_interval):
+    - Wie im Rope-Format können mehrere Frames zu einer Action zusammengefasst werden
+    - action_interval=1: Jeder Frame wird als H5-Datei gespeichert (Standard)
+    - action_interval=10: Alle 10 Frames wird eine H5-Datei gespeichert
+    - Die Action beschreibt dann die Bewegung über N Frames
+    - obses.pth enthält ALLE Frames, H5-Dateien nur jeden N-ten Frame
 
-    Option 1: "delta_pose" - 3D Translation + 1D Rotation
+Action-Format (3 Optionen, via action_mode Parameter):
+
+    Option 1: "delta_pose" - 3D Translation + 1D Rotation (4D)
         action = [delta_x, delta_y, delta_z, delta_yaw]
-        - delta_x/y/z: Relative Position-Änderung des EE in Metern
-        - delta_yaw: Rotation um Z-Achse in Radiant
+        - Bei action_interval > 1: Gesamte Änderung über N Frames
 
-    Option 2: "velocity" - Geschwindigkeitsbasierte Steuerung
+    Option 2: "velocity" - Geschwindigkeitsbasierte Steuerung (4D)
         action = [vx, vy, vz, omega_z]
-        - vx/vy/vz: Translatorische Geschwindigkeit in m/s
-        - omega_z: Rotatorische Geschwindigkeit um Z-Achse in rad/s
+        - Bei action_interval > 1: Durchschnittsgeschwindigkeit über N Frames
+
+    Option 3: "ee_pos" - Start- und Endposition des EE (6D, wie DINO WM Rope)
+        action = [x_start, y_start, z_start, x_end, y_end, z_end]
+        - x/y/z_start: EE-Position am Anfang des Intervalls
+        - x/y/z_end: EE-Position am Ende des Intervalls
 
 Ausgabe-Format (Rope-kompatibel):
     dataset/
     ├── cameras/
     │   ├── intrinsic.npy      # (4, 4) float64 - Intrinsische Parameter
-    │   └── extrinsic.npy      # (4, 4, 4) float64 - Extrinsische Parameter (4x für Kompatibilität)
+    │   └── extrinsic.npy      # (4, 4, 4) float64 - Extrinsische Parameter
     ├── 000000/                 # Episode 0 (6-stellig, 0-padded)
-    │   ├── obses.pth          # (T, H, W, C) float32 - Alle Beobachtungsbilder (Werte 0-255)
-    │   ├── 00.h5              # HDF5 - Timestep 0 Daten
-    │   │   ├── action         # (4,) float64 - siehe Action-Format
-    │   │   ├── eef_states     # (1, 1, 14) float64 - EE Position + Quaternion (dupliziert)
-    │   │   ├── positions      # (1, n_cubes, 4) float32 - Würfel (x, y, z, yaw)
+    │   ├── obses.pth          # (T, H, W, C) float32 - ALLE Frames (Werte 0-255)
+    │   ├── 00.h5              # HDF5 - Action 0 (nach action_interval Frames)
+    │   │   ├── action         # (4,) oder (6,) float64 - siehe Action-Format
+    │   │   ├── eef_states     # (1, 1, 14) float64 - EE am Ende des Intervalls
+    │   │   ├── positions      # (1, n_cubes, 4) float32 - Würfel
     │   │   ├── info/          # n_cams, n_cubes, timestamp, action_mode
-    │   │   └── observations/  # color/cam_0, depth/cam_0
-    │   ├── 01.h5              # HDF5 - Timestep 1 Daten
+    │   │   └── observations/  # color/cam_0, depth/cam_0 (am Ende des Intervalls)
+    │   ├── 01.h5              # HDF5 - Action 1 (nach 2*action_interval Frames)
     │   └── ...
     └── ...
 
+Beispiel mit action_interval=10:
+    - 100 Frames → obses.pth hat Shape (100, H, W, C)
+    - 100 Frames → 10 H5-Dateien (00.h5 bis 09.h5)
+    - Jede H5-Datei beschreibt die Bewegung über 10 Frames
+
 Verwendung:
-    1. Importiere DataLogger in dein Environment
-    2. Lade Config mit load_config_from_yaml()
-    3. Rufe logger.start_episode() am Anfang jeder Episode auf
-    4. Rufe logger.log_step(rgb, depth, ee_pos, ee_quat, cube_positions) bei jedem Timestep auf
-    5. Rufe logger.end_episode() am Ende jeder Episode auf
+    1. Konfiguriere action_interval in config.yaml
+    2. Rufe logger.start_episode() am Anfang jeder Episode auf
+    3. Rufe logger.log_step() bei JEDEM Frame auf (Logger managed Intervall intern)
+    4. Rufe logger.end_episode() am Ende jeder Episode auf
 """
 
 import torch
@@ -112,7 +126,7 @@ class FrankaDataLogger:
         self,
         config: Optional[dict] = None,
         config_path: Optional[str] = None,
-        action_mode: Literal["delta_pose", "velocity"] = "delta_pose",
+        action_mode: Literal["delta_pose", "velocity", "ee_pos"] = "ee_pos",
         dt: float = 1.0 / 60.0,  # Simulation timestep (60 Hz default)
     ):
         """
@@ -120,8 +134,9 @@ class FrankaDataLogger:
             config: Dictionary mit Konfiguration (wird aus config_path geladen falls None)
             config_path: Pfad zur config.yaml (wird verwendet falls config=None)
             action_mode: Action-Codierung:
-                - "delta_pose": [delta_x, delta_y, delta_z, delta_yaw] - relative Positionsänderung
-                - "velocity": [vx, vy, vz, omega_z] - Geschwindigkeiten
+                - "delta_pose": [delta_x, delta_y, delta_z, delta_yaw] - relative Positionsänderung (4D)
+                - "velocity": [vx, vy, vz, omega_z] - Geschwindigkeiten (4D)
+                - "ee_pos": [x_start, y_start, z_start, x_end, y_end, z_end] - EE Start/End Position (6D)
             dt: Simulation timestep für Geschwindigkeitsberechnung (Default: 1/60 = 60Hz)
         """
         # Lade Config
@@ -140,9 +155,13 @@ class FrankaDataLogger:
         self.action_mode = action_mode
         self.dt = dt  # Timestep für Geschwindigkeitsberechnung
         
+        # Action Interval (wie Rope-Format)
+        # Alle N Frames wird eine H5-Datei/Action gespeichert
+        self.action_interval = config["dataset"].get("action_interval", 1)
+        
         # Validiere action_mode
-        if action_mode not in ["delta_pose", "velocity"]:
-            raise ValueError(f"Ungültiger action_mode: {action_mode}. Erlaubt: 'delta_pose', 'velocity'")
+        if action_mode not in ["delta_pose", "velocity", "ee_pos"]:
+            raise ValueError(f"Ungültiger action_mode: {action_mode}. Erlaubt: 'delta_pose', 'velocity', 'ee_pos'")
         
         # Kamera-Parameter aus Config
         self.camera_position = np.array(config["camera"]["position"], dtype=np.float64)
@@ -169,11 +188,18 @@ class FrankaDataLogger:
         log.info(f"DataLogger initialisiert: {self.dataset_path}")
         log.info(f"  Action Mode: {self.action_mode}")
         if self.action_mode == "delta_pose":
-            log.info(f"    Format: [delta_x, delta_y, delta_z, delta_yaw]")
+            log.info(f"    Format: [delta_x, delta_y, delta_z, delta_yaw] (4D)")
             log.info(f"    Bedeutung: Relative Positionsänderung (m) + Rotation (rad)")
-        else:  # velocity
-            log.info(f"    Format: [vx, vy, vz, omega_z]")
+        elif self.action_mode == "velocity":
+            log.info(f"    Format: [vx, vy, vz, omega_z] (4D)")
             log.info(f"    Bedeutung: Geschwindigkeit (m/s) + Rotationsgeschwindigkeit (rad/s)")
+        else:  # ee_pos
+            log.info(f"    Format: [x_start, y_start, z_start, x_end, y_end, z_end] (6D)")
+            log.info(f"    Bedeutung: EE Start-Position + EE End-Position (wie DINO WM Rope)")
+        log.info(f"  Action Interval: {self.action_interval} Frames pro Action (wie Rope-Format)")
+        if self.action_interval > 1:
+            log.info(f"    → Alle {self.action_interval} Frames wird eine H5-Datei gespeichert")
+            log.info(f"    → Action beschreibt Bewegung über {self.action_interval} Frames")
         log.info(f"  Timestep (dt): {self.dt:.4f}s ({1.0/self.dt:.1f} Hz)")
         log.info(f"  Image Size: {self.image_size}")
         log.info(f"  Number of Cubes: {self.n_cubes}")
@@ -246,16 +272,26 @@ class FrankaDataLogger:
         self.current_episode = {
             "id": self.episode_count,
             "folder": episode_folder,
-            "timestep": 0,
-            "observations": [],  # RGB Bilder (T, H, W, C)
-            "h5_files": [],        # Pfade zu H5-Dateien
+            "frame_count": 0,       # Zähler für alle Frames (für obses.pth)
+            "h5_count": 0,          # Zähler für H5-Dateien/Actions
+            "observations": [],     # RGB Bilder (T, H, W, C) - alle Frames
+            "h5_files": [],         # Pfade zu H5-Dateien
+            # Buffer für Action-Intervall (Rope-Format)
+            "interval_buffer": {
+                "start_ee_pos": None,       # EE-Position am Anfang des Intervalls
+                "start_ee_quat": None,      # EE-Quaternion am Anfang des Intervalls
+                "frames_in_interval": 0,    # Anzahl Frames im aktuellen Intervall
+                "last_rgb": None,           # Letztes RGB-Bild im Intervall
+                "last_depth": None,         # Letztes Depth-Bild im Intervall
+                "last_cube_positions": None,# Letzte Würfelpositionen im Intervall
+            },
         }
         
         # Reset für Velocity-Berechnung
         self.prev_ee_pos = None
         self.prev_ee_quat = None
         
-        log.info(f"Episode {self.episode_count} gestartet")
+        log.info(f"Episode {self.episode_count} gestartet (action_interval={self.action_interval})")
     
     def log_step(
         self,
@@ -268,17 +304,15 @@ class FrankaDataLogger:
         """
         Loggt einen einzelnen Timestep.
         
-        Action wird automatisch aus EE-Bewegung berechnet (abhängig von action_mode):
+        Bei action_interval > 1 (Rope-Format):
+            - Alle Frames werden zu obses.pth hinzugefügt
+            - Nur alle N Frames wird eine H5-Datei gespeichert
+            - Die Action beschreibt die Bewegung über N Frames
         
-        action_mode="delta_pose":
-            [delta_x, delta_y, delta_z, delta_yaw]
-            - delta_x/y/z: Relative Position-Änderung in Metern
-            - delta_yaw: Rotation um Z-Achse in Radiant
-        
-        action_mode="velocity":
-            [vx, vy, vz, omega_z]
-            - vx/vy/vz: Translatorische Geschwindigkeit in m/s
-            - omega_z: Rotatorische Geschwindigkeit um Z-Achse in rad/s
+        Action-Formate:
+            "delta_pose" (4D): [delta_x, delta_y, delta_z, delta_yaw]
+            "velocity" (4D): [vx, vy, vz, omega_z]
+            "ee_pos" (6D): [x_start, y_start, z_start, x_end, y_end, z_end]
         
         Args:
             rgb_image: RGB Bild (H, W, 3) uint8, Werte 0-255
@@ -290,9 +324,7 @@ class FrankaDataLogger:
         if self.current_episode is None:
             raise RuntimeError("Keine Episode gestartet! Rufe start_episode() auf.")
         
-        timestep = self.current_episode["timestep"]
-        
-        # Bild speichern
+        # Bild-Größe prüfen und ggf. resizen
         if rgb_image.shape[:2] != self.image_size:
             log.warning(f"Bildgröße {rgb_image.shape[:2]} != {self.image_size}, resizing...")
             from PIL import Image
@@ -300,70 +332,125 @@ class FrankaDataLogger:
             img = img.resize((self.image_size[1], self.image_size[0]))  # (W, H)
             rgb_image = np.array(img)
         
+        # ===== ALLE Frames werden zu observations hinzugefügt (für obses.pth) =====
         self.current_episode["observations"].append(rgb_image.astype(np.uint8))
+        self.current_episode["frame_count"] += 1
         
-        # Extrahiere aktuellen Yaw aus Quaternion
-        current_yaw = self._quaternion_to_yaw(ee_quat)
+        # ===== Intervall-Buffer Management =====
+        buf = self.current_episode["interval_buffer"]
+        
+        # Am Anfang des Intervalls: Start-Position merken
+        if buf["frames_in_interval"] == 0:
+            buf["start_ee_pos"] = ee_pos.astype(np.float64).copy()
+            buf["start_ee_quat"] = ee_quat.astype(np.float64).copy()
+        
+        # Aktuelle Daten im Buffer speichern (für Ende des Intervalls)
+        buf["frames_in_interval"] += 1
+        buf["last_rgb"] = rgb_image
+        buf["last_depth"] = depth_image
+        buf["last_cube_positions"] = cube_positions
+        buf["last_ee_pos"] = ee_pos.astype(np.float64).copy()
+        buf["last_ee_quat"] = ee_quat.astype(np.float64).copy()
+        
+        # ===== H5-Datei nur alle N Frames speichern =====
+        if buf["frames_in_interval"] >= self.action_interval:
+            self._save_interval_h5(
+                start_ee_pos=buf["start_ee_pos"],
+                start_ee_quat=buf["start_ee_quat"],
+                end_ee_pos=buf["last_ee_pos"],
+                end_ee_quat=buf["last_ee_quat"],
+                rgb_image=buf["last_rgb"],
+                depth_image=buf["last_depth"],
+                cube_positions=buf["last_cube_positions"],
+            )
+            
+            # Buffer zurücksetzen
+            buf["frames_in_interval"] = 0
+            buf["start_ee_pos"] = None
+            buf["start_ee_quat"] = None
+        
+        # Update für nächsten Timestep
+        self.prev_ee_pos = ee_pos.astype(np.float64).copy()
+        self.prev_ee_quat = ee_quat.astype(np.float64).copy()
+    
+    def _save_interval_h5(
+        self,
+        start_ee_pos: np.ndarray,
+        start_ee_quat: np.ndarray,
+        end_ee_pos: np.ndarray,
+        end_ee_quat: np.ndarray,
+        rgb_image: np.ndarray,
+        depth_image: np.ndarray,
+        cube_positions: List[Tuple[float, float, float, float]],
+    ):
+        """
+        Speichert eine H5-Datei am Ende eines Intervalls.
+        
+        Die Action beschreibt die Bewegung vom Anfang bis zum Ende des Intervalls.
+        """
+        h5_idx = self.current_episode["h5_count"]
         
         # Berechne Action basierend auf action_mode
-        if self.prev_ee_pos is not None and self.prev_ee_quat is not None:
-            # Delta Position
-            delta_pos = ee_pos.astype(np.float64) - self.prev_ee_pos
-            
-            # Delta Yaw (Rotation um Z-Achse)
-            prev_yaw = self._quaternion_to_yaw(self.prev_ee_quat)
-            delta_yaw = self._normalize_angle(current_yaw - prev_yaw)
-            
-            if self.action_mode == "delta_pose":
-                # Option 1: 3D Translation + 1D Rotation (relative Änderungen)
-                action = np.array([
-                    delta_pos[0],  # delta_x (m)
-                    delta_pos[1],  # delta_y (m)
-                    delta_pos[2],  # delta_z (m)
-                    delta_yaw,     # delta_yaw (rad)
-                ], dtype=np.float64)
-            
-            elif self.action_mode == "velocity":
-                # Option 2: Geschwindigkeitsbasierte Steuerung
-                velocity = delta_pos / self.dt  # m/s
-                omega_z = delta_yaw / self.dt   # rad/s
-                
-                action = np.array([
-                    velocity[0],  # vx (m/s)
-                    velocity[1],  # vy (m/s)
-                    velocity[2],  # vz (m/s)
-                    omega_z,      # omega_z (rad/s)
-                ], dtype=np.float64)
-        else:
-            # Erster Timestep: Keine Bewegung bekannt
-            action = np.zeros(4, dtype=np.float64)
+        start_yaw = self._quaternion_to_yaw(start_ee_quat)
+        end_yaw = self._quaternion_to_yaw(end_ee_quat)
+        delta_pos = end_ee_pos - start_ee_pos
+        delta_yaw = self._normalize_angle(end_yaw - start_yaw)
         
-        # Berechne EEF States (1, 1, 14) Format
-        # Format: [[[x, y, z, x, y, z, qw, qx, qy, qz, qw, qx, qy, qz]]]]
+        if self.action_mode == "delta_pose":
+            # 4D: Relative Positionsänderung über das Intervall
+            action = np.array([
+                delta_pos[0],  # delta_x (m)
+                delta_pos[1],  # delta_y (m)
+                delta_pos[2],  # delta_z (m)
+                delta_yaw,     # delta_yaw (rad)
+            ], dtype=np.float64)
+        
+        elif self.action_mode == "velocity":
+            # 4D: Durchschnittsgeschwindigkeit über das Intervall
+            interval_time = self.action_interval * self.dt
+            velocity = delta_pos / interval_time
+            omega_z = delta_yaw / interval_time
+            action = np.array([
+                velocity[0],  # vx (m/s)
+                velocity[1],  # vy (m/s)
+                velocity[2],  # vz (m/s)
+                omega_z,      # omega_z (rad/s)
+            ], dtype=np.float64)
+        
+        elif self.action_mode == "ee_pos":
+            # 6D: Start- und Endposition (wie DINO WM Rope)
+            action = np.array([
+                start_ee_pos[0], start_ee_pos[1], start_ee_pos[2],  # start
+                end_ee_pos[0], end_ee_pos[1], end_ee_pos[2],        # end
+            ], dtype=np.float64)
+        
+        # NaN-Prüfung und Behandlung
+        if np.isnan(action).any():
+            log.warning(f"NaN in Action bei H5-Index {h5_idx}, ersetze mit Nullen")
+            action = np.nan_to_num(action, nan=0.0)
+        
+        # EEF States (am Ende des Intervalls)
         eef_states = np.array([[[
-            ee_pos[0], ee_pos[1], ee_pos[2],  # Position 1
-            ee_pos[0], ee_pos[1], ee_pos[2],  # Position 2 (dupliziert)
-            ee_quat[0], ee_quat[1], ee_quat[2], ee_quat[3],  # Quaternion 1
-            ee_quat[0], ee_quat[1], ee_quat[2], ee_quat[3],  # Quaternion 2 (dupliziert)
+            end_ee_pos[0], end_ee_pos[1], end_ee_pos[2],
+            end_ee_pos[0], end_ee_pos[1], end_ee_pos[2],
+            end_ee_quat[0], end_ee_quat[1], end_ee_quat[2], end_ee_quat[3],
+            end_ee_quat[0], end_ee_quat[1], end_ee_quat[2], end_ee_quat[3],
         ]]], dtype=np.float64)
         
-        # Cube Positions: (1, n_cubes, 4) - (x, y, z, yaw)
+        # Cube Positions
         if cube_positions is None:
             cube_positions = [(0.0, 0.0, 0.0, 0.0)] * self.n_cubes
-        
-        # Stelle sicher, dass wir genau n_cubes haben
         if len(cube_positions) < self.n_cubes:
             cube_positions = list(cube_positions) + [(0.0, 0.0, 0.0, 0.0)] * (self.n_cubes - len(cube_positions))
         elif len(cube_positions) > self.n_cubes:
             cube_positions = cube_positions[:self.n_cubes]
+        positions = np.array([cube_positions], dtype=np.float32)
         
-        positions = np.array([cube_positions], dtype=np.float32)  # (1, n_cubes, 4)
-        
-        # Speichere H5-Datei für diesen Timestep
-        h5_path = self.current_episode["folder"] / f"{timestep:02d}.h5"
+        # H5-Datei speichern
+        h5_path = self.current_episode["folder"] / f"{h5_idx:02d}.h5"
         self._save_h5_timestep(
             h5_path=h5_path,
-            timestep=timestep,
+            timestep=h5_idx,
             action=action,
             eef_states=eef_states,
             positions=positions,
@@ -372,11 +459,7 @@ class FrankaDataLogger:
         )
         
         self.current_episode["h5_files"].append(h5_path)
-        
-        # Update für nächsten Timestep
-        self.prev_ee_pos = ee_pos.copy()
-        self.prev_ee_quat = ee_quat.copy()
-        self.current_episode["timestep"] += 1
+        self.current_episode["h5_count"] += 1
     
     def _quaternion_to_yaw(self, quat: np.ndarray) -> float:
         """
@@ -433,7 +516,7 @@ class FrankaDataLogger:
         Args:
             h5_path: Pfad zur H5-Datei
             timestep: Timestep-Nummer
-            action: Action-Vektor (4,) float64
+            action: Action-Vektor - (4,) oder (6,) float64 je nach action_mode
             eef_states: Endeffektor-States (1, 1, 14) float64
             positions: Cube-Positionen (1, n_cubes, 4) float32
             rgb_image: RGB-Bild (H, W, 3) uint8
@@ -518,14 +601,15 @@ class FrankaDataLogger:
             return
         
         episode_id = self.current_episode["id"]
-        timesteps = self.current_episode["timestep"]
+        frame_count = self.current_episode["frame_count"]
+        h5_count = self.current_episode["h5_count"]
         
         # Lösche Episode-Ordner
         import shutil
         if self.current_episode["folder"].exists():
             shutil.rmtree(self.current_episode["folder"])
         
-        log.warning(f"Episode {episode_id} verworfen ({timesteps} Timesteps)")
+        log.warning(f"Episode {episode_id} verworfen ({frame_count} Frames, {h5_count} H5-Dateien)")
         
         self.current_episode = None
         # episode_count wird NICHT erhöht
@@ -533,22 +617,40 @@ class FrankaDataLogger:
     def end_episode(self):
         """
         Beendet die aktuelle Episode und speichert die Daten.
+        
+        Bei action_interval > 1: Evtl. übrige Frames im Buffer werden noch gespeichert.
         """
         if self.current_episode is None:
             log.warning("Keine Episode zum Beenden vorhanden")
             return
         
-        episode_length = self.current_episode["timestep"]
+        frame_count = self.current_episode["frame_count"]
+        h5_count = self.current_episode["h5_count"]
         episode_id = self.current_episode["id"]
         
-        if episode_length == 0:
+        if frame_count == 0:
             log.warning(f"Episode {episode_id}: Leere Episode, überspringe...")
             self.current_episode = None
             return
         
+        # ===== Übrige Frames im Buffer speichern (falls vorhanden) =====
+        buf = self.current_episode["interval_buffer"]
+        if buf["frames_in_interval"] > 0 and buf["start_ee_pos"] is not None:
+            log.debug(f"Episode {episode_id}: {buf['frames_in_interval']} übrige Frames im Buffer, speichere...")
+            self._save_interval_h5(
+                start_ee_pos=buf["start_ee_pos"],
+                start_ee_quat=buf["start_ee_quat"],
+                end_ee_pos=buf["last_ee_pos"],
+                end_ee_quat=buf["last_ee_quat"],
+                rgb_image=buf["last_rgb"],
+                depth_image=buf["last_depth"],
+                cube_positions=buf["last_cube_positions"],
+            )
+            h5_count = self.current_episode["h5_count"]
+        
         try:
             # Speichere obses.pth (Rope-Format: float32, Werte 0-255)
-            log.debug(f"Episode {episode_id}: Speichere obses.pth ({episode_length} Timesteps)...")
+            log.debug(f"Episode {episode_id}: Speichere obses.pth ({frame_count} Frames)...")
             observations = np.stack(self.current_episode["observations"], axis=0)  # (T, H, W, C) uint8
             # Konvertiere zu float32 für Rope-Kompatibilität (Werte bleiben 0-255)
             observations_float = observations.astype(np.float32)
@@ -557,15 +659,17 @@ class FrankaDataLogger:
             torch.save(obses_tensor, obses_path)
             log.debug(f"Episode {episode_id}: obses.pth gespeichert: {obses_tensor.shape}, dtype={obses_tensor.dtype}")
             
-            log.info(f"Episode {episode_id} beendet: {episode_length} Timesteps")
+            log.info(f"Episode {episode_id} beendet:")
+            log.info(f"  Frames gesamt: {frame_count}")
+            log.info(f"  H5-Dateien (Actions): {h5_count} (00.h5 bis {h5_count-1:02d}.h5)")
+            log.info(f"  Action Interval: {self.action_interval} Frames pro Action")
             log.info(f"  obses.pth: {obses_tensor.shape}")
-            log.info(f"  H5-Dateien: {episode_length} Dateien (00.h5 bis {episode_length-1:02d}.h5)")
             log.info(f"  Speicherort: {self.current_episode['folder']}")
         except Exception as e:
             log.error(f"Episode {episode_id}: Fehler beim Beenden der Episode!")
             log.error(f"  Exception Type: {type(e).__name__}")
             log.error(f"  Exception Message: {str(e)}")
-            log.error(f"  Episode Length: {episode_length}")
+            log.error(f"  Frame Count: {frame_count}")
             import traceback
             log.error(f"  Traceback:\n{traceback.format_exc()}")
             raise
