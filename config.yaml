@@ -9,13 +9,13 @@ simulation:
 
 # Parallelisierung
 parallel:
-  num_envs: 5                       # 1 = Single, >1 = Parallel (z.B. 4 für 2x2 Grid)
+  num_envs: 1                       # 1 = Single, >1 = Parallel (z.B. 4 für 2x2 Grid)
   env_spacing: 2.5                  # Abstand zwischen Umgebungen (Meter)
 
 # Datensammlung
 dataset:
   num_episodes: 10                  # Anzahl zu sammelnder Episoden (TOTAL)
-  path: "/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets"
+  path: "../fcs_datasets" #"/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets"
   name: "franka_cube_stack_ds"
   save_png: true                    # Speichere alle Bilder auch als PNG
   action_mode: "ee_pos"             # Action-Codierung:

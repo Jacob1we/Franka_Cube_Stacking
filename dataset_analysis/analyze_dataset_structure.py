@@ -11,7 +11,8 @@ from pathlib import Path
 
 # Pfad zum Datensatz
 # dataset_path = Path("/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets/2026_01_14_1130_fcs_dset")
-dataset_path = Path("/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/deformable/rope/000012$")
+# dataset_path = Path("/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/deformable/rope/000012$")
+dataset_path = Path("D:/00_Coding/fcs_datasets/2026_01_17_2042_fcs_dset/000000")
 
 print("=" * 60)
 print("DATENSATZ-STRUKTUR ANALYSE")

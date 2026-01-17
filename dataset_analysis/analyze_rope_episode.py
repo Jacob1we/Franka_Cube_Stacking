@@ -18,8 +18,11 @@ except ImportError:
     print("⚠️  WARNING: torch nicht verfügbar - obses.pth wird nicht analysiert")
 
 # Pfad zur Episode
-episode_path = Path("/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/deformable/rope/000001")
-cameras_path = Path("/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/deformable/rope/cameras")
+# episode_path = Path("/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/deformable/rope/000001")
+# cameras_path = Path("/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/deformable/rope/cameras")
+episode_path = Path("D:/00_Coding/fcs_datasets/2026_01_17_2042_fcs_dset/000001")
+cameras_path = episode_path.parent / "cameras"
+
 
 print("=" * 80)
 print("KOMPLETTE EPISODE-STRUKTUR ANALYSE: 000001")

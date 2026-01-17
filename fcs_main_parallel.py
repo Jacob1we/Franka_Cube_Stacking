@@ -14,9 +14,6 @@ from pathlib import Path
 
 os.environ.setdefault("PYTHONUNBUFFERED", "1")
 
-# ============================================================================
-# KONFIGURATION LADEN (vor SimulationApp für headless-Setting)
-# ============================================================================
 def load_config(config_path: str = None) -> dict:
     """Lädt Konfiguration aus YAML-Datei."""
     if config_path is None:
@@ -61,7 +58,7 @@ from scipy.spatial.transform import Rotation as R
 
 
 # Data Logger Import
-from data_logger import FrankaDataLogger, get_franka_state, get_franka_action
+from min_data_logger import MinDataLogger as FrankaDataLogger
 
 from Franka_Env_JW.rmpflow_controller_jw import (
     RMPFlowController_JW,

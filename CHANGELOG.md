@@ -2,6 +2,122 @@
 
 Diese Datei dokumentiert alle Änderungen und Entwicklungsfortschritte am Data Logger für das Franka Cube Stacking Projekt.
 
+## [2026-01-17] - MinDataLogger: Minimale Version im data.py Format
+
+### 🎯 Ziel
+
+Erstellung eines minimalen Data Loggers (`min_data_logger.py`), der:
+- Nur den `ee_pos` Action-Mode (6D) unterstützt
+- Daten exakt im Format von `dino_wm/env/deformable_env/src/sim/data_gen/data.py` speichert
+- PNG-Speicherung beibehält
+- Alle unnötigen Funktionen entfernt (~500 → ~180 Zeilen)
+
+### ✅ Neue Datei: `min_data_logger.py`
+
+**Kernfunktionen (aus data.py übernommen):**
+```python
+def process_imgs(imgs_list):
+    """Verarbeitet Bilder: RGB BGR->RGB, Depth -> uint16 (mm)"""
+    
+def save_h5(filename, data):
+    """Speichert H5 mit verschachtelter Struktur wie data.py"""
+```
+
+**Klasse: `MinDataLogger`**
+```python
+class MinDataLogger:
+    def __init__(self, config, config_path, action_mode, dt)  # action_mode/dt ignoriert
+    def set_camera_calibration(intrinsic, extrinsic)
+    def save_camera_calibration()
+    def start_episode(episode_id)
+    def log_step(rgb_image, depth_image, ee_pos, ee_quat, cube_positions)
+    def end_episode()
+    def discard_episode()
+```
+
+### 📁 Output-Format (identisch zu data.py)
+
+```
+dataset/
+├── cameras/
+│   ├── intrinsic.npy      # (4, 4) float64
+│   └── extrinsic.npy      # (4, 4, 4) float64
+└── 000000/                 # Episode
+    ├── 00.h5              # Eine H5-Datei pro Episode
+    │   ├── action         # (6,) float64 - [x_start, y_start, z_start, x_end, y_end, z_end]
+    │   ├── eef_states     # (T, 14) float64
+    │   ├── positions      # (T, N, 3) float32
+    │   ├── info/
+    │   │   ├── n_cams     # 1
+    │   │   ├── timestamp  # T
+    │   │   └── n_particles# N (Anzahl Würfel)
+    │   └── observations/
+    │       ├── color/cam_0  # (T, H, W, 3) - BGR->RGB konvertiert
+    │       └── depth/cam_0  # (T, H, W) uint16 - Millimeter
+    ├── first.png          # Erstes Frame
+    └── last.png           # Letztes Frame
+```
+
+### ❌ Entfernte Features (gegenüber FrankaDataLogger)
+
+| Feature | Status |
+|---------|--------|
+| `action_mode="delta_pose"` | ❌ Entfernt |
+| `action_mode="velocity"` | ❌ Entfernt |
+| `action_interval` (mehrere H5 pro Episode) | ❌ Entfernt |
+| `obses.pth` Speicherung | ❌ Entfernt |
+| Quaternion-zu-Yaw Konvertierung | ❌ Entfernt |
+| Velocity-Berechnungen | ❌ Entfernt |
+| Disk-Space Checks | ❌ Entfernt |
+| Detailliertes Logging | ❌ Reduziert |
+
+### ✅ Beibehaltene Features
+
+| Feature | Status |
+|---------|--------|
+| `ee_pos` Action (6D) | ✅ Einziger Modus |
+| PNG-Speicherung (first.png, last.png) | ✅ Beibehalten |
+| Kamera-Kalibrierung | ✅ Beibehalten |
+| H5-Format | ✅ Wie data.py |
+| Config aus YAML | ✅ Beibehalten |
+
+### 🔄 Verwendung in fcs_main_parallel.py
+
+**Drop-in Ersatz** - nur Import ändern:
+
+```python
+# Alt:
+from data_logger import FrankaDataLogger, get_franka_state, get_franka_action
+
+# Neu:
+from min_data_logger import MinDataLogger as FrankaDataLogger
+```
+
+**API ist identisch:**
+- `FrankaDataLogger(config, action_mode, dt)` → action_mode/dt werden ignoriert
+- `logger.object_name` → vorhanden für Kompatibilität
+- `logger.dataset_path` → vorhanden
+- Alle Methoden identisch
+
+### 📊 Vergleich: FrankaDataLogger vs MinDataLogger
+
+| Aspekt | FrankaDataLogger | MinDataLogger |
+|--------|------------------|---------------|
+| Zeilen Code | ~800 | ~180 |
+| Action-Modi | 3 (delta_pose, velocity, ee_pos) | 1 (ee_pos) |
+| H5 pro Episode | Mehrere (action_interval) | Eine (00.h5) |
+| obses.pth | ✅ Ja | ❌ Nein |
+| Datenformat | Rope-kompatibel | data.py-kompatibel |
+| PNG-Output | ❌ Nein | ✅ Ja (first/last) |
+
+### 📝 Hinweise
+
+- **Beide Logger existieren parallel** - wähle nach Bedarf
+- `FrankaDataLogger` für vollständige Rope-Kompatibilität mit allen Features
+- `MinDataLogger` für minimales data.py-kompatibles Format
+
+---
+
 ## [2026-01-14] - Action Interval: Frame-Aggregation wie im Rope-Format
 
 ### ✅ Neuer Parameter: `action_interval`
