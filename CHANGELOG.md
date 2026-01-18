@@ -2,6 +2,172 @@
 
 Diese Datei dokumentiert alle Änderungen und Entwicklungsfortschritte am Data Logger für das Franka Cube Stacking Projekt.
 
+## [2026-01-18] - MinDataLogger: Timestep-basierte H5-Dateien + Globale Dateien
+
+### 🎯 Ziel
+
+Anpassung des MinDataLoggers auf das exakte Format des `deformable_rop_sample` Datensatzes:
+- **Eine H5-Datei pro Timestep** (000.h5, 001.h5, ...) statt einer H5 pro Episode
+- **`actions.pth` und `states.pth`** im Datensatz-Hauptordner
+- **`property_params.pkl`** in jedem Episoden-Ordner
+
+### ✅ Neue Dateien im Output
+
+**Datensatz-Ebene:**
+```
+dataset/
+├── actions.pth            # (N_episodes, T_max, 6) float32
+├── states.pth             # (N_episodes, T_max, N_cubes*4) float32
+├── cameras/
+│   ├── intrinsic.npy
+│   └── extrinsic.npy
+```
+
+**Episoden-Ebene:**
+```
+000000/
+├── 000.h5                 # Timestep 0
+├── 001.h5                 # Timestep 1
+├── 002.h5                 # Timestep 2
+├── ...
+├── obses.pth              # (T, H, W, 3) float32
+├── property_params.pkl    # Physik-Parameter
+├── first.png
+└── last.png
+```
+
+### ✅ Änderungen in `min_data_logger.py`
+
+#### 1. Neue Imports
+```python
+import pickle
+from typing import Dict, Any
+```
+
+#### 2. Neue Klassenattribute
+```python
+# Globale Listen für states.pth und actions.pth
+self.all_actions: List[List[np.ndarray]] = []
+self.all_states: List[List[np.ndarray]] = []
+```
+
+#### 3. Geänderte `start_episode()`
+```python
+self.current_episode = {
+    ...
+    "actions_list": [],    # NEU: Actions für globale Datei
+    "states_list": [],     # NEU: States für globale Datei
+}
+```
+
+#### 4. Geänderte `log_step()`
+- **H5-Datei pro Timestep**: Speichert sofort `{timestep:03d}.h5`
+- **Sammelt Actions**: `ep["actions_list"].append(action.copy())`
+- **Sammelt States**: Würfel-Positionen als `(N*4,)` Vektor (wie deformable Format)
+
+```python
+# .h5 Datei speichern (000.h5, 001.h5, etc.)
+h5_path = ep["folder"] / f"{timestep:03d}.h5"
+save_h5(h5_path, timestep_data)
+
+# Für globale Dateien
+ep["actions_list"].append(action.copy())
+state_with_vel = np.concatenate([positions[0], np.zeros((N, 1))], axis=1)
+ep["states_list"].append(state_with_vel.flatten())
+```
+
+#### 5. Geänderte `end_episode(property_params=None)`
+- **Neuer Parameter**: `property_params` (optional, sonst Standard-Werte)
+- **Speichert `property_params.pkl`**:
+  ```python
+  property_params = {
+      "n_cubes": self.n_cubes,
+      "cube_size": ...,
+      "cube_mass": ...,
+      "friction": ...,
+  }
+  with open(property_path, "wb") as f:
+      pickle.dump(property_params, f)
+  ```
+- **Überträgt Episode-Daten** in globale Listen:
+  ```python
+  self.all_actions.append(ep["actions_list"])
+  self.all_states.append(ep["states_list"])
+  ```
+
+#### 6. Neue Methode `save_global_data()`
+Speichert am Ende alle gesammelten Daten als globale Tensoren:
+
+```python
+def save_global_data(self):
+    """
+    Speichert globale actions.pth und states.pth für alle Episoden.
+    
+    Format:
+        actions.pth: (N_episodes, T_max, action_dim) float32
+        states.pth: (N_episodes, T_max, state_dim) float32
+    """
+    # Padding auf T_max für alle Episoden
+    T_max = max(len(ep) for ep in self.all_actions)
+    
+    actions_array = np.zeros((N_episodes, T_max, action_dim), dtype=np.float32)
+    states_array = np.zeros((N_episodes, T_max, state_dim), dtype=np.float32)
+    
+    # Daten einfügen
+    for ep_idx, (ep_actions, ep_states) in enumerate(zip(...)):
+        T = len(ep_actions)
+        actions_array[ep_idx, :T, :] = np.array(ep_actions)
+        states_array[ep_idx, :T, :] = np.array(ep_states)
+    
+    torch.save(torch.from_numpy(actions_array), "actions.pth")
+    torch.save(torch.from_numpy(states_array), "states.pth")
+```
+
+### 📁 H5-Datei-Struktur (pro Timestep)
+
+```python
+000.h5
+├── action: (6,) float64         # [prev_ee_pos, current_ee_pos]
+├── eef_states: (1, 14) float64  # [pos, pos, quat, quat]
+├── positions: (1, N, 3) float32 # Würfel-Positionen
+├── info/
+│   ├── n_cams: 1
+│   ├── timestamp: 1
+│   └── n_particles: N
+└── observations/
+    ├── color/cam_0: (1, H, W, 3)
+    └── depth/cam_0: (1, H, W) uint16
+```
+
+### 🔄 Verwendung
+
+```python
+logger = MinDataLogger(config)
+
+# Datensammlung
+for episode in range(num_episodes):
+    logger.start_episode()
+    for step in range(steps):
+        logger.log_step(rgb, depth, ee_pos, ee_quat, cube_positions)
+    logger.end_episode()  # Speichert property_params.pkl
+
+# Am Ende: globale Dateien speichern
+logger.save_global_data()  # Speichert actions.pth und states.pth
+logger.save_camera_calibration()
+```
+
+### 📊 Vergleich mit deformable_rop_sample
+
+| Feature | deformable_rop_sample | MinDataLogger | Status |
+|---------|----------------------|---------------|--------|
+| H5 pro Timestep | ✅ 00.h5, 01.h5, ... | ✅ 000.h5, 001.h5, ... | ✅ Kompatibel |
+| actions.pth | ✅ (N, T, action_dim) | ✅ (N, T, 6) | ✅ Kompatibel |
+| states.pth | ✅ (N, T, n_particles, 4) | ✅ (N, T, N_cubes*4) | ✅ Kompatibel |
+| property_params.pkl | ✅ Pro Episode | ✅ Pro Episode | ✅ Kompatibel |
+| obses.pth | ✅ (T, H, W, 3) | ✅ (T, H, W, 3) | ✅ Kompatibel |
+
+---
+
 ## [2026-01-17] - MinDataLogger: Minimale Version im data.py Format
 
 ### 🎯 Ziel

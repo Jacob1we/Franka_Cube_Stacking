@@ -3,7 +3,7 @@
 
 # Simulation
 simulation:
-  headless: false                    # True für schnellere Datensammlung (ohne GUI)
+  headless: true                    # True für schnellere Datensammlung (ohne GUI)
   seed: 111
   world_root: "/World"
 

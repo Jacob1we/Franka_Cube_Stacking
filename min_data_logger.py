@@ -5,19 +5,22 @@ Kompatibel mit dem DINO WM Rope/Deformable Format (data.py).
 Action-Format: "ee_pos" (6D)
     action = [x_start, y_start, z_start, x_end, y_end, z_end]
 
-Ausgabe-Format (wie deformable/rope Datensatz):
+Ausgabe-Format (kompatibel mit DINO WM deformable Datensatz):
     dataset/
     ├── cameras/
     │   ├── intrinsic.npy      # (4, 4) float64
     │   └── extrinsic.npy      # (4, 4, 4) float64
+    ├── actions.pth            # (N_episodes, T_max, 6) float32 - alle Actions
+    ├── states.pth             # (N_episodes, T_max, N_cubes, 4) float32 - Partikel-Positionen
     └── 000000/                 # Episode 0
         ├── obses.pth          # (T, H, W, 3) float32 - RGB Bilder (Werte 0-255)
+        ├── property_params.pkl # Physik-Parameter der Episode
         ├── 000.h5             # HDF5 - Timestep 0
         ├── 001.h5             # HDF5 - Timestep 1
         ├── ...                # HDF5 - Weitere Timesteps
         │   ├── action         # (6,) float64 - [prev_ee_pos, current_ee_pos]
-        │   ├── eef_states     # (1, 14) float64
-        │   ├── positions      # (1, N, 3) float32
+        │   ├── eef_states     # (1, 1, 14) float64 - wie DINO WM Format
+        │   ├── positions      # (1, N, 4) float32 - [x, y, z, 1.0] homogene Koord.
         │   ├── info/          # n_cams, n_particles, timestamp
         │   └── observations/  # color/cam_0 (1,H,W,3), depth/cam_0 (1,H,W)
         ├── first.png          # Erstes Frame
@@ -28,8 +31,9 @@ import numpy as np
 import h5py
 import yaml
 import torch
+import pickle
 from pathlib import Path
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Dict, Any
 import logging
 
 log = logging.getLogger("MinDataLogger")
@@ -110,6 +114,10 @@ class MinDataLogger:
         self.current_episode = None
         self.episode_count = 0
         
+        # Globale Listen für states.pth und actions.pth
+        self.all_actions: List[List[np.ndarray]] = []  # Liste von Episoden, jede Episode ist Liste von Actions
+        self.all_states: List[List[np.ndarray]] = []   # Liste von Episoden, jede Episode ist Liste von States
+        
         self._setup_directories()
         log.info(f"MinDataLogger initialisiert: {self.dataset_path}")
         log.info(f"  Action Mode: ee_pos (6D: start + end Position)")
@@ -152,6 +160,8 @@ class MinDataLogger:
             "imgs_list": [],       # wird zu (T, 1, H, W, 5) für obses.pth
             "timestep": 0,         # aktueller Timestep-Zähler
             "prev_ee_pos": None,   # vorherige EE-Position für Action
+            "actions_list": [],    # Actions für states.pth/actions.pth
+            "states_list": [],     # States für states.pth/actions.pth
         }
         log.info(f"Episode {self.episode_count} gestartet")
     
@@ -183,18 +193,22 @@ class MinDataLogger:
         # Für obses.pth speichern
         ep["imgs_list"].append(img_combined[np.newaxis, ...])  # (1, H, W, 5)
         
-        # Positionen: (1, N, 3)
+        # Positionen: (1, N, 4) - [x, y, z, 1.0] (homogene Koordinaten wie im DINO WM Format)
         if cube_positions is None:
             cube_positions = [(0.0, 0.0, 0.0)] * self.n_cubes
-        positions = np.array([p[:3] if len(p) >= 3 else (p[0], p[1], 0.0) for p in cube_positions], dtype=np.float32)
-        positions = positions[np.newaxis, ...]  # (1, N, 3)
+        pos_xyz = np.array([p[:3] if len(p) >= 3 else (p[0], p[1], 0.0) for p in cube_positions], dtype=np.float32)
+        # Füge 4. Dimension (1.0) hinzu für homogene Koordinaten
+        pos_ones = np.ones((pos_xyz.shape[0], 1), dtype=np.float32)
+        positions = np.concatenate([pos_xyz, pos_ones], axis=1)  # (N, 4)
+        positions = positions[np.newaxis, ...]  # (1, N, 4)
         
-        # EEF States: (1, 14) - pos1(3), pos2(3), quat1(4), quat2(4)
+        # EEF States: (1, 1, 14) - pos1(3), pos2(3), quat1(4), quat2(4)
+        # Im DINO WM Format sind pos1==pos2 und quat1==quat2 (identisch dupliziert)
         eef_state = np.concatenate([
             ee_pos, ee_pos,
             ee_quat, ee_quat
         ]).astype(np.float64)
-        eef_states = eef_state[np.newaxis, ...]  # (1, 14)
+        eef_states = eef_state[np.newaxis, np.newaxis, ...]  # (1, 1, 14)
         
         # Action: (6,) = [prev_ee_pos, current_ee_pos]
         action = np.concatenate([ep["prev_ee_pos"], ee_pos.astype(np.float64)])
@@ -221,12 +235,20 @@ class MinDataLogger:
         save_h5(h5_path, timestep_data)
         log.debug(f"Timestep {timestep} gespeichert: {h5_path}")
         
+        # Für globale actions.pth und states.pth speichern
+        # Action: (6,) = [prev_ee_pos, current_ee_pos]
+        ep["actions_list"].append(action.copy())
+        
+        # State: Würfel-Positionen (n_particles, 4) wie im DINO WM Format
+        # positions ist bereits (1, N, 4) mit [x, y, z, 1.0]
+        ep["states_list"].append(positions[0].copy())  # (N, 4)
+        
         # Für nächsten Step vorbereiten
         ep["prev_ee_pos"] = ee_pos.astype(np.float64).copy()
         ep["timestep"] += 1
     
-    def end_episode(self):
-        """Beendet Episode und speichert obses.pth sowie PNGs."""
+    def end_episode(self, property_params: Optional[Dict[str, Any]] = None):
+        """Beendet Episode und speichert obses.pth, property_params.pkl sowie PNGs."""
         if self.current_episode is None:
             return
         
@@ -252,11 +274,30 @@ class MinDataLogger:
         torch.save(obses_tensor, obses_path)
         log.debug(f"obses.pth gespeichert: {obses_tensor.shape}, dtype={obses_tensor.dtype}")
         
+        # ===== property_params.pkl speichern =====
+        if property_params is None:
+            # Standard-Parameter für Würfel
+            property_params = {
+                "n_cubes": self.n_cubes,
+                "cube_size": self.config.get("cubes", {}).get("size", 0.05),
+                "cube_mass": self.config.get("cubes", {}).get("mass", 0.1),
+                "friction": self.config.get("cubes", {}).get("friction", 0.5),
+            }
+        
+        property_path = ep["folder"] / "property_params.pkl"
+        with open(property_path, "wb") as f:
+            pickle.dump(property_params, f)
+        log.debug(f"property_params.pkl gespeichert: {property_params}")
+        
+        # Episode-Daten für globale states.pth und actions.pth speichern
+        self.all_actions.append(ep["actions_list"])
+        self.all_states.append(ep["states_list"])
+        
         # PNGs speichern
         if self.save_png:
             self._save_pngs(ep["folder"], color_imgs["cam_0"])
         
-        log.info(f"Episode {ep['id']} beendet: {T} Timesteps ({T} .h5 Dateien), obses.pth gespeichert")
+        log.info(f"Episode {ep['id']} beendet: {T} Timesteps ({T} .h5 Dateien), obses.pth + property_params.pkl gespeichert")
         
         self.episode_count += 1
         self.current_episode = None
@@ -270,6 +311,52 @@ class MinDataLogger:
                 img.save(folder / f"{name}.png")
         except ImportError:
             log.warning("PIL nicht verfügbar für PNG-Speicherung")
+    
+    def save_global_data(self):
+        """
+        Speichert globale actions.pth und states.pth für alle Episoden.
+        
+        Format (wie DINO WM deformable):
+            actions.pth: (N_episodes, T_max, action_dim) float32  -> (N, T, 6)
+            states.pth: (N_episodes, T_max, n_particles, 4) float32 -> (N, T, n_cubes, 4)
+        
+        Sollte am Ende der Datensammlung aufgerufen werden.
+        """
+        if len(self.all_actions) == 0:
+            log.warning("Keine Episoden vorhanden, überspringe save_global_data()")
+            return
+        
+        # Maximale Timestep-Anzahl finden
+        T_max = max(len(ep_actions) for ep_actions in self.all_actions)
+        N_episodes = len(self.all_actions)
+        action_dim = len(self.all_actions[0][0]) if self.all_actions[0] else 6
+        
+        # Actions: (N_episodes, T_max, action_dim)
+        actions_array = np.zeros((N_episodes, T_max, action_dim), dtype=np.float32)
+        
+        # States: (N_episodes, T_max, n_particles, 4) - wie im DINO WM Format
+        states_array = np.zeros((N_episodes, T_max, self.n_cubes, 4), dtype=np.float32)
+        
+        # Daten einfügen
+        for ep_idx, (ep_actions, ep_states) in enumerate(zip(self.all_actions, self.all_states)):
+            T = len(ep_actions)
+            actions_array[ep_idx, :T, :] = np.array(ep_actions, dtype=np.float32)
+            # ep_states ist Liste von (n_particles, 4) Arrays
+            states_array[ep_idx, :T, :, :] = np.array(ep_states, dtype=np.float32)
+        
+        # Als Tensoren speichern
+        actions_tensor = torch.from_numpy(actions_array)
+        states_tensor = torch.from_numpy(states_array)
+        
+        actions_path = self.dataset_path / "actions.pth"
+        states_path = self.dataset_path / "states.pth"
+        
+        torch.save(actions_tensor, actions_path)
+        torch.save(states_tensor, states_path)
+        
+        log.info(f"Globale Daten gespeichert:")
+        log.info(f"  actions.pth: {actions_tensor.shape} -> {actions_path}")
+        log.info(f"  states.pth: {states_tensor.shape} -> {states_path}")
     
     def discard_episode(self):
         """Verwirft aktuelle Episode."""
