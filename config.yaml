@@ -3,7 +3,7 @@
 
 # Simulation
 simulation:
-  headless: true                    # True für schnellere Datensammlung (ohne GUI)
+  headless: false                    # True für schnellere Datensammlung (ohne GUI)
   seed: 111
   world_root: "/World"
 
@@ -14,7 +14,7 @@ parallel:
 
 # Datensammlung
 dataset:
-  num_episodes: 10                  # Anzahl zu sammelnder Episoden (TOTAL)
+  num_episodes: 1                  # Anzahl zu sammelnder Episoden (TOTAL)
   path: "../fcs_datasets" #"/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets"
   name: "franka_cube_stack_ds"
   save_png: true                    # Speichere alle Bilder auch als PNG

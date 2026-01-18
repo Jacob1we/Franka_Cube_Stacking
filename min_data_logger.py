@@ -12,12 +12,14 @@ Ausgabe-Format (wie deformable/rope Datensatz):
     │   └── extrinsic.npy      # (4, 4, 4) float64
     └── 000000/                 # Episode 0
         ├── obses.pth          # (T, H, W, 3) float32 - RGB Bilder (Werte 0-255)
-        ├── 00.h5              # HDF5 - gesamte Episode
-        │   ├── action         # (6,) float64
-        │   ├── eef_states     # (T, 14) float64
-        │   ├── positions      # (T, N, 3) float32
+        ├── 000.h5             # HDF5 - Timestep 0
+        ├── 001.h5             # HDF5 - Timestep 1
+        ├── ...                # HDF5 - Weitere Timesteps
+        │   ├── action         # (6,) float64 - [prev_ee_pos, current_ee_pos]
+        │   ├── eef_states     # (1, 14) float64
+        │   ├── positions      # (1, N, 3) float32
         │   ├── info/          # n_cams, n_particles, timestamp
-        │   └── observations/  # color/cam_0 (T,H,W,3), depth/cam_0 (T,H,W)
+        │   └── observations/  # color/cam_0 (1,H,W,3), depth/cam_0 (1,H,W)
         ├── first.png          # Erstes Frame
         └── last.png           # Letztes Frame
 """
@@ -147,11 +149,9 @@ class MinDataLogger:
         self.current_episode = {
             "id": self.episode_count,
             "folder": episode_folder,
-            "imgs_list": [],       # wird zu (T, 1, H, W, 5)
-            "positions_list": [],  # wird zu (T, N, 3)
-            "eef_states_list": [], # wird zu (T, 14)
-            "start_ee_pos": None,
-            "end_ee_pos": None,
+            "imgs_list": [],       # wird zu (T, 1, H, W, 5) für obses.pth
+            "timestep": 0,         # aktueller Timestep-Zähler
+            "prev_ee_pos": None,   # vorherige EE-Position für Action
         }
         log.info(f"Episode {self.episode_count} gestartet")
     
@@ -163,59 +163,85 @@ class MinDataLogger:
         ee_quat: np.ndarray,        # (4,) wxyz
         cube_positions: List[Tuple[float, float, float]] = None,
     ):
-        """Loggt einen Timestep."""
+        """Loggt einen Timestep und speichert sofort eine .h5 Datei."""
         if self.current_episode is None:
             raise RuntimeError("Keine Episode gestartet!")
         
-        # Start-Position für Action speichern
-        if self.current_episode["start_ee_pos"] is None:
-            self.current_episode["start_ee_pos"] = ee_pos.astype(np.float64).copy()
+        ep = self.current_episode
+        timestep = ep["timestep"]
+        
+        # Vorherige Position für Action (beim ersten Step = aktuelle Position)
+        if ep["prev_ee_pos"] is None:
+            ep["prev_ee_pos"] = ee_pos.astype(np.float64).copy()
         
         # Bilder: (H, W, 5) - RGB + pad + Depth
         H, W = rgb_image.shape[:2]
         img_combined = np.zeros((H, W, 5), dtype=np.float32)
         img_combined[:, :, :3] = rgb_image.astype(np.float32)
         img_combined[:, :, 4] = depth_image.astype(np.float32)
-        self.current_episode["imgs_list"].append(img_combined[np.newaxis, ...])  # (1, H, W, 5)
         
-        # Positionen: (N, 3)
+        # Für obses.pth speichern
+        ep["imgs_list"].append(img_combined[np.newaxis, ...])  # (1, H, W, 5)
+        
+        # Positionen: (1, N, 3)
         if cube_positions is None:
             cube_positions = [(0.0, 0.0, 0.0)] * self.n_cubes
         positions = np.array([p[:3] if len(p) >= 3 else (p[0], p[1], 0.0) for p in cube_positions], dtype=np.float32)
-        self.current_episode["positions_list"].append(positions)
+        positions = positions[np.newaxis, ...]  # (1, N, 3)
         
-        # EEF States: (14,) - pos1(3), pos2(3), quat1(4), quat2(4)
+        # EEF States: (1, 14) - pos1(3), pos2(3), quat1(4), quat2(4)
         eef_state = np.concatenate([
             ee_pos, ee_pos,
             ee_quat, ee_quat
         ]).astype(np.float64)
-        self.current_episode["eef_states_list"].append(eef_state)
+        eef_states = eef_state[np.newaxis, ...]  # (1, 14)
         
-        # End-Position aktualisieren
-        self.current_episode["end_ee_pos"] = ee_pos.astype(np.float64).copy()
+        # Action: (6,) = [prev_ee_pos, current_ee_pos]
+        action = np.concatenate([ep["prev_ee_pos"], ee_pos.astype(np.float64)])
+        
+        # Bilder verarbeiten für .h5
+        imgs_array = img_combined[np.newaxis, np.newaxis, ...]  # (1, 1, H, W, 5)
+        color_imgs, depth_imgs = process_imgs(imgs_array)
+        
+        # Timestep-Daten für .h5
+        timestep_data = {
+            "info": {
+                "n_cams": 1,
+                "timestamp": 1,
+                "n_particles": self.n_cubes,
+            },
+            "action": action,
+            "positions": positions,
+            "eef_states": eef_states,
+            "observations": {"color": color_imgs, "depth": depth_imgs},
+        }
+        
+        # .h5 Datei speichern (000.h5, 001.h5, etc.)
+        h5_path = ep["folder"] / f"{timestep:03d}.h5"
+        save_h5(h5_path, timestep_data)
+        log.debug(f"Timestep {timestep} gespeichert: {h5_path}")
+        
+        # Für nächsten Step vorbereiten
+        ep["prev_ee_pos"] = ee_pos.astype(np.float64).copy()
+        ep["timestep"] += 1
     
     def end_episode(self):
-        """Beendet Episode und speichert Daten im deformable/rope Format."""
+        """Beendet Episode und speichert obses.pth sowie PNGs."""
         if self.current_episode is None:
             return
         
         ep = self.current_episode
-        T = len(ep["imgs_list"])
+        T = ep["timestep"]  # Anzahl der gespeicherten Timesteps
         
         if T == 0:
             log.warning(f"Episode {ep['id']}: Leer, überspringe...")
             self.current_episode = None
             return
         
-        # Action: ee_pos (6D) = [start_x, start_y, start_z, end_x, end_y, end_z]
-        action = np.concatenate([ep["start_ee_pos"], ep["end_ee_pos"]]).astype(np.float64)
+        # Daten stacken für obses.pth
+        imgs_list = np.stack(ep["imgs_list"], axis=0)  # (T, 1, H, W, 5)
         
-        # Daten stacken
-        imgs_list = np.stack(ep["imgs_list"], axis=0)      # (T, 1, H, W, 5)
-        positions = np.stack(ep["positions_list"], axis=0)  # (T, N, 3)
-        eef_states = np.stack(ep["eef_states_list"], axis=0)  # (T, 14)
-        
-        # Bilder verarbeiten wie data.py
+        # Bilder verarbeiten
         color_imgs, depth_imgs = process_imgs(imgs_list)
         
         # ===== obses.pth speichern (wie im rope Datensatz) =====
@@ -226,28 +252,11 @@ class MinDataLogger:
         torch.save(obses_tensor, obses_path)
         log.debug(f"obses.pth gespeichert: {obses_tensor.shape}, dtype={obses_tensor.dtype}")
         
-        # Episode-Daten im data.py Format
-        episode_data = {
-            "info": {
-                "n_cams": 1,
-                "timestamp": T,
-                "n_particles": self.n_cubes,
-            },
-            "action": action,
-            "positions": positions,
-            "eef_states": eef_states,
-            "observations": {"color": color_imgs, "depth": depth_imgs},
-        }
-        
-        # H5 speichern
-        h5_path = ep["folder"] / "00.h5"
-        save_h5(h5_path, episode_data)
-        
         # PNGs speichern
         if self.save_png:
             self._save_pngs(ep["folder"], color_imgs["cam_0"])
         
-        log.info(f"Episode {ep['id']} beendet: {T} Frames, obses.pth + {h5_path}")
+        log.info(f"Episode {ep['id']} beendet: {T} Timesteps ({T} .h5 Dateien), obses.pth gespeichert")
         
         self.episode_count += 1
         self.current_episode = None
