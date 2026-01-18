@@ -800,6 +800,8 @@ def main():
             "ee_positions": [],
             "ee_quaternions": [],
             "cube_positions": [],
+            "phase_timesteps": {p: 0 for p in range(10)},  # Timesteps pro Phase (0-9)
+            "current_phase": 0,  # Aktuelle Phase für Tracking
             "params": {
                 "seed": seeds[i],
                 "env_idx": i,
@@ -840,7 +842,7 @@ def main():
             try:
                 # Extrahiere RGB-Bild aus Kamera
                 rgb = get_rgb(camera, env_idx=i)
-                
+
                 if rgb is None:
                     # Kamera nicht bereit - überspringe diesen Timestep
                     articulations[i].apply_action(action)
@@ -884,6 +886,15 @@ def main():
                     episode_data[i]["ee_quaternions"].append(ee_quat)
                     episode_data[i]["cube_positions"].append(cube_positions)
                     
+                    # Phase-Tracking: Aktuelle Phase vom Controller abfragen und zählen
+                    try:
+                        current_phase = controller._pick_place_ctrl.get_current_event()
+                        if current_phase < 10:  # Nur Phasen 0-9
+                            episode_data[i]["phase_timesteps"][current_phase] += 1
+                            episode_data[i]["current_phase"] = current_phase
+                    except Exception as e:
+                        log.debug(f"Env {i}: Konnte Phase nicht abfragen: {e}")
+                    
             except Exception as e:
                 log.error(f"Env {i}: Fehler beim Datensammeln!")
                 log.error(f"  Exception Type: {type(e).__name__}")
@@ -909,19 +920,17 @@ def main():
                 if is_valid and len(episode_data[i]["observations"]) > 0:
                     # Episode erfolgreich - in zentralen Logger übertragen
                     try:
-                        # Sammle Phase-Daten für Excel-Logging
+                        # Sammle echte Phase-Daten vom Controller-Tracking
                         phase_data = {}
-                        if len(episode_data[i]["observations"]) > 0:
-                            # Berechne Phase-Daten aus Episode-Länge
-                            total_ep_steps = len(episode_data[i]["observations"])
-                            # Vereinfachte Verteilung (kann später mit echten Controller-Daten verfeinert werden)
-                            steps_per_phase = total_ep_steps // 10
-                            for phase_idx in range(10):
-                                phase_data[phase_idx] = {
-                                    "waypoints": steps_per_phase,
-                                    "time": steps_per_phase * (1.0 / 60.0),
-                                    "modifier": 1.0,
-                                }
+                        phase_timesteps = episode_data[i].get("phase_timesteps", {})
+                        
+                        # Konvertiere Timesteps zu Phase-Daten
+                        for phase_idx in range(10):
+                            timesteps = phase_timesteps.get(phase_idx, 0)
+                            phase_data[phase_idx] = {
+                                "waypoints": timesteps,
+                                "time": timesteps * (1.0 / 60.0),  # 60 Hz Simulation
+                            }
                         
                         logger.start_episode(total_successful)
                         # property_params werden nicht mehr gespeichert (wie gewünscht)
@@ -969,7 +978,7 @@ def main():
                             log.debug(f"CSV-Logging: Total Timesteps = {step_counts[i]}, Total Time = {step_counts[i] * (1.0 / 60.0)}")
                             
                             csv_logger.log_episode(
-                                episode_id=total_successful,
+                                episode_seed=total_successful,
                                 controller_params=controller_params,
                                 phase_data=phase_data,
                                 total_timesteps=step_counts[i],
@@ -1010,10 +1019,20 @@ def main():
                             "critical_speed_factor": CRITICAL_SPEED_FACTOR,
                         }
                         
+                        # Auch für fehlgeschlagene Episoden Phase-Daten sammeln
+                        failed_phase_data = {}
+                        phase_timesteps = episode_data[i].get("phase_timesteps", {})
+                        for phase_idx in range(10):
+                            timesteps = phase_timesteps.get(phase_idx, 0)
+                            failed_phase_data[phase_idx] = {
+                                "waypoints": timesteps,
+                                "time": timesteps * (1.0 / 60.0),
+                            }
+                        
                         csv_logger.log_episode(
-                            episode_id=f"FAILED_{total_episodes}",
+                            episode_seed=f"FAILED_{total_episodes}",
                             controller_params=controller_params,
-                            phase_data={},
+                            phase_data=failed_phase_data,
                             total_timesteps=step_counts[i],
                             total_time=step_counts[i] * (1.0 / 60.0),
                             validation_success=False,
@@ -1046,6 +1065,8 @@ def main():
                         "ee_positions": [],
                         "ee_quaternions": [],
                         "cube_positions": [],
+                        "phase_timesteps": {p: 0 for p in range(10)},  # Timesteps pro Phase (0-9)
+                        "current_phase": 0,  # Aktuelle Phase für Tracking
                         "params": {
                             "seed": seeds[i],
                             "env_idx": i,
@@ -1100,6 +1121,13 @@ def main():
     if total_episodes > 0:
         log.info(f"  Erfolgsrate: {total_successful / total_episodes * 100:.1f}%")
     log.info("=" * 60)
+    
+    # Speichere CSV-Matrix mit allen gesammelten Episode-Daten
+    try:
+        log.info("Speichere CSV-Matrix...")
+        csv_logger.save_matrix()
+    except Exception as e:
+        log.warning(f"WARNUNG: Fehler beim Speichern der CSV-Matrix: {e}")
     
     try:
         simulation_app.close()
