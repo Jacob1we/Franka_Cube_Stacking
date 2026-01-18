@@ -3,18 +3,18 @@
 
 # Simulation
 simulation:
-  headless: true                    # True für schnellere Datensammlung (ohne GUI)
+  headless: false                    # True für schnellere Datensammlung (ohne GUI)
   seed: 111
   world_root: "/World"
 
 # Parallelisierung
 parallel:
-  num_envs: 1                       # 1 = Single, >1 = Parallel (z.B. 4 für 2x2 Grid)
+  num_envs: 2                       # 1 = Single, >1 = Parallel (z.B. 4 für 2x2 Grid)
   env_spacing: 2.5                  # Abstand zwischen Umgebungen (Meter)
 
 # Datensammlung
 dataset:
-  num_episodes: 1                  # Anzahl zu sammelnder Episoden (TOTAL)
+  num_episodes: 2                  # Anzahl zu sammelnder Episoden (TOTAL)
   path: "../fcs_datasets" #"/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets"
   name: "franka_cube_stack_ds"
   save_png: true                    # Speichere alle Bilder auch als PNG
@@ -39,6 +39,13 @@ scene:
   width: 0.60                       # SCENE_WIDTH (Meter)
   length: 0.75                      # SCENE_LENGTH (Meter)
   plane_lift: 0.001                 # Ebene leicht über Boden
+
+controller:
+  trajectory_resolution: 1.5        # TRAJECTORY_RESOLUTION
+  air_speed_multiplier: 4.0                # Speed up AIR phases only (0,4,5,8,9)
+  height_adaptive_speed: True              # DYNAMIC: Slow down near ground!
+  critical_height_threshold: 0.05           # Below xx cm = critical zone
+  critical_speed_factor: 0.8               # slower in critical zone
 
 # Würfel
 cubes:

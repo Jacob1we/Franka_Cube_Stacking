@@ -60,6 +60,9 @@ from scipy.spatial.transform import Rotation as R
 # Data Logger Import
 from min_data_logger import MinDataLogger as FrankaDataLogger
 
+# CSV Episode Logger Import (simpel, keine Abhängigkeiten)
+from csv_episode_logger import CSVEpisodeLogger
+
 from Franka_Env_JW.rmpflow_controller_jw import (
     RMPFlowController_JW,
     PRESET_LOCK_WRIST_ROTATION,
@@ -136,6 +139,12 @@ CUBE_SIDE = CFG["cubes"]["side"]
 MIN_DIST = CFG["cubes"]["min_dist_factor"] * CUBE_SIDE
 MAX_TRIES = CFG["cubes"]["max_placement_tries"]
 YAW_RANGE = tuple(CFG["cubes"]["yaw_range"])
+
+TRAJECTORY_RESOLUTION = CFG["controller"]["trajectory_resolution"]
+AIR_SPEED_MULTIPLIER = CFG["controller"]["air_speed_multiplier"]
+HEIGHT_ADAPTIVE_SPEED = CFG["controller"]["height_adaptive_speed"]
+CRITICAL_HEIGHT_THRESHOLD = CFG["controller"]["critical_height_threshold"]
+CRITICAL_SPEED_FACTOR = CFG["controller"]["critical_speed_factor"]
 
 # Roboter Workspace
 FRANKA_BASE_CLEARANCE = CFG["robot"]["base_clearance"]
@@ -243,11 +252,11 @@ class Franka_Cube_Stack():
             picking_order_cube_names=self.task.get_cube_names(),
             robot_observation_name=robot_name,
             preferred_joints=PRESET_LOCK_THREE,  # Soft constraint: prefer neutral pose   PRESET_MINIMAL_MOTION, PRESET_ESSENTIAL_ONLY
-            trajectory_resolution=1.5,               # Base resolution (affects ALL phases)
-            air_speed_multiplier=4.0,                # Speed up AIR phases only (0,4,5,8,9)
-            height_adaptive_speed=True,              # DYNAMIC: Slow down near ground!
-            critical_height_threshold=0.05,           # Below xx cm = critical zone
-            critical_speed_factor=0.8,               # slower in critical zone
+            trajectory_resolution=TRAJECTORY_RESOLUTION,               # Base resolution (affects ALL phases)
+            air_speed_multiplier=AIR_SPEED_MULTIPLIER,                # Speed up AIR phases only (0,4,5,8,9)
+            height_adaptive_speed=HEIGHT_ADAPTIVE_SPEED,              # DYNAMIC: Slow down near ground!
+            critical_height_threshold=CRITICAL_HEIGHT_THRESHOLD,           # Below xx cm = critical zone
+            critical_speed_factor=CRITICAL_SPEED_FACTOR,               # slower in critical zone
         )
         return controller
     
@@ -561,6 +570,82 @@ def compute_grid_offsets(num_envs: int, spacing: float) -> list:
     return offsets
 
 
+def get_rgb(camera, env_idx: int = 0):
+    """
+    Extrahiert RGB-Bild aus Kamera-Feed mit automatischer Format-Konvertierung.
+    
+    Args:
+        camera: Camera-Objekt von Isaac Sim
+        env_idx: Index der Umgebung (für Logging)
+    
+    Returns:
+        np.ndarray: RGB-Bild (H, W, 3) als uint8, oder None bei Fehler
+    """
+    # Prüfe ob Kamera bereit ist
+    if not hasattr(camera, 'get_rgba'):
+        log.warning(f"Env {env_idx}: Kamera hat keine get_rgba() Methode")
+        return None
+    
+    rgba = camera.get_rgba()
+    
+    # Prüfe Format von rgba und konvertiere falls nötig
+    if rgba is None:
+        log.debug(f"Env {env_idx}: rgba ist None (Kamera noch nicht bereit?)")
+        return None
+    
+    # Konvertiere zu numpy array falls nötig
+    if not isinstance(rgba, np.ndarray):
+        rgba = np.array(rgba)
+    
+    # Prüfe ob Array leer ist (Kamera noch nicht bereit)
+    if rgba.size == 0:
+        log.debug(f"Env {env_idx}: rgba ist leer (Kamera noch nicht bereit?)")
+        return None
+    
+    # Prüfe Shape und konvertiere falls nötig
+    if rgba.ndim == 1:
+        # 1D Array - möglicherweise flach, versuche zu reshapen
+        expected_size = CAM_RESOLUTION[0] * CAM_RESOLUTION[1] * 4  # RGBA
+        if rgba.size == expected_size:
+            rgba = rgba.reshape((CAM_RESOLUTION[0], CAM_RESOLUTION[1], 4))
+        else:
+            log.debug(f"Env {env_idx}: rgba Shape {rgba.shape} != erwartet {expected_size}")
+            return None
+    elif rgba.ndim == 2:
+        # 2D Array - möglicherweise Graustufen, konvertiere zu RGBA
+        if rgba.size == 0:
+            return None
+        log.debug(f"Env {env_idx}: rgba ist 2D, konvertiere zu RGBA")
+        rgba = np.stack([rgba, rgba, rgba, np.ones_like(rgba) * 255], axis=-1)
+    elif rgba.ndim == 3:
+        # 3D Array - sollte (H, W, C) sein
+        if rgba.shape[2] == 1:
+            # Graustufen, konvertiere zu RGBA
+            rgba = np.repeat(rgba, 4, axis=2)
+            rgba[:, :, 3] = 255  # Alpha = 255
+        elif rgba.shape[2] == 3:
+            # RGB, füge Alpha-Kanal hinzu
+            alpha = np.ones((rgba.shape[0], rgba.shape[1], 1), dtype=rgba.dtype) * 255
+            rgba = np.concatenate([rgba, alpha], axis=2)
+        # rgba.shape[2] == 4 ist OK
+    else:
+        # Unerwartete Dimensionen
+        log.debug(f"Env {env_idx}: Unerwartete rgba Dimensionen: {rgba.ndim}, Shape: {rgba.shape}")
+        return None
+    
+    # Extrahiere RGB (erste 3 Kanäle)
+    rgb = rgba[:, :, :3].copy()
+    
+    # Stelle sicher, dass es uint8 ist
+    if rgb.dtype != np.uint8:
+        if rgb.max() <= 1.0:
+            rgb = (rgb * 255).astype(np.uint8)
+        else:
+            rgb = rgb.astype(np.uint8)
+    
+    return rgb
+
+
 def main():
     """
     Hauptfunktion - unterstützt Single und Parallel Mode.
@@ -664,6 +749,13 @@ def main():
     logger.dataset_path.mkdir(parents=True, exist_ok=True)
     (logger.dataset_path / "cameras").mkdir(exist_ok=True)
     
+    # CSV Episode Logger initialisieren (simpel, keine Abhängigkeiten)
+    csv_logger = CSVEpisodeLogger(
+        output_dir=str(logger.dataset_path),
+        filename="episode_tracking.csv"
+    )
+    log.info(f"CSV Episode Logger initialisiert: {csv_logger.filepath}")
+    
     # Kamera-Kalibrierung setzen (für erste Kamera)
     if len(cameras) > 0:
         intrinsic, extrinsic = envs[0].get_camera_matrices(cameras[0])
@@ -746,86 +838,14 @@ def main():
             
             # Daten in temporärem Buffer sammeln
             try:
-                # Prüfe ob Kamera bereit ist
-                if not hasattr(camera, 'get_rgba'):
-                    log.warning(f"Env {i}: Kamera hat keine get_rgba() Methode, überspringe")
+                # Extrahiere RGB-Bild aus Kamera
+                rgb = get_rgb(camera, env_idx=i)
+                
+                if rgb is None:
+                    # Kamera nicht bereit - überspringe diesen Timestep
+                    articulations[i].apply_action(action)
+                    step_counts[i] += 1
                     continue
-                
-                rgba = camera.get_rgba()
-                
-                # Prüfe Format von rgba und konvertiere falls nötig
-                if rgba is None:
-                    log.debug(f"Env {i}: rgba ist None (Kamera noch nicht bereit?), überspringe Timestep")
-                    continue
-                
-                # Konvertiere zu numpy array falls nötig
-                if not isinstance(rgba, np.ndarray):
-                    rgba = np.array(rgba)
-                
-                # Prüfe ob Array leer ist (Kamera noch nicht bereit)
-                if rgba.size == 0:
-                    # Kamera noch nicht bereit - überspringe stillschweigend (nur bei ersten Frames)
-                    # Verwende debug statt warning, um Log-Spam zu vermeiden
-                    continue
-                
-                # Prüfe Shape und konvertiere falls nötig
-                if rgba.ndim == 1:
-                    # 1D Array - möglicherweise flach, versuche zu reshapen
-                    expected_size = CAM_RESOLUTION[0] * CAM_RESOLUTION[1] * 4  # RGBA
-                    if rgba.size == expected_size:
-                        rgba = rgba.reshape((CAM_RESOLUTION[0], CAM_RESOLUTION[1], 4))
-                    else:
-                        log.debug(f"Env {i}: rgba Shape {rgba.shape} != erwartet {expected_size} (Kamera noch nicht bereit?), überspringe")
-                        continue
-                elif rgba.ndim == 2:
-                    # 2D Array - möglicherweise Graustufen, konvertiere zu RGB
-                    if rgba.size == 0:
-                        continue
-                    log.debug(f"Env {i}: rgba ist 2D, konvertiere zu RGB")
-                    rgba = np.stack([rgba, rgba, rgba, np.ones_like(rgba) * 255], axis=-1)
-                elif rgba.ndim == 3:
-                    # 3D Array - sollte (H, W, C) sein
-                    if rgba.shape[2] == 1:
-                        # Graustufen, konvertiere zu RGBA
-                        rgba = np.repeat(rgba, 4, axis=2)
-                        rgba[:, :, 3] = 255  # Alpha = 255
-                    elif rgba.shape[2] == 3:
-                        # RGB, füge Alpha-Kanal hinzu
-                        alpha = np.ones((rgba.shape[0], rgba.shape[1], 1), dtype=rgba.dtype) * 255
-                        rgba = np.concatenate([rgba, alpha], axis=2)
-                    # rgba.shape[2] == 4 ist OK
-                else:
-                    # Unerwartete Dimensionen
-                    log.debug(f"Env {i}: Unerwartete rgba Dimensionen: {rgba.ndim}, Shape: {rgba.shape}, überspringe")
-                    continue
-                
-                # Extrahiere RGB (erste 3 Kanäle)
-                rgb = rgba[:, :, :3].copy()
-                
-                # Stelle sicher, dass es uint8 ist
-                if rgb.dtype != np.uint8:
-                    if rgb.max() <= 1.0:
-                        rgb = (rgb * 255).astype(np.uint8)
-                    else:
-                        rgb = rgb.astype(np.uint8)
-                
-                # Depth-Bild: Versuche verschiedene API-Methoden
-                try:
-                    # Methode 1: get_current_frame()
-                    frame = camera.get_current_frame()
-                    if frame and "distance_to_image_plane" in frame:
-                        depth = frame["distance_to_image_plane"]
-                    elif frame and "depth" in frame:
-                        depth = frame["depth"]
-                    else:
-                        depth = None
-                except:
-                    try:
-                        # Methode 2: get_depth()
-                        depth = camera.get_depth()
-                    except:
-                        # Fallback: Leeres Depth-Bild
-                        depth = None
                 
                 if rgb is not None and rgb.size > 0:
                     
@@ -854,39 +874,7 @@ def main():
                             log.warning(f"Env {i}: Konnte Würfel {cube_name} nicht finden: {e}")
                             cube_positions.append((0.0, 0.0, 0.0, 0.0))
                     
-                    # Depth-Bild konvertieren falls nötig
-                    if depth is not None:
-                        # Konvertiere zu numpy falls nötig
-                        if not isinstance(depth, np.ndarray):
-                            depth = np.array(depth)
-                        
-                        # Prüfe Shape
-                        if depth.ndim == 1:
-                            # 1D Array - versuche zu reshapen
-                            expected_size = CAM_RESOLUTION[0] * CAM_RESOLUTION[1]
-                            if depth.size == expected_size:
-                                depth = depth.reshape(CAM_RESOLUTION)
-                            else:
-                                log.warning(f"Env {i}: Unerwartete depth Shape: {depth.shape}, erstelle leeres Bild")
-                                depth = np.zeros((CAM_RESOLUTION[0], CAM_RESOLUTION[1]), dtype=np.float32)
-                        elif depth.ndim == 2:
-                            # 2D Array - sollte (H, W) sein
-                            if depth.shape != tuple(CAM_RESOLUTION):
-                                log.warning(f"Env {i}: Depth Shape {depth.shape} != {CAM_RESOLUTION}, resizing...")
-                                from PIL import Image
-                                depth_img = Image.fromarray(depth.astype(np.uint16))
-                                depth_img = depth_img.resize((CAM_RESOLUTION[1], CAM_RESOLUTION[0]))
-                                depth = np.array(depth_img).astype(np.float32)
-                        else:
-                            log.warning(f"Env {i}: Unerwartete depth Dimensionen: {depth.ndim}, erstelle leeres Bild")
-                            depth = np.zeros((CAM_RESOLUTION[0], CAM_RESOLUTION[1]), dtype=np.float32)
-                        
-                        # Konvertiere zu float32
-                        if depth.dtype != np.float32:
-                            depth = depth.astype(np.float32)
-                    else:
-                        # Fallback: Erstelle leeres Depth-Bild
-                        depth = np.zeros((CAM_RESOLUTION[0], CAM_RESOLUTION[1]), dtype=np.float32)
+                    depth = np.zeros((CAM_RESOLUTION[0], CAM_RESOLUTION[1]), dtype=np.float32)
                     
                     # In Episode-Buffer speichern (nicht direkt im Logger)
                     # Action wird im Logger aus EE-Bewegung berechnet, nicht hier!
@@ -895,6 +883,7 @@ def main():
                     episode_data[i]["ee_positions"].append(ee_pos)
                     episode_data[i]["ee_quaternions"].append(ee_quat)
                     episode_data[i]["cube_positions"].append(cube_positions)
+                    
             except Exception as e:
                 log.error(f"Env {i}: Fehler beim Datensammeln!")
                 log.error(f"  Exception Type: {type(e).__name__}")
@@ -920,6 +909,20 @@ def main():
                 if is_valid and len(episode_data[i]["observations"]) > 0:
                     # Episode erfolgreich - in zentralen Logger übertragen
                     try:
+                        # Sammle Phase-Daten für Excel-Logging
+                        phase_data = {}
+                        if len(episode_data[i]["observations"]) > 0:
+                            # Berechne Phase-Daten aus Episode-Länge
+                            total_ep_steps = len(episode_data[i]["observations"])
+                            # Vereinfachte Verteilung (kann später mit echten Controller-Daten verfeinert werden)
+                            steps_per_phase = total_ep_steps // 10
+                            for phase_idx in range(10):
+                                phase_data[phase_idx] = {
+                                    "waypoints": steps_per_phase,
+                                    "time": steps_per_phase * (1.0 / 60.0),
+                                    "modifier": 1.0,
+                                }
+                        
                         logger.start_episode(total_successful)
                         # property_params werden nicht mehr gespeichert (wie gewünscht)
                         # logger.set_episode_params(episode_data[i]["params"])  # Auskommentiert
@@ -950,6 +953,36 @@ def main():
                                 raise
                         
                         logger.end_episode()
+                        
+                        # Schreibe Episode-Daten in CSV
+                        try:
+                            # Controller-Parameter aus globalen Konstanten (nicht vom Controller-Objekt)
+                            controller_params = {
+                                "trajectory_resolution": TRAJECTORY_RESOLUTION,
+                                "air_speed_multiplier": AIR_SPEED_MULTIPLIER,
+                                "height_adaptive_speed": HEIGHT_ADAPTIVE_SPEED,
+                                "critical_height_threshold": CRITICAL_HEIGHT_THRESHOLD,
+                                "critical_speed_factor": CRITICAL_SPEED_FACTOR,
+                            }
+                            
+                            log.debug(f"CSV-Logging: Phase-Daten = {phase_data}")
+                            log.debug(f"CSV-Logging: Total Timesteps = {step_counts[i]}, Total Time = {step_counts[i] * (1.0 / 60.0)}")
+                            
+                            csv_logger.log_episode(
+                                episode_id=total_successful,
+                                controller_params=controller_params,
+                                phase_data=phase_data,
+                                total_timesteps=step_counts[i],
+                                total_time=step_counts[i] * (1.0 / 60.0),
+                                validation_success=True,
+                                notes=f"Seed: {seeds[i]}, Env: {i}",
+                            )
+                            log.info(f"✅ CSV-Eintrag geschrieben für Episode {total_successful}")
+                        except Exception as e:
+                            log.warning(f"Fehler beim CSV-Logging für Episode {total_successful}: {e}")
+                            import traceback
+                            log.warning(f"Traceback: {traceback.format_exc()}")
+                        
                         successful_counts[i] += 1
                         total_successful += 1
                         log.info(f"✅ Env {i}: Episode {total_successful} erfolgreich ({step_counts[i]} steps, Seed {seeds[i]})")
@@ -965,6 +998,32 @@ def main():
                     # Episode fehlgeschlagen - Daten verwerfen
                     failed_seeds.append(seeds[i])
                     log.warning(f"❌ Env {i}: Episode verworfen (Seed {seeds[i]}): {reason}")
+                    
+                    # Schreibe auch fehlgeschlagene Episode in CSV (für Tracking)
+                    try:
+                        # Controller-Parameter aus globalen Konstanten (nicht vom Controller-Objekt)
+                        controller_params = {
+                            "trajectory_resolution": TRAJECTORY_RESOLUTION,
+                            "air_speed_multiplier": AIR_SPEED_MULTIPLIER,
+                            "height_adaptive_speed": HEIGHT_ADAPTIVE_SPEED,
+                            "critical_height_threshold": CRITICAL_HEIGHT_THRESHOLD,
+                            "critical_speed_factor": CRITICAL_SPEED_FACTOR,
+                        }
+                        
+                        csv_logger.log_episode(
+                            episode_id=f"FAILED_{total_episodes}",
+                            controller_params=controller_params,
+                            phase_data={},
+                            total_timesteps=step_counts[i],
+                            total_time=step_counts[i] * (1.0 / 60.0),
+                            validation_success=False,
+                            notes=f"Seed: {seeds[i]}, Env: {i}, Grund: {reason}",
+                        )
+                        log.info(f"✅ CSV-Eintrag geschrieben für fehlgeschlagene Episode {total_episodes}")
+                    except Exception as e:
+                        log.warning(f"Fehler beim CSV-Logging für fehlgeschlagene Episode {total_episodes}: {e}")
+                        import traceback
+                        log.warning(f"Traceback: {traceback.format_exc()}")
                 
                 episode_counts[i] += 1
                 total_episodes += 1

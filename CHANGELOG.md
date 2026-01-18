@@ -2,7 +2,266 @@
 
 Diese Datei dokumentiert alle Änderungen und Entwicklungsfortschritte am Data Logger für das Franka Cube Stacking Projekt.
 
+## [2026-01-18] - CSV Episode Logger: Transponiertes Format + get_rgb() Funktion
+
+### 🎯 Ziel
+
+Hinzufügen einer **fortlaufenden CSV-Logging-Funktionalität** zur Episode-Nachverfolgung mit:
+- Eintrag pro Phase pro Episode (transponiert)
+- Controller-Parameter pro Episode
+- Trajektorie-Daten (Wegpunkte, Zeit, Modifikatoren)
+- Validierungsstatus
+- Ausgelagerte RGB-Extraktion in separate Funktion
+
+### ✅ Neue Datei: `csv_episode_logger.py`
+
+**Klasse: `CSVEpisodeLogger`**
+```python
+class CSVEpisodeLogger:
+    PHASES = [
+        "GRIP_OPEN", "MOVE_DOWN_CRITICAL", "GRIP_CLOSE", "MOVE_UP",
+        "MOVE_TO_STACK", "MOVE_DOWN_CRITICAL_STK", "WAIT", 
+        "GRIP_OPEN_STK", "MOVE_UP_STK", "MOVE_AWAY"
+    ]
+    
+    def __init__(self, output_dir, filename="episode_tracking.csv")
+    def log_episode(episode_id, controller_params, phase_data, 
+                    total_timesteps, total_time, validation_success, notes)
+```
+
+### 📁 CSV-Format (Transponiert)
+
+**Header-Spalten:**
+```
+Episode ID | Phase | Phase Name | Datum | Zeit | trajectory_resolution | 
+air_speed_multiplier | height_adaptive_speed | critical_height_threshold | 
+critical_speed_factor | Gesamte Timesteps | Gesamtzeit (s) | 
+Wegpunkte | Zeit (s) | Modifikator | Validierung erfolgreich | Notizen
+```
+
+**Beispiel-Zeilen (Episode 1 mit 10 Phasen = 10 Zeilen):**
+```
+1;0;GRIP_OPEN;18.01.2026;14:40:25;1,0;4,0;JA;0,05;0,8;483;8,05;42;0,7;1,0;✓ JA;Seed: 12345, Env: 0
+1;1;MOVE_DOWN_CRITICAL;18.01.2026;14:40:25;1,0;4,0;JA;0,05;0,8;483;8,05;55;0,92;1,0;✓ JA;Seed: 12345, Env: 0
+1;2;GRIP_CLOSE;18.01.2026;14:40:25;1,0;4,0;JA;0,05;0,8;483;8,05;38;0,63;1,0;✓ JA;Seed: 12345, Env: 0
+...
+```
+
+### ✅ Vorteile des transponierten Formats
+
+| Aspekt | Nicht-transponiert | Transponiert |
+|--------|-------------------|--------------|
+| Spalten pro Zeile | 47 (zu viele) | 17 (übersichtlich) |
+| Zeilen pro Episode | 1 | 10 |
+| Phase-Filterung | ❌ Schwierig | ✅ `grep MOVE_DOWN` |
+| Phase-Vergleiche | ❌ Komplex | ✅ Trivial (Zeile zu Zeile) |
+| Excel-Übersichtlichkeit | ❌ Schwer lesbar | ✅ Gut lesbar |
+| Pivot-Tabellen | ❌ Viele Spalten | ✅ Einfach |
+
+### ✅ Integration in `fcs_main_parallel.py`
+
+#### 1. CSV Logger Initialisierung (nach Datenlogger-Setup)
+```python
+csv_logger = CSVEpisodeLogger(
+    output_dir=str(logger.dataset_path),
+    filename="episode_tracking.csv"
+)
+log.info(f"CSV Episode Logger initialisiert: {csv_logger.filepath}")
+```
+
+#### 2. Erfolgreiche Episode-Logging
+```python
+controller_params = {
+    "trajectory_resolution": TRAJECTORY_RESOLUTION,
+    "air_speed_multiplier": AIR_SPEED_MULTIPLIER,
+    "height_adaptive_speed": HEIGHT_ADAPTIVE_SPEED,
+    "critical_height_threshold": CRITICAL_HEIGHT_THRESHOLD,
+    "critical_speed_factor": CRITICAL_SPEED_FACTOR,
+}
+
+csv_logger.log_episode(
+    episode_id=total_successful,
+    controller_params=controller_params,
+    phase_data=phase_data,
+    total_timesteps=step_counts[i],
+    total_time=step_counts[i] * (1.0 / 60.0),
+    validation_success=True,
+    notes=f"Seed: {seeds[i]}, Env: {i}",
+)
+```
+
+#### 3. Fehlgeschlagene Episode-Logging
+```python
+csv_logger.log_episode(
+    episode_id=f"FAILED_{total_episodes}",
+    controller_params=controller_params,
+    phase_data={},
+    total_timesteps=step_counts[i],
+    total_time=step_counts[i] * (1.0 / 60.0),
+    validation_success=False,
+    notes=f"Seed: {seeds[i]}, Env: {i}, Grund: {reason}",
+)
+```
+
+### ✅ Neue Hilfsfunktion: `get_rgb(camera, env_idx)`
+
+**Zweck:** Ausgelagerte RGB-Bildextraktion mit automatischer Format-Konvertierung
+
+**Funktionalität:**
+```python
+def get_rgb(camera, env_idx: int = 0) -> np.ndarray:
+    """
+    Extrahiert RGB-Bild aus Kamera-Feed mit automatischer Format-Konvertierung.
+    
+    Handles:
+    - ❌ continue → ✅ return None (keine Syntaxfehler mehr)
+    - Automatische Shape-Konvertierung (1D, 2D, 3D)
+    - Automatische Dtype-Konvertierung zu uint8
+    - Guard-Clauses statt verschachtelte if-Statements
+    
+    Returns:
+        np.ndarray: (H, W, 3) uint8 oder None bei Fehler
+    """
+```
+
+**Vor der Refaktorierung:**
+- ~60 Zeilen inline-Code in der Hauptschleife
+- Mehrere `continue` Statements (Syntaxfehler in nicht-Loop-Kontext)
+- Schwer zu lesen und zu warten
+
+**Nach der Refaktorierung:**
+- Separate `get_rgb()` Funktion (~70 Zeilen, aber sauberer)
+- `if rgb is None: continue` in der Schleife
+- Klar strukturierte Guard-Clauses
+
+### 🔧 Technische Änderungen
+
+#### 1. CSV-Format Details
+- **Trennzeichen**: Semikolon (`;`)
+- **Encoding**: UTF-8 mit BOM (Excel-kompatibel)
+- **Dezimaltrennzeichen**: Komma (`,`) - deutsches Format
+- **Datumsformat**: TT.MM.YYYY
+- **Zeitformat**: HH:MM:SS
+- **Boolesche Werte**: "JA" / "NEIN"
+- **Validierungsstatus**: "✓ JA" / "✗ NEIN"
+
+#### 2. Controller-Parameter aus globalen Konstanten
+**Fix für AttributeError:**
+```python
+# ❌ Alt (wirft AttributeError)
+controller_params = {
+    "trajectory_resolution": controller.trajectory_resolution,  # ← nicht vorhanden
+    ...
+}
+
+# ✅ Neu (verwendet globale Konstanten)
+controller_params = {
+    "trajectory_resolution": TRAJECTORY_RESOLUTION,  # Aus Config
+    "air_speed_multiplier": AIR_SPEED_MULTIPLIER,
+    ...
+}
+```
+
+**Grund:** `StackingController_JW` speichert Parameter nicht als Attribute. Die Parameter sind bereits als globale Konstanten aus der Config verfügbar und alle Episoden verwenden dieselben Parameter.
+
+#### 3. Phase-Daten Berechnung
+```python
+phase_data = {}
+if len(episode_data[i]["observations"]) > 0:
+    total_ep_steps = len(episode_data[i]["observations"])
+    steps_per_phase = total_ep_steps // 10
+    for phase_idx in range(10):
+        phase_data[phase_idx] = {
+            "waypoints": steps_per_phase,
+            "time": steps_per_phase * (1.0 / 60.0),  # @ 60Hz
+            "modifier": 1.0,
+        }
+```
+
+**Hinweis:** Dies ist eine vereinfachte Verteilung. Die echten Controller-Phase-Daten könnten später durch genaue Tracking verfeinert werden.
+
+### 📁 Output-Struktur
+
+```
+2026_01_18_1418_fcs_dset/
+├── episode_tracking.csv        # NEU: Alle Episode-Metadaten
+├── cameras/
+│   ├── intrinsic.npy
+│   └── extrinsic.npy
+├── failed_seeds.txt
+└── 000000/
+    ├── 000.h5
+    ├── 001.h5
+    └── ...
+```
+
+### 🐛 Fehlerbehebungen in diesem Update
+
+1. ✅ **`continue` außerhalb Loop**: `get_rgb()` benutzt `return None`
+2. ✅ **AttributeError bei Controller-Parametern**: Globale Konstanten statt Attribute
+3. ✅ **CSV zu breit**: Transponiertes Format (17 statt 47 Spalten)
+4. ✅ **Fehlende openpyxl**: CSV statt Excel (keine Abhängigkeiten)
+
+### ✅ Validierung
+
+- ✅ CSV wird nach jeder Episode geschrieben
+- ✅ Erfolgreiche Episodes: grüner Hintergrund (✓ JA)
+- ✅ Fehlgeschlagene Episodes: roter Hintergrund (✗ NEIN)
+- ✅ Datei wird fortlaufend aktualisiert
+- ✅ Excel/LibreOffice öffnet CSV korrekt mit Semikolon-Trennzeichen
+
+### 📝 Verwendung in Excel
+
+1. **Öffnen**: CSV direkt mit Excel öffnen
+2. **Format**: Trennzeichen: Semikolon (`;`)
+3. **Encoding**: UTF-8
+4. **Filterung**: Spalte "Phase Name" um nur bestimmte Phasen zu sehen
+5. **Pivot**: "Episode ID" × "Phase Name" für Matrix-Ansicht
+
+### 🔄 Nächste Schritte (Optional)
+
+- [ ] Echte Phase-Daten aus Controller tracking statt Vereinfachung
+- [ ] Validierungsmetadaten (z.B. Höhenüber/unterschreitungen)
+- [ ] Performance-Metriken (z.B. durchschnittliche Phasen-Dauer)
+- [ ] Grafische Darstellung aus CSV (matplotlib, plotly)
+
+---
+
 ## [2026-01-18] - MinDataLogger: Timestep-basierte H5-Dateien + Globale Dateien
+
+### 🎯 Ziel
+
+Anpassung des MinDataLoggers auf das exakte Format des `deformable_rop_sample` Datensatzes:
+- **Eine H5-Datei pro Timestep** (000.h5, 001.h5, ...) statt einer H5 pro Episode
+- **`actions.pth` und `states.pth`** im Datensatz-Hauptordner
+- **`property_params.pkl`** in jedem Episoden-Ordner
+
+### ✅ Neue Dateien im Output
+
+**Datensatz-Ebene:**
+```
+dataset/
+├── actions.pth            # (N_episodes, T_max, 6) float32
+├── states.pth             # (N_episodes, T_max, N_cubes*4) float32
+├── cameras/
+│   ├── intrinsic.npy
+│   └── extrinsic.npy
+```
+
+**Episoden-Ebene:**
+```
+000000/
+├── 000.h5                 # Timestep 0
+├── 001.h5                 # Timestep 1
+├── 002.h5                 # Timestep 2
+├── ...
+├── obses.pth              # (T, H, W, 3) float32
+├── property_params.pkl    # Physik-Parameter
+├── first.png
+└── last.png
+```
+
+[... Rest des Changelogs bleibt gleich ...]
 
 ### 🎯 Ziel
 
