@@ -95,15 +95,13 @@ class MinDataLogger:
         self, 
         config: Optional[dict] = None, 
         config_path: Optional[str] = None,
-        action_mode: str = "ee_pos",  # Ignoriert, nur ee_pos unterstützt
-        dt: float = 1.0 / 60.0,       # Ignoriert, nicht benötigt
+        dataset_path: Optional[str] = None,
     ):
         if config is None:
             config = load_config(config_path)
         
         self.config = config
-        self.object_name = config["dataset"]["name"]  # Für Kompatibilität mit fcs_main_parallel
-        self.dataset_path = Path(config["dataset"]["path"]) / self.object_name
+        self.dataset_path = dataset_path
         self.image_size = tuple(config["camera"]["resolution"])
         self.save_png = config["dataset"].get("save_png", True)
         self.n_cubes = config["cubes"]["count"]

@@ -9,13 +9,14 @@ simulation:
 
 # Parallelisierung
 parallel:
-  num_envs: 2                       # 1 = Single, >1 = Parallel (z.B. 4 für 2x2 Grid)
+  num_envs: 10                       # 1 = Single, >1 = Parallel (z.B. 4 für 2x2 Grid)
   env_spacing: 2.5                  # Abstand zwischen Umgebungen (Meter)
 
 # Datensammlung
 dataset:
-  num_episodes: 2                  # Anzahl zu sammelnder Episoden (TOTAL)
-  path: "../fcs_datasets" #"/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets"
+  num_episodes: 100                  # Anzahl zu sammelnder Episoden (TOTAL)
+  path: "E:/00_Coding_SSD/fcs_datasets" 
+  # path: "/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets"
   name: "franka_cube_stack_ds"
   save_png: true                    # Speichere alle Bilder auch als PNG
   action_mode: "ee_pos"             # Action-Codierung:
@@ -32,7 +33,7 @@ camera:
   position: [1.6, -2.0, 1.27]       # SIDE_CAM_BASE_POS
   euler: [66.0, 0.0, 32.05]         # Roll, Pitch, Yaw in Grad
   frequency: 20
-  resolution: [256, 256]            # Breite x Höhe
+  resolution: [224, 224]            # Breite x Höhe
 
 # Szene
 scene:

@@ -164,7 +164,6 @@ Z_STACK_TOLERANCE = CFG["validation"]["z_stack_tolerance"]
 
 DATASET_NAME = f"{datetime.now().strftime('%Y_%m_%d_%H%M')}_fcs_dset"
 
-
 class Franka_Cube_Stack():
     """
     Franka Cube Stacking Environment.
@@ -731,16 +730,9 @@ def main():
     # ================================================================
     # Logger mit Config initialisieren
     # Action wird automatisch aus EE-Bewegung berechnet
-    #
-    # action_mode Optionen:
-    #   "delta_pose": [delta_x, delta_y, delta_z, delta_yaw] - relative Positionsänderung
-    #   "velocity":   [vx, vy, vz, omega_z] - Geschwindigkeiten
-    #
-    action_mode = CFG.get("dataset", {}).get("action_mode", "delta_pose")
     logger = FrankaDataLogger(
         config=CFG,
-        action_mode=action_mode,  # Aus Config oder Default "delta_pose"
-        dt=1.0 / 60.0,  # Simulation läuft mit 60 Hz
+        dataset_path=Path(DATASET_PATH) / DATASET_NAME
     )
     
     # Überschreibe Dataset-Name mit Timestamp (wird in Config verwendet, aber wir überschreiben)
