@@ -1074,10 +1074,6 @@ def main():
         # World Step
         shared_world.step()
         
-        # Zwischenstand loggen (Daten werden bereits bei end_episode() gespeichert)
-        if total_successful > 0 and total_successful % 10 == 0:
-            log.info(f"Zwischenstand: {total_successful}/{NUM_EPISODES} erfolgreiche Episoden")
-        
         # Alle fertig?
         if all(env_done):
             break
