@@ -734,12 +734,22 @@ def main():
     # Nach allen Tasks: World reset
     shared_world.reset()
     log.info("All environments created, world reset complete")
-    
+    event_dt = None  # Kann angepasst werden für Sweeps
+
     # Controller und Kameras für alle Envs
     for i, env in enumerate(envs):
 
-        # airtime sweep
-        event_dt = [AIR_DT + i*0.1, CRIT_DT, WAIT_DT, GRIP_DT, RELEASE_DT]
+        # # airtime sweep
+        # event_dt = [AIR_DT + i*0.1, CRIT_DT, WAIT_DT, GRIP_DT, RELEASE_DT]
+
+        # # Grip/ Release Time sweep
+        # event_dt = [AIR_DT, CRIT_DT, WAIT_DT, GRIP_DT + i*0.1, RELEASE_DT + i*0.1]
+
+        # # Critical Time sweep
+        event_dt = [AIR_DT, CRIT_DT + i*0.005, WAIT_DT, GRIP_DT, RELEASE_DT]
+
+        if event_dt == None:
+            event_dt = BASE_EVENT_DT
 
         controller = env.setup_post_load(event_dt=event_dt)
         controllers.append(controller)
@@ -1143,6 +1153,7 @@ def main():
     log.info(f"  Fehlgeschlagene Seeds: {len(failed_seeds)}")
     if total_episodes > 0:
         log.info(f"  Erfolgsrate: {total_successful / total_episodes * 100:.1f}%")
+        log.info(f"  Durchschnittliche Steps: {sum(step_counts)/NUM_ENVS}, Controller dt = {event_dt}")
     log.info("=" * 60)
     
     # Speichere CSV-Matrix mit allen gesammelten Episode-Daten

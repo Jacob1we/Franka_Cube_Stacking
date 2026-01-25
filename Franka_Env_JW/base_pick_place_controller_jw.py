@@ -14,6 +14,7 @@
 # limitations under the License.
 import typing
 import logging
+import math # for smoothing function in critical height adjustment
 
 import numpy as np
 from isaacsim.core.api.controllers.base_controller import BaseController
@@ -218,8 +219,8 @@ class Base_PickPlaceController_JW(BaseController):
         if not self._height_adaptive_speed:
             return base_dt
         
-        # For gripper phases (2, 3, 7), don't apply height adjustment
-        if self._event in [2, 3, 7]:
+        # For all phases (exept critical lowering EE steps 1 and 6), don't apply height adjustment
+        if self._event in [0, 2, 3, 4, 5, 7, 8, 9]:
             return base_dt
         
         # If we don't have a target height yet, use base dt
@@ -232,7 +233,8 @@ class Base_PickPlaceController_JW(BaseController):
         # Smooth interpolation using cosine (smoother transition)
         # At height=0: factor = critical_speed_factor (slow)
         # At height>=threshold: factor = 1.0 (normal speed)
-        smooth_factor = self._critical_speed_factor + (1.0 - self._critical_speed_factor) * height_ratio
+        # smooth_factor = self._critical_speed_factor + (1.0 - self._critical_speed_factor) * height_ratio
+        smooth_factor = self._critical_speed_factor + (1.0 - self._critical_speed_factor) * (0.5 * (1.0 - math.cos(math.pi * height_ratio))) # S-Curve Cosine Smoothing
         
         # Apply factor: lower factor = smaller dt = finer trajectory
         effective_dt = base_dt * smooth_factor

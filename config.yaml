@@ -15,7 +15,8 @@ parallel:
 # Datensammlung
 dataset:
   num_episodes: 10                  # Anzahl zu sammelnder Episoden (TOTAL)
-  path: "E:/00_Coding_SSD/fcs_datasets" 
+  # path: "E:/00_Coding_SSD/fcs_datasets" 
+  path: "/mnt/tsp_jw/nvme1p4/fcs_datasets"
   # path: "/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets"
   name: "franka_cube_stack_ds"
   save_png: true                    # Speichere alle Bilder auch als PNG
@@ -23,7 +24,7 @@ dataset:
                                     #   "delta_pose": [dx, dy, dz, d_yaw] - relative Positionsänderung (4D)
                                     #   "velocity":   [vx, vy, vz, omega_z] - Geschwindigkeiten (4D)
                                     #   "ee_pos":     [x_s, y_s, z_s, x_e, y_e, z_e] - EE Start/End Position (6D, wie DINO WM)
-  action_interval: 10               # Frames pro Action (wie Rope-Format):
+  action_interval: 50               # Frames pro Action (wie Rope-Format):
                                     #   1 = jeder Frame wird gespeichert
                                     #   10 = alle 10 Frames wird eine Action/H5 gespeichert
                                     #   Die Action beschreibt dann die Bewegung über N Frames
@@ -45,15 +46,15 @@ controller:
   trajectory_resolution: 1.0        # TRAJECTORY_RESOLUTION
   air_speed_multiplier: 1.0                # Speed up AIR phases only (0,4,5,8,9)
   height_adaptive_speed: False              # DYNAMIC: Slow down near ground!
-  critical_height_threshold: 0.05           # Below xx cm = critical zone
-  critical_speed_factor: 1.0               # slower in critical zone
+  critical_height_threshold: 0.1           # Below xx m = critical zone
+  critical_speed_factor: 0.5               # slower in critical zone
 
-  DEFAULT_EVENTS_DT: [0.008, 0.005, 1, 0.1, 0.05, 0.05, 0.0025, 1, 0.008, 0.08]
-  air_dt: 0.5
-  critical_dt: 0.015
+  # DEFAULT_EVENTS_DT: [0.008, 0.005, 1, 0.1, 0.05, 0.05, 0.0025, 1, 0.008, 0.08]
+  air_dt: 1.0
+  critical_dt: 0.01
   wait_dt: 1.0
-  grip_dt: 0.2
-  release_dt: 0.2
+  grip_dt: 0.3
+  release_dt: 0.3
 
   # Phase Overview (for understanding speed parameters):
   #   ---------------------------------------------------
@@ -70,7 +71,7 @@ controller:
 
 # Würfel
 cubes:
-  count: 2                          # N_CUBES
+  count: 1                          # N_CUBES
   side: 0.05                        # Kantenlänge (Meter)
   min_dist_factor: 1.5              # MIN_DIST = factor * CUBE_SIDE
   max_placement_tries: 200          # MAX_TRIES für Positionierung
