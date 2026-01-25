@@ -145,6 +145,27 @@ AIR_SPEED_MULTIPLIER = CFG["controller"]["air_speed_multiplier"]
 HEIGHT_ADAPTIVE_SPEED = CFG["controller"]["height_adaptive_speed"]
 CRITICAL_HEIGHT_THRESHOLD = CFG["controller"]["critical_height_threshold"]
 CRITICAL_SPEED_FACTOR = CFG["controller"]["critical_speed_factor"]
+AIR_DT = CFG["controller"]["air_dt"]
+CRIT_DT = CFG["controller"]["critical_dt"]
+WAIT_DT = CFG["controller"]["wait_dt"]
+GRIP_DT = CFG["controller"]["grip_dt"]
+RELEASE_DT = CFG["controller"]["release_dt"]
+BASE_DT = [AIR_DT, CRIT_DT, WAIT_DT, GRIP_DT, AIR_DT, AIR_DT, CRIT_DT, RELEASE_DT, AIR_DT, AIR_DT]
+BASE_EVENT_DT = [AIR_DT, CRIT_DT, WAIT_DT, GRIP_DT, RELEASE_DT]
+
+# [AIR, CRIT]
+# Phase Overview (for understanding speed parameters):
+  #   ---------------------------------------------------
+  #   Phase 0: Move EE above cube at initial height     [AIR - can be fast]
+  #   Phase 1: Lower EE down to cube                    [CRITICAL - must be precise]
+  #   Phase 2: Wait for inertia to settle               [WAIT]
+  #   Phase 3: Close gripper                            [GRIP]
+  #   Phase 4: Lift EE up with cube                     [AIR - can be fast]
+  #   Phase 5: Move EE toward target XY                 [AIR - can be fast]
+  #   Phase 6: Lower EE to place cube                   [CRITICAL - must be precise]
+  #   Phase 7: Open gripper                             [RELEASE]
+  #   Phase 8: Lift EE up                               [AIR - can be fast]
+  #   Phase 9: Return EE to starting position           [AIR - can be fast]
 
 # Roboter Workspace
 FRANKA_BASE_CLEARANCE = CFG["robot"]["base_clearance"]
@@ -235,7 +256,7 @@ class Franka_Cube_Stack():
         
         return self.world
 
-    def setup_post_load(self):
+    def setup_post_load(self, event_dt: list = None):
         log.info("Setup Post Load")
         robot_name = self.task.get_params()["robot_name"]["value"]
         self.franka = self.world.scene.get_object(robot_name)
@@ -243,6 +264,15 @@ class Franka_Cube_Stack():
         base_pos, base_quat = self.franka.get_local_pose()
         self.base_pos = base_pos
         self.base_quat = base_quat
+
+        BASE_EVENT_DT = [AIR_DT, CRIT_DT, WAIT_DT, GRIP_DT, RELEASE_DT]
+
+        if event_dt is None:
+            event_dt = BASE_EVENT_DT
+        else:
+            event_dt = event_dt
+        
+        dt_list = [event_dt[0], event_dt[1], event_dt[2], event_dt[3], event_dt[0], event_dt[0], event_dt[1], event_dt[4], event_dt[0], event_dt[0]]
 
         controller = StackingController_JW(
             name="stacking_controller",
@@ -256,6 +286,7 @@ class Franka_Cube_Stack():
             height_adaptive_speed=HEIGHT_ADAPTIVE_SPEED,              # DYNAMIC: Slow down near ground!
             critical_height_threshold=CRITICAL_HEIGHT_THRESHOLD,           # Below xx cm = critical zone
             critical_speed_factor=CRITICAL_SPEED_FACTOR,               # slower in critical zone
+            events_dt=dt_list,
         )
         return controller
     
@@ -706,7 +737,11 @@ def main():
     
     # Controller und Kameras für alle Envs
     for i, env in enumerate(envs):
-        controller = env.setup_post_load()
+
+        # airtime sweep
+        event_dt = [AIR_DT + i*0.1, CRIT_DT, WAIT_DT, GRIP_DT, RELEASE_DT]
+
+        controller = env.setup_post_load(event_dt=event_dt)
         controllers.append(controller)
         
         articulation = env.franka.get_articulation_controller()
@@ -1030,7 +1065,7 @@ def main():
                             validation_success=False,
                             notes=f"Seed: {seeds[i]}, Env: {i}, Grund: {reason}",
                         )
-                        log.info(f"✅ CSV-Eintrag geschrieben für fehlgeschlagene Episode {total_episodes}")
+                        log.info(f"CSV-Eintrag geschrieben für fehlgeschlagene Episode {total_episodes}")
                     except Exception as e:
                         log.warning(f"Fehler beim CSV-Logging für fehlgeschlagene Episode {total_episodes}: {e}")
                         import traceback

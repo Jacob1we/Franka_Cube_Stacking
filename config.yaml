@@ -3,7 +3,7 @@
 
 # Simulation
 simulation:
-  headless: true                    # True für schnellere Datensammlung (ohne GUI)
+  headless: False                    # True für schnellere Datensammlung (ohne GUI)
   seed: 111
   world_root: "/World"
 
@@ -14,7 +14,7 @@ parallel:
 
 # Datensammlung
 dataset:
-  num_episodes: 100                  # Anzahl zu sammelnder Episoden (TOTAL)
+  num_episodes: 10                  # Anzahl zu sammelnder Episoden (TOTAL)
   path: "E:/00_Coding_SSD/fcs_datasets" 
   # path: "/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets"
   name: "franka_cube_stack_ds"
@@ -47,7 +47,26 @@ controller:
   height_adaptive_speed: False              # DYNAMIC: Slow down near ground!
   critical_height_threshold: 0.05           # Below xx cm = critical zone
   critical_speed_factor: 1.0               # slower in critical zone
-  
+
+  DEFAULT_EVENTS_DT: [0.008, 0.005, 1, 0.1, 0.05, 0.05, 0.0025, 1, 0.008, 0.08]
+  air_dt: 0.5
+  critical_dt: 0.015
+  wait_dt: 1.0
+  grip_dt: 0.2
+  release_dt: 0.2
+
+  # Phase Overview (for understanding speed parameters):
+  #   ---------------------------------------------------
+  #   Phase 0: Move EE above cube at initial height     [AIR - can be fast]
+  #   Phase 1: Lower EE down to cube                    [CRITICAL - must be precise]
+  #   Phase 2: Wait for inertia to settle               [WAIT]
+  #   Phase 3: Close gripper                            [GRIP]
+  #   Phase 4: Lift EE up with cube                     [AIR - can be fast]
+  #   Phase 5: Move EE toward target XY                 [AIR - can be fast]
+  #   Phase 6: Lower EE to place cube                   [CRITICAL - must be precise]
+  #   Phase 7: Open gripper                             [RELEASE]
+  #   Phase 8: Lift EE up                               [AIR - can be fast]
+  #   Phase 9: Return EE to starting position           [AIR - can be fast]
 
 # Würfel
 cubes:
