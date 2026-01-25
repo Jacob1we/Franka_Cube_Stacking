@@ -150,6 +150,8 @@ CRIT_DT = CFG["controller"]["critical_dt"]
 WAIT_DT = CFG["controller"]["wait_dt"]
 GRIP_DT = CFG["controller"]["grip_dt"]
 RELEASE_DT = CFG["controller"]["release_dt"]
+GUARANTEE_FINAL_POSITION = CFG["controller"].get("guarantee_final_position", True)
+GUARANTEE_PHASES = CFG["controller"].get("guarantee_phases", [1, 6])
 BASE_DT = [AIR_DT, CRIT_DT, WAIT_DT, GRIP_DT, AIR_DT, AIR_DT, CRIT_DT, RELEASE_DT, AIR_DT, AIR_DT]
 BASE_EVENT_DT = [AIR_DT, CRIT_DT, WAIT_DT, GRIP_DT, RELEASE_DT]
 
@@ -286,6 +288,8 @@ class Franka_Cube_Stack():
             height_adaptive_speed=HEIGHT_ADAPTIVE_SPEED,              # DYNAMIC: Slow down near ground!
             critical_height_threshold=CRITICAL_HEIGHT_THRESHOLD,           # Below xx cm = critical zone
             critical_speed_factor=CRITICAL_SPEED_FACTOR,               # slower in critical zone
+            guarantee_final_position=GUARANTEE_FINAL_POSITION,        # Snap to exact pick/place height
+            guarantee_phases=GUARANTEE_PHASES,                        # Phases to guarantee (default: [1, 6])
             events_dt=dt_list,
         )
         return controller
@@ -746,7 +750,7 @@ def main():
         # event_dt = [AIR_DT, CRIT_DT, WAIT_DT, GRIP_DT + i*0.1, RELEASE_DT + i*0.1]
 
         # # Critical Time sweep
-        event_dt = [AIR_DT, CRIT_DT + i*0.005, WAIT_DT, GRIP_DT, RELEASE_DT]
+        # event_dt = [AIR_DT, CRIT_DT + i*0.005, WAIT_DT, GRIP_DT, RELEASE_DT]
 
         if event_dt == None:
             event_dt = BASE_EVENT_DT
@@ -1009,6 +1013,8 @@ def main():
                                 "height_adaptive_speed": HEIGHT_ADAPTIVE_SPEED,
                                 "critical_height_threshold": CRITICAL_HEIGHT_THRESHOLD,
                                 "critical_speed_factor": CRITICAL_SPEED_FACTOR,
+                                "guarantee_final_position": GUARANTEE_FINAL_POSITION,
+                                "guarantee_phases": GUARANTEE_PHASES,
                             }
                             
                             log.debug(f"CSV-Logging: Phase-Daten = {phase_data}")
@@ -1054,6 +1060,8 @@ def main():
                             "height_adaptive_speed": HEIGHT_ADAPTIVE_SPEED,
                             "critical_height_threshold": CRITICAL_HEIGHT_THRESHOLD,
                             "critical_speed_factor": CRITICAL_SPEED_FACTOR,
+                            "guarantee_final_position": GUARANTEE_FINAL_POSITION,
+                            "guarantee_phases": GUARANTEE_PHASES,
                         }
                         
                         # Auch für fehlgeschlagene Episoden Phase-Daten sammeln

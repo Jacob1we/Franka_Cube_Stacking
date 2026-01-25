@@ -35,11 +35,21 @@
 - **plane_lift**: 0.001 - Ebene leicht über Boden
 
 ## Controller
-- **trajectory_resolution**: 2.0 - TRAJECTORY_RESOLUTION
-- **air_speed_multiplier**: 5.0 - Speed up AIR phases only (0,4,5,8,9)
-- **height_adaptive_speed**: True - DYNAMIC: Slow down near ground!
-- **critical_height_threshold**: 0.05 - Below xx cm = critical zone
-- **critical_speed_factor**: 1.0 - slower in critical zone
+- **trajectory_resolution**: 1.0 - TRAJECTORY_RESOLUTION
+- **air_speed_multiplier**: 1.0 - Speed up AIR phases only (0,4,5,8,9)
+- **height_adaptive_speed**: False - DYNAMIC: Slow down near ground!
+- **critical_height_threshold**: 0.1 - Below xx m = critical zone
+- **critical_speed_factor**: 0.5 - slower in critical zone
+
+### 🎉 Optimierte dt-Werte (Durchbruch 2026-01-25)
+- **air_dt**: 1.0 - Große Schritte für AIR-Phasen (0, 4, 5, 8, 9)
+- **critical_dt**: 0.015 - Feinere Schritte für CRITICAL-Phasen (1, 6)
+- **wait_dt**: 1.0 - Warten auf Stabilisierung
+- **grip_dt**: 0.2 - Greifer schließen
+- **release_dt**: 0.2 - Greifer öffnen
+
+**Ergebnis:** ~150 Steps/Episode (1 Würfel) statt ~950 Steps (2 Würfel)
+→ Erstes erfolgreiches DINO-WM Training!
 
 ## Cubes
 - **count**: 2 - N_CUBES

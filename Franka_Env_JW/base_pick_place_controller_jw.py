@@ -74,6 +74,8 @@ class Base_PickPlaceController_JW(BaseController):
         height_adaptive_speed: bool = False,
         critical_height_threshold: float = 0.15,
         critical_speed_factor: float = 0.25,
+        guarantee_final_position: bool = True,
+        guarantee_phases: typing.Optional[typing.List[int]] = None,
     ) -> None:
         BaseController.__init__(self, name=name)
         self._event = 0
@@ -105,6 +107,11 @@ class Base_PickPlaceController_JW(BaseController):
         self._critical_height_threshold = critical_height_threshold
         self._critical_speed_factor = critical_speed_factor
         self._current_target_height = None  # Track current target height
+        
+        # Guaranteed final position settings
+        self._guarantee_final_position = guarantee_final_position
+        self._guarantee_phases = guarantee_phases if guarantee_phases is not None else [1, 6]
+        self._final_position_executed = False
 
         self.log = logging.getLogger("Base_PickAndPlaceController")
         self.log.info("Initiation of Base Pick and Place Controller is Done")
@@ -196,8 +203,30 @@ class Base_PickPlaceController_JW(BaseController):
         # Get effective dt (with height-adaptive adjustment if enabled)
         effective_dt = self._get_effective_dt()
         
-        self._t += effective_dt
+        # CRITICAL: For pick/place phases, guarantee we hit the exact final position
+        # Without this, large dt values cause the EE to overshoot and miss the pick-point
+        # The problem: if t goes from 0.85 to 1.05, the EE never reaches the exact pick height (t=1.0)
+        # Configurable via: guarantee_final_position (enable/disable) and guarantee_phases (which phases)
+        
+        next_t = self._t + effective_dt
+        
+        if (self._guarantee_final_position and 
+            next_t >= 1.0 and 
+            self._event in self._guarantee_phases and 
+            not self._final_position_executed):
+            # About to overshoot! Snap t to exactly 1.0 for THIS step
+            # This ensures the EE is commanded to the exact pick/place height
+            self._t = 1.0
+            self._final_position_executed = True
+            # Don't transition yet - we just set t=1.0 but the position was computed with old t
+            # The NEXT call will use t=1.0 for position calculation
+            return target_joint_positions
+        
+        self._t = next_t
+        
         if self._t >= 1.0:
+            # Reset flag for next critical phase
+            self._final_position_executed = False
             self._event += 1
             self._t = 0
         return target_joint_positions
@@ -309,6 +338,7 @@ class Base_PickPlaceController_JW(BaseController):
         self._event = 0
         self._t = 0
         self._current_target_height = None  # Reset height tracking
+        self._final_position_executed = False  # Reset guaranteed final position flag
         if end_effector_initial_height is not None:
             self._h1 = end_effector_initial_height
         self._pause = False

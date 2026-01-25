@@ -76,6 +76,8 @@ class StackingController_JW(Base_StackingController):
         height_adaptive_speed: bool = False,
         critical_height_threshold: float = 0.15,
         critical_speed_factor: float = 0.25,
+        guarantee_final_position: bool = True,
+        guarantee_phases: Optional[List[int]] = None,
         events_dt: Optional[List[float]] = None,
         # Backwards compatibility
         locked_joints: Optional[Dict[int, float]] = None,
@@ -95,6 +97,9 @@ class StackingController_JW(Base_StackingController):
         if height_adaptive_speed:
             self.log.info(f"    - critical_height_threshold: {critical_height_threshold}m")
             self.log.info(f"    - critical_speed_factor: {critical_speed_factor}")
+        self.log.info(f"  - guarantee_final_position: {guarantee_final_position}")
+        if guarantee_final_position:
+            self.log.info(f"    - guarantee_phases: {guarantee_phases if guarantee_phases else [1, 6]}")
         
         # Store for runtime access
         self._preferred_joints = preferred_joints
@@ -113,6 +118,8 @@ class StackingController_JW(Base_StackingController):
             height_adaptive_speed=height_adaptive_speed,
             critical_height_threshold=critical_height_threshold,
             critical_speed_factor=critical_speed_factor,
+            guarantee_final_position=guarantee_final_position,
+            guarantee_phases=guarantee_phases,
             events_dt=events_dt,
         )
         

@@ -14,9 +14,9 @@ parallel:
 
 # Datensammlung
 dataset:
-  num_episodes: 10                  # Anzahl zu sammelnder Episoden (TOTAL)
-  # path: "E:/00_Coding_SSD/fcs_datasets" 
-  path: "/mnt/tsp_jw/nvme1p4/fcs_datasets"
+  num_episodes: 20                  # Anzahl zu sammelnder Episoden (TOTAL)
+  path: "E:/00_Coding_SSD/fcs_datasets" 
+  # path: "/../../../fcs_datasets"
   # path: "/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets"
   name: "franka_cube_stack_ds"
   save_png: true                    # Speichere alle Bilder auch als PNG
@@ -51,10 +51,16 @@ controller:
 
   # DEFAULT_EVENTS_DT: [0.008, 0.005, 1, 0.1, 0.05, 0.05, 0.0025, 1, 0.008, 0.08]
   air_dt: 1.0
-  critical_dt: 0.01
+  critical_dt: 0.015
   wait_dt: 1.0
-  grip_dt: 0.3
-  release_dt: 0.3
+  grip_dt: 0.2
+  release_dt: 0.2
+
+  # Guaranteed Final Position: Ensures EE reaches exact pick/place height
+  # even with large dt values. Adds 1 extra step per critical phase.
+  guarantee_final_position: true
+  guarantee_phases: [1, 6]            # Phases where t=1.0 must be reached
+                                      # Phase 1: lower to pick, Phase 6: lower to place
 
   # Phase Overview (for understanding speed parameters):
   #   ---------------------------------------------------

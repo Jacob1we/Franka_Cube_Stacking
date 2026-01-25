@@ -97,6 +97,8 @@ class PickPlaceController_JW(Base_PickPlaceController):
         height_adaptive_speed: bool = False,
         critical_height_threshold: float = 0.15,
         critical_speed_factor: float = 0.25,
+        guarantee_final_position: bool = True,
+        guarantee_phases: Optional[List[int]] = None,
         # Backwards compatibility alias
         locked_joints: Optional[Dict[int, float]] = None,
     ) -> None:
@@ -147,6 +149,14 @@ class PickPlaceController_JW(Base_PickPlaceController):
             trajectory_scale=trajectory_resolution,
         )
         
+        # Store guarantee settings
+        self._guarantee_final_position = guarantee_final_position
+        self._guarantee_phases = guarantee_phases if guarantee_phases is not None else self.CRITICAL_PHASES
+        
+        self.log.info(f"  - guarantee_final_position: {guarantee_final_position}")
+        if guarantee_final_position:
+            self.log.info(f"    - guarantee_phases: {self._guarantee_phases}")
+        
         Base_PickPlaceController.__init__(
             self,
             name=name,
@@ -157,6 +167,8 @@ class PickPlaceController_JW(Base_PickPlaceController):
             height_adaptive_speed=height_adaptive_speed,
             critical_height_threshold=critical_height_threshold,
             critical_speed_factor=critical_speed_factor,
+            guarantee_final_position=guarantee_final_position,
+            guarantee_phases=self._guarantee_phases,
         )
         return
     

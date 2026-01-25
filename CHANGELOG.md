@@ -2,6 +2,86 @@
 
 Diese Datei dokumentiert alle Änderungen und Entwicklungsfortschritte am Data Logger für das Franka Cube Stacking Projekt.
 
+## [2026-01-25] - 🎉 DURCHBRUCH: Erstes erfolgreiches Training!
+
+### 🎯 Problem
+
+Die ursprünglichen Controller-Einstellungen führten zu **~950 Steps pro Episode** (bei 2 Würfeln), was zu:
+- Riesigen Datensätzen
+- Langen Trainingszeiten
+- Speicherüberlauf (Segmentation Faults)
+- Keinem erfolgreichen Training
+
+### ✅ Lösung: Aggressive dt-Optimierung
+
+Durch drastische Erhöhung der Zeitschritte (dt) wurde die Episode-Länge massiv reduziert:
+
+**Alte Einstellungen (DEFAULT):**
+```yaml
+air_dt: 0.008 - 0.08
+critical_dt: 0.005 - 0.0025
+wait_dt: 1.0
+grip_dt: 0.1
+release_dt: 1.0
+# → ~950 Steps/Episode (2 Würfel)
+```
+
+**Neue optimierte Einstellungen:**
+```yaml
+air_dt: 1.0           # 125x schneller!
+critical_dt: 0.015    # 3-6x schneller
+wait_dt: 1.0          # unverändert
+grip_dt: 0.2          # 2x schneller
+release_dt: 0.2       # 5x schneller
+# → ~150 Steps/Episode (1 Würfel)
+```
+
+### 📊 Ergebnis
+
+| Metrik | Vorher | Nachher | Verbesserung |
+|--------|--------|---------|-------------|
+| Steps/Episode (2 Würfel) | ~950 | ~300 | **68% weniger** |
+| Steps/Episode (1 Würfel) | ~475 | ~150 | **68% weniger** |
+| Training | ❌ Fehlgeschlagen | ✅ Halbwegs erfolgreich | **Erster Erfolg!** |
+| Datensatzgröße | Riesig | Handhabbar | ~3x kleiner |
+
+### ⚠️ Bekannte Probleme
+
+- Gelegentliche **Segmentation Faults** beim Training (vermutlich Datensatz-Format)
+- Qualität der Ergebnisse noch zu evaluieren
+- Möglicherweise weitere Komprimierung nötig
+
+### 🔧 Config-Änderungen
+
+```yaml
+# config.yaml - Controller Section
+controller:
+  trajectory_resolution: 1.0
+  air_speed_multiplier: 1.0
+  height_adaptive_speed: False
+  critical_height_threshold: 0.1
+  critical_speed_factor: 0.5
+  
+  # NEUE OPTIMIERTE WERTE:
+  air_dt: 1.0
+  critical_dt: 0.015
+  wait_dt: 1.0
+  grip_dt: 0.2
+  release_dt: 0.2
+
+cubes:
+  count: 1              # Reduziert für erstes Training
+```
+
+### 📝 Nächste Schritte
+
+- [ ] Evaluierung der Trainings-Qualität
+- [ ] Debugging des Segmentation Fault
+- [ ] Testen mit 2 Würfeln
+- [ ] Weitere Datensatz-Komprimierung falls nötig
+
+---
+
 ## [2026-01-18] - CSV Episode Logger: Transponiertes Format + get_rgb() Funktion
 
 ### 🎯 Ziel
