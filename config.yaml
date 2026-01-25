@@ -42,11 +42,12 @@ scene:
   plane_lift: 0.001                 # Ebene leicht über Boden
 
 controller:
-  trajectory_resolution: 1.5        # TRAJECTORY_RESOLUTION
-  air_speed_multiplier: 4.0                # Speed up AIR phases only (0,4,5,8,9)
-  height_adaptive_speed: True              # DYNAMIC: Slow down near ground!
+  trajectory_resolution: 1.0        # TRAJECTORY_RESOLUTION
+  air_speed_multiplier: 1.0                # Speed up AIR phases only (0,4,5,8,9)
+  height_adaptive_speed: False              # DYNAMIC: Slow down near ground!
   critical_height_threshold: 0.05           # Below xx cm = critical zone
-  critical_speed_factor: 0.8               # slower in critical zone
+  critical_speed_factor: 1.0               # slower in critical zone
+  
 
 # Würfel
 cubes:
