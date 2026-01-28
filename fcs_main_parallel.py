@@ -127,6 +127,7 @@ SIDE_CAM_BASE_POS = np.array(CFG["camera"]["position"])
 SIDE_CAM_EULER = tuple(CFG["camera"]["euler"])
 CAM_FREQUENCY = CFG["camera"]["frequency"]
 CAM_RESOLUTION = tuple(CFG["camera"]["resolution"])
+ROBOT_OPACITY_FOR_CAPTURE = float(CFG["camera"].get("robot_opacity_for_capture", 1.0))  # 0.0=unsichtbar, 1.0=voll sichtbar
 
 # Szene
 SCENE_WIDTH = CFG["scene"]["width"]
@@ -598,6 +599,76 @@ def validate_stacking(task, target_position: np.ndarray) -> tuple:
     return True, "Stacking erfolgreich"
 
 
+def set_robot_opacity(robot, opacity: float = 1.0):
+    """
+    Setzt die Opazität (Durchsichtigkeit) des Roboters für Bildaufnahmen.
+    
+    Verwendet USD Shader-Opacity für stufenlose Transparenz.
+    Der Roboter bleibt physikalisch aktiv, nur visuell transparent.
+    
+    Args:
+        robot: Franka-Roboter Objekt (mit prim_path Attribut)
+        opacity: Opazitätswert von 0.0 bis 1.0
+                 1.0 = voll sichtbar (opak)
+                 0.5 = halbtransparent
+                 0.0 = komplett unsichtbar
+    """
+    try:
+        from pxr import UsdGeom, UsdShade, Sdf, Gf
+        import omni.usd
+        
+        # Opacity auf gültigen Bereich begrenzen
+        opacity = max(0.0, min(1.0, opacity))
+        
+        stage = omni.usd.get_context().get_stage()
+        robot_prim_path = robot.prim_path
+        robot_prim = stage.GetPrimAtPath(robot_prim_path)
+        
+        if not robot_prim.IsValid():
+            log.warning(f"Robot prim nicht gefunden: {robot_prim_path}")
+            return
+        
+        # Bei Opacity 0: Einfach unsichtbar machen (schneller)
+        if opacity == 0.0:
+            imageable = UsdGeom.Imageable(robot_prim)
+            if imageable:
+                imageable.MakeInvisible()
+            return
+        
+        # Bei Opacity 1: Sichtbar machen (Standard)
+        if opacity == 1.0:
+            imageable = UsdGeom.Imageable(robot_prim)
+            if imageable:
+                imageable.MakeVisible()
+            return
+            
+        # Für Werte zwischen 0 und 1: Shader-Opacity setzen
+        # Zuerst sichtbar machen, dann Opacity anpassen
+        imageable = UsdGeom.Imageable(robot_prim)
+        if imageable:
+            imageable.MakeVisible()
+        
+        # Rekursiv alle Mesh-Prims durchgehen und Opacity setzen
+        def set_prim_opacity_recursive(prim, opacity_value):
+            """Setzt Opacity für alle Geometrie-Prims rekursiv."""
+            if prim.IsA(UsdGeom.Gprim):
+                gprim = UsdGeom.Gprim(prim)
+                # Display Opacity setzen (beeinflusst Rendering)
+                opacity_attr = gprim.GetDisplayOpacityAttr()
+                if not opacity_attr:
+                    opacity_attr = gprim.CreateDisplayOpacityAttr()
+                opacity_attr.Set([opacity_value])
+                
+            # Rekursiv für alle Kinder
+            for child in prim.GetChildren():
+                set_prim_opacity_recursive(child, opacity_value)
+        
+        set_prim_opacity_recursive(robot_prim, opacity)
+                        
+    except Exception as e:
+        log.warning(f"Fehler beim Setzen der Robot-Opacity: {e}")
+
+
 def compute_grid_offsets(num_envs: int, spacing: float) -> list:
     """Berechnet Grid-Offsets für parallele Umgebungen."""
     grid_size = int(np.ceil(np.sqrt(num_envs)))
@@ -887,8 +958,18 @@ def main():
             
             # Daten in temporärem Buffer sammeln
             try:
+                # Roboter-Opazität für Bildaufnahme anpassen (falls nicht voll sichtbar)
+                if ROBOT_OPACITY_FOR_CAPTURE < 1.0:
+                    set_robot_opacity(env.franka, opacity=ROBOT_OPACITY_FOR_CAPTURE)
+                    # Ein kurzer Render-Update damit Opacity wirkt
+                    shared_world.render()
+                
                 # Extrahiere RGB-Bild aus Kamera
                 rgb = get_rgb(camera, env_idx=i)
+                
+                # Roboter wieder voll sichtbar machen
+                if ROBOT_OPACITY_FOR_CAPTURE < 1.0:
+                    set_robot_opacity(env.franka, opacity=1.0)
 
                 if rgb is None:
                     # Kamera nicht bereit - überspringe diesen Timestep

@@ -1,7 +1,4 @@
 #!/usr/bin/env python3
-
-
-# python .\extract_to_plain.py --source "..\..\..\..\fcs_datasets\2026_01_25_1929_fcs_dset"
 """
 Rope Dataset Extractor
 ======================
@@ -17,7 +14,7 @@ Output structure:
     │   └── states_summary.txt
     └── episodes/
         └── 000001/
-            ├── metadata.txt 
+            ├── metadata.txt
             ├── property_params.txt
             ├── timesteps/
             │   ├── 00/

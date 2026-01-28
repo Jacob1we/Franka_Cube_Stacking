@@ -2,6 +2,146 @@
 
 Diese Datei dokumentiert alle Änderungen und Entwicklungsfortschritte am Data Logger für das Franka Cube Stacking Projekt.
 
+## [2026-01-28] - 🤖 Robot-Opacity: Roboter-freie Trainingsbilder
+
+### 🎯 Problem
+
+Bei der Analyse der Trainingsbilder des Franka Cube Stack Datensatzes wurde festgestellt, dass der **Roboter in allen Bildern sichtbar** ist. Im Vergleich dazu zeigt der Referenz-Datensatz (`deformable_rope_sample`) **keine Roboter** in den Bildern.
+
+**Warum ist das problematisch für das DINO World Model?**
+
+1. **Verwirrung beim Lernen**: Das Modell soll lernen, wie sich **Objekte** (Würfel) durch **Actions** bewegen. Wenn der Roboter sichtbar ist, muss das Modell zusätzlich lernen:
+   - Roboter-Bewegung zu ignorieren
+   - Oder Roboter-Bewegung als Teil der Dynamik zu modellieren
+
+2. **Höhere Komplexität**: Der Roboter hat viele bewegliche Teile (7 Gelenke, Greifer), die das visuelle Signal dominieren können.
+
+3. **Transfer-Problem**: Ein Modell, das mit sichtbarem Roboter trainiert wurde, generalisiert schlechter auf neue Roboter oder Szenen.
+
+4. **Referenz-Datensatz**: Der `deformable_rope_sample` Datensatz zeigt, dass das DINO WM erfolgreich **ohne sichtbaren Roboter** trainiert werden kann.
+
+### 💡 Lösungsansätze (Analyse)
+
+#### Ansatz 1: Würfel einfrieren + Roboter wegbewegen
+**Idee**: Physik des Würfels kurz einfrieren, Roboter aus dem Bildbereich bewegen, Bild aufnehmen.
+
+**❌ Probleme**:
+- Würfel würde beim "Unfreeze" fallen (Gravitation)
+- Komplexe State-Management nötig
+- Unnatürliche Physik-Artefakte möglich
+- Zeitaufwändig (Roboter muss sich bewegen)
+
+**Bewertung**: Nicht praktikabel
+
+#### Ansatz 2: Multi-Kamera Setup
+**Idee**: Mehrere Kameras aus verschiedenen Winkeln, mindestens eine ohne Roboter-Sicht.
+
+**✅ Vorteile**:
+- Mehr Perspektiven für robusteres Training
+- Redundanz bei Verdeckungen
+- Realistischere Daten
+
+**⚠️ Nachteile**:
+- Mehr Speicherplatz benötigt
+- Komplexere Kamera-Konfiguration
+- Nicht garantiert, dass Roboter in allen Ansichten unsichtbar ist
+
+**Bewertung**: Gute Ergänzung, aber löst das Kernproblem nicht vollständig
+
+#### Ansatz 3: Roboter transparent/unsichtbar machen ✅ IMPLEMENTIERT
+**Idee**: Roboter während der Bildaufnahme visuell unsichtbar machen, Physik läuft normal weiter.
+
+**✅ Vorteile**:
+- Saubere Bilder ohne Roboter (wie Referenz-Datensatz)
+- Keine Physik-Änderungen nötig
+- Simulation läuft unverändert
+- Stufenlose Opacity (0-100%) für Flexibilität
+- Minimaler Performance-Impact
+
+**Technische Umsetzung**:
+```
+1. Vor Bildaufnahme: Roboter-Opacity auf konfigurierten Wert setzen
+2. Render-Update (damit Opacity wirkt)
+3. Bild aufnehmen
+4. Roboter-Opacity auf 100% zurücksetzen
+5. Simulation läuft weiter
+```
+
+**Bewertung**: Beste Lösung für Simulation
+
+### ✅ Implementierung
+
+#### Neue Config-Option (`config.yaml`)
+```yaml
+camera:
+  robot_opacity_for_capture: 0.0    # 0.0 - 1.0 Range
+                                    # 1.0 = Voll sichtbar (opak)
+                                    # 0.5 = Halbtransparent (50%)
+                                    # 0.0 = Komplett unsichtbar
+```
+
+#### Neue Funktion (`fcs_main_parallel.py`)
+```python
+def set_robot_opacity(robot, opacity: float = 1.0):
+    """
+    Setzt die Opazität des Roboters für Bildaufnahmen.
+    
+    Verwendet USD's UsdGeom.Imageable API:
+    - opacity = 0.0: MakeInvisible() (schnellster Weg)
+    - opacity = 1.0: MakeVisible() (Standard)
+    - opacity 0-1:   DisplayOpacity auf allen Mesh-Prims
+    
+    Physik bleibt vollständig aktiv - nur visuell transparent!
+    """
+```
+
+#### Modifizierte Hauptschleife
+```python
+# Vor Bildaufnahme
+if ROBOT_OPACITY_FOR_CAPTURE < 1.0:
+    set_robot_opacity(env.franka, opacity=ROBOT_OPACITY_FOR_CAPTURE)
+    shared_world.render()  # Opacity anwenden
+
+# Bild aufnehmen
+rgb = get_rgb(camera, env_idx=i)
+
+# Nach Bildaufnahme
+if ROBOT_OPACITY_FOR_CAPTURE < 1.0:
+    set_robot_opacity(env.franka, opacity=1.0)
+```
+
+### 📊 Verwendungsszenarien
+
+| `robot_opacity_for_capture` | Anwendungsfall |
+|-----------------------------|----------------|
+| `0.0` | Referenz-Datensatz Style (kein Roboter) - **Empfohlen für Training** |
+| `0.2` | Debugging: Schwache Roboter-Spur sichtbar |
+| `0.5` | Halbtransparent (Overlay-Effekt für Visualisierung) |
+| `1.0` | Roboter voll sichtbar (realistisch, für Real2Sim) |
+
+### 🔧 Technische Details
+
+**USD API verwendet**:
+- `UsdGeom.Imageable.MakeInvisible()` - Für opacity=0
+- `UsdGeom.Imageable.MakeVisible()` - Für opacity=1
+- `UsdGeom.Gprim.GetDisplayOpacityAttr()` - Für 0 < opacity < 1
+
+**Rekursive Anwendung**: Die Opacity wird auf alle Child-Prims des Roboters angewendet (Gelenke, Links, Meshes).
+
+**Performance**: 
+- `MakeInvisible()/MakeVisible()` sind sehr schnell
+- DisplayOpacity erfordert Traversierung aller Mesh-Prims (etwas langsamer)
+- Ein zusätzlicher `render()` Call pro Bildaufnahme
+
+### 📝 Nächste Schritte
+
+- [ ] Testen mit verschiedenen Opacity-Werten
+- [ ] Vergleich Trainings-Performance: Mit vs. ohne Roboter
+- [ ] Optional: Multi-Kamera Setup als Ergänzung
+- [ ] Dokumentation der optimalen Einstellungen
+
+---
+
 ## [2026-01-25] - 🎉 DURCHBRUCH: Erstes erfolgreiches Training!
 
 ### 🎯 Problem
