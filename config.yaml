@@ -3,20 +3,20 @@
 
 # Simulation
 simulation:
-  headless: False                    # True für schnellere Datensammlung (ohne GUI)
+  headless: True                    # True für schnellere Datensammlung (ohne GUI)
   seed: 111
   world_root: "/World"
 
 # Parallelisierung
 parallel:
-  num_envs: 10                       # 1 = Single, >1 = Parallel (z.B. 4 für 2x2 Grid)
+  num_envs: 20                     # 1 = Single, >1 = Parallel (z.B. 4 für 2x2 Grid)
   env_spacing: 2.5                  # Abstand zwischen Umgebungen (Meter)
 
 # Datensammlung
 dataset:
-  num_episodes: 20                  # Anzahl zu sammelnder Episoden (TOTAL)
-  path: "E:/00_Coding_SSD/fcs_datasets" 
-  # path: "/../../../fcs_datasets"
+  num_episodes: 1000                  # Anzahl zu sammelnder Episoden (TOTAL)
+  # path: "E:/00_Coding_SSD/fcs_datasets" 
+  path: "~/Desktop/fcs_datasets"
   # path: "/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets"
   name: "franka_cube_stack_ds"
   save_png: true                    # Speichere alle Bilder auch als PNG

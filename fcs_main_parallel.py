@@ -335,10 +335,16 @@ class Franka_Cube_Stack():
         cam_xform_api.SetTranslate(Gf.Vec3d(*cam_pos))     
         cam_xform_api.SetRotate(Gf.Vec3f(*SIDE_CAM_EULER))
 
+        # Für quadratische Auflösung: gleiche Aperture-Werte setzen
+        # Standard-Aperture von ~20.955mm für beide Dimensionen (verhindert Warnung)
+        aperture_value = 20.955  # mm - Standard horizontalAperture
+        
         cam = Camera(
             prim_path=cam_prim_path,
             frequency=CAM_FREQUENCY,
             resolution=CAM_RESOLUTION,
+            horizontal_aperture=aperture_value,
+            vertical_aperture=aperture_value,  # Gleicher Wert für quadratische Pixel
         )
         return cam
     
