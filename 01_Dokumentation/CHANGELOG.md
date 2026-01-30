@@ -2,6 +2,139 @@
 
 Diese Datei dokumentiert alle Änderungen und Entwicklungsfortschritte am Data Logger für das Franka Cube Stacking Projekt.
 
+## [2026-01-30] - 🧩 Modulare Refaktorierung der Main Loop
+
+### 🎯 Ziel
+
+Die ~600 Zeilen Main Loop wurde in **wiederverwendbare, dokumentierte Funktionen** aufgeteilt, um:
+- **Lesbarkeit** zu verbessern
+- **Wartbarkeit** zu erhöhen
+- **Testbarkeit** einzelner Komponenten zu ermöglichen
+- **Duplikation** zu eliminieren
+
+### ✅ Neue modulare Hilfsfunktionen
+
+| Funktion | Zweck | Zeilen gespart |
+|----------|-------|----------------|
+| `create_episode_data_buffer()` | Einheitliche Buffer-Erstellung | ~15 (2x verwendet) |
+| `extract_cube_states()` | Würfel-Positionen + Yaw extrahieren | ~20 |
+| `collect_timestep_data()` | Komplette Timestep-Datenerfassung | ~50 |
+| `get_controller_params()` | Controller-Config für CSV | ~10 (3x verwendet) |
+| `compute_phase_data()` | Phase-Timesteps → strukturierte Daten | ~10 (2x verwendet) |
+| `save_successful_episode()` | Logger + CSV für erfolgreiche Episode | ~60 |
+| `log_failed_episode()` | CSV-Tracking für Fehlschläge | ~25 |
+| `finalize_dataset()` | Abschluss: Speichern + Statistiken | ~50 |
+
+### 📊 Vorher vs. Nachher
+
+**Vorher (Main Loop):**
+```python
+while simulation_app.is_running():
+    # ~400 Zeilen inline Code
+    # - Datensammlung verschachtelt
+    # - Episode-Handling dupliziert
+    # - Schwer zu verstehen
+```
+
+**Nachher (Main Loop):**
+```python
+while simulation_app.is_running():
+    # 1. Action berechnen
+    action = controller.forward(observations=all_obs)
+    
+    # 2. Daten sammeln (modulare Funktion)
+    data_collected = collect_timestep_data(env, camera, episode_data, ...)
+    
+    # 3. Episode-Ende? → Modulare Handler
+    if controller.is_done():
+        if is_valid:
+            save_successful_episode(logger, csv_logger, episode_data, ...)
+        else:
+            log_failed_episode(csv_logger, episode_data, ...)
+```
+
+### 📁 Funktionsübersicht mit Dokumentation
+
+#### `create_episode_data_buffer(seed, env_idx, cube_positions, target_position)`
+```python
+"""
+Erstellt neuen Episode-Daten-Buffer für temporäre Datenspeicherung.
+
+Returns:
+    dict: Buffer mit observations, depths, ee_positions, ee_quaternions,
+          cube_positions, phase_timesteps, current_phase, params
+"""
+```
+
+#### `extract_cube_states(env, env_idx)`
+```python
+"""
+Extrahiert aktuelle Zustände aller Würfel (Position + Yaw).
+
+Returns:
+    list: [(x, y, z, yaw), ...] für jeden Würfel
+"""
+```
+
+#### `collect_timestep_data(env, camera, episode_data, controller, env_idx, shared_world)`
+```python
+"""
+Sammelt alle Daten für einen Simulationstimestep:
+1. Roboter-Opazität anpassen
+2. RGB-Bild erfassen
+3. EE-Pose extrahieren
+4. Würfelpositionen extrahieren
+5. Controller-Phase tracken
+
+Returns:
+    bool: True wenn Daten gesammelt, False wenn übersprungen
+"""
+```
+
+#### `save_successful_episode(logger, csv_logger, episode_data, episode_number, step_count, seed, env_idx)`
+```python
+"""
+Speichert validierte Episode in Logger (H5) und CSV.
+
+Returns:
+    bool: True bei Erfolg
+"""
+```
+
+#### `finalize_dataset(logger, csv_logger, failed_seeds, ...)`
+```python
+"""
+Finalisiert Datensatz am Ende der Sammlung:
+1. Kamera-Kalibrierung speichern
+2. Fehlgeschlagene Seeds schreiben
+3. Statistiken ausgeben
+4. CSV-Matrix speichern
+5. Simulation schließen
+"""
+```
+
+### 🔧 Technische Details
+
+- **Region-Marker**: `#region:` / `#endregion` für IDE-Faltung
+- **Type Hints**: Alle Funktionen mit Argument- und Return-Types
+- **Docstrings**: Ausführliche Dokumentation mit Args/Returns
+- **Kommentare in Main Loop**: Kurze Erläuterung was jede Funktion tut
+
+### 📝 Main Loop Struktur (neu)
+
+```python
+# ================================================================
+# HAUPTSCHLEIFE - Datensammlung
+# Ablauf pro Iteration:
+#   1. Simulation-Update
+#   2. Für jede aktive Env: Action → Daten sammeln → Action ausführen
+#   3. Bei Episode-Ende: Validieren → Speichern/Verwerfen → Neue Episode
+#   4. World-Step
+# ================================================================
+```
+
+---
+
 ## [2026-01-30] - ⚡ Dynamischer Task-Pool: Work-Stealing für optimale Parallelisierung
 
 ### 🎯 Problem
@@ -101,12 +234,9 @@ if not is_valid:
 ### 📋 Geänderte Dateien
 
 - `fcs_main_parallel.py`:
-  - Zeile ~900: Task-Pool Variablen
-  - Zeile ~930: Initiale Episode-Verteilung mit Pool
-  - Zeile ~970: Hauptschleifen-Abbruchbedingung
-  - Zeile ~1220: Work-Stealing Logik nach Episode-Ende
-  - Zeile ~1170: Fehlschlag-Kompensation
-  - Zeile ~1300: Erweiterte Abschluss-Statistik
+  - Zeile ~760: Neue modulare Hilfsfunktionen
+  - Zeile ~1200: Refaktorierte Main Loop mit Funktionsaufrufen
+  - Zeile ~1350: Finalisierung via `finalize_dataset()`
 
 ### 📝 Logging-Verbesserungen
 

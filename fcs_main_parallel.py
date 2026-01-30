@@ -758,6 +758,452 @@ def get_rgb(camera, env_idx: int = 0):
     return rgb
 
 
+#region: ================================================================
+#        MODULARE HILFSFUNKTIONEN FÜR MAIN LOOP
+# ================================================================
+
+def create_episode_data_buffer(seed: int, env_idx: int, cube_positions: list, target_position: np.ndarray) -> dict:
+    """
+    Erstellt einen neuen Episode-Daten-Buffer für die temporäre Datenspeicherung.
+    
+    Diese Funktion initialisiert die Datenstruktur, die während einer Episode
+    alle gesammelten Observations, EE-Poses und Würfelpositionen zwischenspeichert.
+    Die Daten werden erst bei erfolgreichem Episode-Ende in den Logger übertragen.
+    
+    Args:
+        seed: Random-Seed der Episode (für Reproduzierbarkeit)
+        env_idx: Index der Umgebung (0 bis NUM_ENVS-1)
+        cube_positions: Liste der initialen Würfelpositionen [(x,y,z), ...]
+        target_position: Zielposition für das Stacking (np.ndarray)
+    
+    Returns:
+        dict: Episode-Buffer mit folgender Struktur:
+            - observations: Liste von RGB-Bildern (np.ndarray)
+            - depths: Liste von Depth-Bildern (np.ndarray)
+            - ee_positions: Liste von EE-Positionen (np.ndarray)
+            - ee_quaternions: Liste von EE-Orientierungen (np.ndarray)
+            - cube_positions: Liste von Würfelzuständen [(x,y,z,yaw), ...]
+            - phase_timesteps: Dict {phase_idx: timestep_count}
+            - current_phase: Aktuelle Controller-Phase (0-9)
+            - params: Metadaten (seed, env_idx, Positionen)
+    """
+    return {
+        "observations": [],
+        "depths": [],
+        "ee_positions": [],
+        "ee_quaternions": [],
+        "cube_positions": [],
+        "phase_timesteps": {p: 0 for p in range(10)},  # Timesteps pro Phase (0-9)
+        "current_phase": 0,  # Aktuelle Phase für Tracking
+        "params": {
+            "seed": seed,
+            "env_idx": env_idx,
+            "cube_positions": [p.tolist() for p in cube_positions],
+            "target_position": target_position.tolist(),
+        }
+    }
+
+
+def extract_cube_states(env, env_idx: int) -> list:
+    """
+    Extrahiert die aktuellen Zustände aller Würfel in einer Umgebung.
+    
+    Für jeden Würfel werden Position (x, y, z) und Orientierung (yaw) erfasst.
+    Die Yaw-Rotation wird aus dem Quaternion extrahiert (Z-Achsen-Rotation).
+    
+    Args:
+        env: Franka_Cube_Stack Environment-Instanz
+        env_idx: Index der Umgebung (für Logging bei Fehlern)
+    
+    Returns:
+        list: Liste von Tupeln [(x, y, z, yaw), ...] für jeden Würfel
+              Bei Fehlern wird (0.0, 0.0, 0.0, 0.0) als Fallback verwendet.
+    """
+    cube_positions = []
+    cube_names = env.task.get_cube_names()
+    
+    for cube_name in cube_names:
+        try:
+            cube = env.task.scene.get_object(cube_name)
+            cube_pos, cube_quat = cube.get_world_pose()
+            cube_pos = np.atleast_1d(cube_pos).flatten()[:3]
+            cube_quat = np.atleast_1d(cube_quat).flatten()[:4]
+            
+            # Yaw aus Quaternion extrahieren (Isaac Sim: [w, x, y, z] → scipy: [x, y, z, w])
+            rot = R.from_quat([cube_quat[1], cube_quat[2], cube_quat[3], cube_quat[0]])
+            euler = rot.as_euler('xyz', degrees=False)
+            yaw = float(euler[2])  # Z-Rotation = Yaw
+            
+            cube_positions.append((float(cube_pos[0]), float(cube_pos[1]), float(cube_pos[2]), yaw))
+        except Exception as e:
+            log.warning(f"Env {env_idx}: Konnte Würfel {cube_name} nicht finden: {e}")
+            cube_positions.append((0.0, 0.0, 0.0, 0.0))
+    
+    return cube_positions
+
+
+def collect_timestep_data(
+    env, 
+    camera, 
+    episode_data: dict, 
+    controller,
+    env_idx: int,
+    shared_world
+) -> bool:
+    """
+    Sammelt alle Daten für einen einzelnen Simulationstimestep.
+    
+    Diese Funktion kapselt die komplette Datenerfassung eines Timesteps:
+    1. Roboter-Opazität anpassen (falls konfiguriert)
+    2. RGB-Bild von Kamera erfassen
+    3. End-Effektor Pose extrahieren
+    4. Würfelpositionen extrahieren
+    5. Controller-Phase tracken
+    6. Alles in Episode-Buffer speichern
+    
+    Args:
+        env: Franka_Cube_Stack Environment-Instanz
+        camera: Isaac Sim Camera-Objekt
+        episode_data: Episode-Buffer (wird in-place modifiziert)
+        controller: Stacking-Controller für Phase-Tracking
+        env_idx: Index der Umgebung
+        shared_world: Shared World für Render-Updates
+    
+    Returns:
+        bool: True wenn Daten erfolgreich gesammelt, False wenn übersprungen
+              (z.B. Kamera nicht bereit)
+    """
+    # Roboter-Opazität für Bildaufnahme anpassen (falls nicht voll sichtbar)
+    if ROBOT_OPACITY_FOR_CAPTURE < 1.0:
+        set_robot_opacity(env.franka, opacity=ROBOT_OPACITY_FOR_CAPTURE)
+        shared_world.render()  # Opacity anwenden
+    
+    # RGB-Bild extrahieren
+    rgb = get_rgb(camera, env_idx=env_idx)
+    
+    # Roboter wieder voll sichtbar machen
+    if ROBOT_OPACITY_FOR_CAPTURE < 1.0:
+        set_robot_opacity(env.franka, opacity=1.0)
+    
+    # Kamera nicht bereit - überspringe Timestep
+    if rgb is None or rgb.size == 0:
+        return False
+    
+    # End-Effektor Pose extrahieren
+    ee_pos, ee_quat = env.franka.end_effector.get_world_pose()
+    ee_pos = np.atleast_1d(ee_pos).flatten()[:3].astype(np.float32)
+    ee_quat = np.atleast_1d(ee_quat).flatten()[:4].astype(np.float32)
+    
+    # Würfelpositionen extrahieren
+    cube_positions = extract_cube_states(env, env_idx)
+    
+    # Depth-Bild (Placeholder - könnte später implementiert werden)
+    depth = np.zeros((CAM_RESOLUTION[0], CAM_RESOLUTION[1]), dtype=np.float32)
+    
+    # In Episode-Buffer speichern
+    episode_data["observations"].append(rgb)
+    episode_data["depths"].append(depth)
+    episode_data["ee_positions"].append(ee_pos)
+    episode_data["ee_quaternions"].append(ee_quat)
+    episode_data["cube_positions"].append(cube_positions)
+    
+    # Phase-Tracking: Aktuelle Phase vom Controller abfragen
+    try:
+        current_phase = controller._pick_place_ctrl.get_current_event()
+        if current_phase < 10:  # Nur Phasen 0-9
+            episode_data["phase_timesteps"][current_phase] += 1
+            episode_data["current_phase"] = current_phase
+    except Exception as e:
+        log.debug(f"Env {env_idx}: Konnte Phase nicht abfragen: {e}")
+    
+    return True
+
+
+def get_controller_params() -> dict:
+    """
+    Erstellt Dictionary mit aktuellen Controller-Parametern aus globalen Konstanten.
+    
+    Wird für CSV-Logging verwendet, um die Konfiguration jeder Episode zu dokumentieren.
+    Die Parameter werden aus den globalen Config-Konstanten gelesen, nicht vom
+    Controller-Objekt (das diese nicht als Attribute speichert).
+    
+    Returns:
+        dict: Controller-Konfiguration mit Keys:
+            - trajectory_resolution
+            - air_speed_multiplier
+            - height_adaptive_speed
+            - critical_height_threshold
+            - critical_speed_factor
+            - guarantee_final_position
+            - guarantee_phases
+    """
+    return {
+        "trajectory_resolution": TRAJECTORY_RESOLUTION,
+        "air_speed_multiplier": AIR_SPEED_MULTIPLIER,
+        "height_adaptive_speed": HEIGHT_ADAPTIVE_SPEED,
+        "critical_height_threshold": CRITICAL_HEIGHT_THRESHOLD,
+        "critical_speed_factor": CRITICAL_SPEED_FACTOR,
+        "guarantee_final_position": GUARANTEE_FINAL_POSITION,
+        "guarantee_phases": GUARANTEE_PHASES,
+    }
+
+
+def compute_phase_data(episode_data: dict) -> dict:
+    """
+    Konvertiert Phase-Timestep-Zähler in strukturierte Phase-Daten.
+    
+    Für jede der 10 Controller-Phasen werden die gesammelten Timesteps
+    in Wegpunkte und Zeit (bei 60 Hz Simulation) umgerechnet.
+    
+    Args:
+        episode_data: Episode-Buffer mit "phase_timesteps" Dictionary
+    
+    Returns:
+        dict: Phase-Daten {phase_idx: {"waypoints": int, "time": float}}
+    """
+    phase_data = {}
+    phase_timesteps = episode_data.get("phase_timesteps", {})
+    
+    for phase_idx in range(10):
+        timesteps = phase_timesteps.get(phase_idx, 0)
+        phase_data[phase_idx] = {
+            "waypoints": timesteps,
+            "time": timesteps * (1.0 / 60.0),  # 60 Hz Simulation
+        }
+    
+    return phase_data
+
+
+def save_successful_episode(
+    logger,
+    csv_logger,
+    episode_data: dict,
+    episode_number: int,
+    step_count: int,
+    seed: int,
+    env_idx: int
+) -> bool:
+    """
+    Speichert eine erfolgreich validierte Episode im Logger und CSV.
+    
+    Diese Funktion überträgt alle gesammelten Timestep-Daten in den zentralen
+    Logger (H5-Dateien) und schreibt einen Eintrag ins CSV-Tracking.
+    
+    Ablauf:
+    1. Episode im Logger starten
+    2. Alle Timesteps übertragen (RGB, Depth, EE-Pose, Würfel)
+    3. Episode beenden (H5-Dateien schreiben)
+    4. CSV-Eintrag mit Metadaten schreiben
+    
+    Args:
+        logger: FrankaDataLogger Instanz
+        csv_logger: CSVEpisodeLogger Instanz
+        episode_data: Vollständiger Episode-Buffer
+        episode_number: Globale Episode-Nummer (0-basiert)
+        step_count: Anzahl Simulationsschritte
+        seed: Random-Seed der Episode
+        env_idx: Index der Umgebung
+    
+    Returns:
+        bool: True bei Erfolg, False bei Fehler
+    """
+    try:
+        # Phase-Daten berechnen
+        phase_data = compute_phase_data(episode_data)
+        
+        # Episode im Logger starten
+        logger.start_episode(episode_number)
+        
+        # Alle Timesteps übertragen
+        log.debug(f"Env {env_idx}: Übertrage {len(episode_data['observations'])} Timesteps in Logger...")
+        for t_idx, (obs, depth, ee_pos, ee_quat, cube_pos) in enumerate(zip(
+            episode_data["observations"],
+            episode_data["depths"],
+            episode_data["ee_positions"],
+            episode_data["ee_quaternions"],
+            episode_data["cube_positions"],
+        )):
+            try:
+                logger.log_step(
+                    rgb_image=obs,
+                    depth_image=depth,
+                    ee_pos=ee_pos,
+                    ee_quat=ee_quat,
+                    cube_positions=cube_pos
+                )
+            except Exception as e:
+                log.error(f"Env {env_idx}: Fehler beim log_step (Timestep {t_idx}):")
+                log.error(f"  Exception: {type(e).__name__}: {str(e)}")
+                import traceback
+                log.error(f"  Traceback:\n{traceback.format_exc()}")
+                raise
+        
+        # Episode beenden
+        logger.end_episode()
+        
+        # CSV-Eintrag schreiben
+        try:
+            controller_params = get_controller_params()
+            log.debug(f"CSV-Logging: Phase-Daten = {phase_data}")
+            log.debug(f"CSV-Logging: Total Timesteps = {step_count}, Total Time = {step_count * (1.0 / 60.0)}")
+            
+            csv_logger.log_episode(
+                episode_seed=episode_number,
+                controller_params=controller_params,
+                phase_data=phase_data,
+                total_timesteps=step_count,
+                total_time=step_count * (1.0 / 60.0),
+                validation_success=True,
+                notes=f"Seed: {seed}, Env: {env_idx}",
+            )
+            log.info(f"✅ CSV-Eintrag geschrieben für Episode {episode_number}")
+        except Exception as e:
+            log.warning(f"Fehler beim CSV-Logging für Episode {episode_number}: {e}")
+            import traceback
+            log.warning(f"Traceback: {traceback.format_exc()}")
+        
+        return True
+        
+    except Exception as e:
+        log.error(f"Env {env_idx}: Fehler beim Speichern der Episode {episode_number}:")
+        log.error(f"  Exception: {type(e).__name__}: {str(e)}")
+        import traceback
+        log.error(f"  Traceback:\n{traceback.format_exc()}")
+        return False
+
+
+def log_failed_episode(
+    csv_logger,
+    episode_data: dict,
+    total_episodes: int,
+    step_count: int,
+    seed: int,
+    env_idx: int,
+    reason: str
+):
+    """
+    Protokolliert eine fehlgeschlagene Episode im CSV-Log.
+    
+    Auch fehlgeschlagene Episoden werden getrackt, um Fehleranalysen zu ermöglichen
+    und die Erfolgsrate zu dokumentieren.
+    
+    Args:
+        csv_logger: CSVEpisodeLogger Instanz
+        episode_data: Episode-Buffer (für Phase-Daten)
+        total_episodes: Globaler Episode-Zähler
+        step_count: Anzahl Simulationsschritte vor Abbruch
+        seed: Random-Seed der Episode
+        env_idx: Index der Umgebung
+        reason: Grund für den Fehlschlag (z.B. "Würfel nicht gestapelt")
+    """
+    try:
+        controller_params = get_controller_params()
+        phase_data = compute_phase_data(episode_data)
+        
+        csv_logger.log_episode(
+            episode_seed=f"FAILED_{total_episodes}",
+            controller_params=controller_params,
+            phase_data=phase_data,
+            total_timesteps=step_count,
+            total_time=step_count * (1.0 / 60.0),
+            validation_success=False,
+            notes=f"Seed: {seed}, Env: {env_idx}, Grund: {reason}",
+        )
+        log.info(f"CSV-Eintrag geschrieben für fehlgeschlagene Episode {total_episodes}")
+    except Exception as e:
+        log.warning(f"Fehler beim CSV-Logging für fehlgeschlagene Episode {total_episodes}: {e}")
+        import traceback
+        log.warning(f"Traceback: {traceback.format_exc()}")
+
+
+def finalize_dataset(
+    logger,
+    csv_logger,
+    failed_seeds: list,
+    total_successful: int,
+    total_attempts: int,
+    successful_counts: list,
+    total_episodes: int,
+    step_counts: list,
+    event_dt: list
+):
+    """
+    Finalisiert den Datensatz und gibt Zusammenfassungsstatistiken aus.
+    
+    Diese Funktion wird am Ende der Datensammlung aufgerufen und:
+    1. Speichert Kamera-Kalibrierung
+    2. Schreibt fehlgeschlagene Seeds in Datei
+    3. Gibt finale Statistiken aus
+    4. Speichert CSV-Matrix
+    5. Schließt die Simulation
+    
+    Args:
+        logger: FrankaDataLogger Instanz
+        csv_logger: CSVEpisodeLogger Instanz
+        failed_seeds: Liste fehlgeschlagener Seeds
+        total_successful: Anzahl erfolgreicher Episoden
+        total_attempts: Gesamtzahl Versuche
+        successful_counts: Liste erfolgreicher Episoden pro Env
+        total_episodes: Gesamtzahl Episoden (inkl. Fehlschläge)
+        step_counts: Aktuelle Step-Counts pro Env
+        event_dt: Controller-Timing-Parameter
+    """
+    # Kamera-Kalibrierung speichern
+    average_step_count = sum(step_counts) / NUM_ENVS if NUM_ENVS > 0 else 0
+    logger.dataset_path = logger.dataset_path + f"__Steps{int(average_step_count)}"
+    logger.save_camera_calibration()
+    
+    log.info(f"Zentraler Datensatz gespeichert: {logger.dataset_path}/")
+    log.info(f"  Episoden: {total_successful}")
+    log.info(f"  Format: Rope-kompatibel (H5-Dateien pro Timestep)")
+    
+    # Fehlgeschlagene Seeds speichern
+    if failed_seeds:
+        failed_seeds_path = logger.dataset_path / "failed_seeds.txt"
+        os.makedirs(os.path.dirname(failed_seeds_path), exist_ok=True)
+        with open(failed_seeds_path, "w") as f:
+            f.write("# Fehlgeschlagene Seeds - Würfel nicht korrekt gestapelt\n")
+            f.write(f"# Datum: {datetime.now().isoformat()}\n")
+            f.write(f"# Anzahl: {len(failed_seeds)}\n")
+            f.write(f"# Parallele Envs: {NUM_ENVS}\n\n")
+            for s in failed_seeds:
+                f.write(f"{s}\n")
+        log.info(f"Fehlgeschlagene Seeds gespeichert: {failed_seeds_path}")
+    
+    # Finale Statistiken
+    log.info("=" * 60)
+    log.info(f"Datensammlung abgeschlossen!")
+    log.info(f"  Modus: DYNAMISCHER TASK-POOL (Work-Stealing)")
+    log.info(f"  Zentraler Datensatz: {DATASET_NAME}")
+    log.info(f"  Erfolgreiche Episoden: {total_successful} / {NUM_EPISODES} (Ziel)")
+    log.info(f"  Gesamte Versuche: {total_attempts} (inkl. Fehlschläge)")
+    log.info(f"  Episoden pro Env: {successful_counts}")
+    log.info(f"  Fehlgeschlagene Seeds: {len(failed_seeds)}")
+    if total_episodes > 0:
+        log.info(f"  Erfolgsrate: {total_successful / total_episodes * 100:.1f}%")
+        log.info(f"  Durchschnittliche Steps: {sum(step_counts)/NUM_ENVS}, Controller dt = {event_dt}")
+    log.info("=" * 60)
+    
+    # CSV-Matrix speichern
+    try:
+        log.info("Speichere CSV-Matrix...")
+        csv_logger.save_matrix()
+    except Exception as e:
+        log.warning(f"WARNUNG: Fehler beim Speichern der CSV-Matrix: {e}")
+    
+    # Simulation schließen
+    try:
+        simulation_app.close()
+    except Exception as e:
+        log.error(f"Fehler beim Schließen der Simulation:")
+        log.error(f"  Exception: {type(e).__name__}: {str(e)}")
+        import traceback
+        log.error(f"  Traceback:\n{traceback.format_exc()}")
+
+
+#endregion
+
+
 def main():
     """
     Hauptfunktion - unterstützt Single und Parallel Mode.
@@ -778,7 +1224,7 @@ def main():
     log.info("=" * 60)
     
     # ================================================================
-    # SETUP - Single oder Parallel
+    # SETUP PHASE: Environments, Controller, Kameras erstellen
     # ================================================================
     offsets = compute_grid_offsets(NUM_ENVS, ENV_SPACING)
     
@@ -921,6 +1367,7 @@ def main():
     step_counts = [0] * NUM_ENVS
     
     # Initial: Domain Randomization und Episode starten für alle Envs
+    # → Nutzt create_episode_data_buffer() für einheitliche Buffer-Erstellung
     for i in range(NUM_ENVS):
         # Prüfe ob noch Episoden zu starten sind
         if remaining_episodes_to_start <= 0:
@@ -936,24 +1383,9 @@ def main():
         target_positions[i] = target_pos
         cube_positions_list[i] = cube_pos
         
-        # Episode-Daten initialisieren (noch nicht im Logger starten)
-        # Action wird im Logger automatisch aus EE-Bewegung berechnet!
+        # Episode-Buffer mit Hilfsfunktion erstellen
         active_episode_ids[i] = global_episode_id
-        episode_data[i] = {
-            "observations": [],
-            "depths": [],
-            "ee_positions": [],
-            "ee_quaternions": [],
-            "cube_positions": [],
-            "phase_timesteps": {p: 0 for p in range(10)},  # Timesteps pro Phase (0-9)
-            "current_phase": 0,  # Aktuelle Phase für Tracking
-            "params": {
-                "seed": seeds[i],
-                "env_idx": i,
-                "cube_positions": [p.tolist() for p in cube_pos],
-                "target_position": target_pos.tolist(),
-            }
-        }
+        episode_data[i] = create_episode_data_buffer(seeds[i], i, cube_pos, target_pos)
         global_episode_id += 1
     
     log.info(f"Initial gestartet: {episodes_in_progress} Episoden, verbleibend: {remaining_episodes_to_start}")
@@ -965,20 +1397,24 @@ def main():
         shared_world.step(render=False)  # render=False für schnellere Initialisierung
     log.info("Kamera-Initialisierung abgeschlossen")
     
+    # ================================================================
+    # HAUPTSCHLEIFE - Datensammlung
+    # Ablauf pro Iteration:
+    #   1. Simulation-Update
+    #   2. Für jede aktive Env: Action berechnen → Daten sammeln → Action ausführen
+    #   3. Bei Episode-Ende: Validieren → Speichern/Verwerfen → Neue Episode starten
+    #   4. World-Step
+    # ================================================================
     while simulation_app.is_running() and total_successful < NUM_EPISODES:
-        # Zusätzliche Abbruchbedingung: Keine Episoden mehr in Arbeit und keine mehr zu starten
+        # Abbruch wenn Pool leer und keine Episoden mehr laufen
         if episodes_in_progress == 0 and remaining_episodes_to_start == 0:
             log.info("Alle Episoden abgeschlossen (Task-Pool leer)")
             break
             
         simulation_app.update()
-        
-        # Beobachtungen für alle Envs sammeln
         all_obs = shared_world.get_observations()
         
-        # ============================================================
-        # STEP für jede Umgebung
-        # ============================================================
+        # --- STEP für jede aktive Umgebung ---
         for i in range(NUM_ENVS):
             if env_done[i]:
                 continue
@@ -987,75 +1423,26 @@ def main():
             controller = controllers[i]
             camera = cameras[i]
             
-            # Action berechnen
+            # 1. Controller-Action berechnen
             action = controller.forward(observations=all_obs)
             
-            # Daten in temporärem Buffer sammeln
+            # 2. Daten sammeln mit modularer Hilfsfunktion
+            #    → collect_timestep_data() kapselt: Opacity, RGB, EE-Pose, Würfel, Phase-Tracking
             try:
-                # Roboter-Opazität für Bildaufnahme anpassen (falls nicht voll sichtbar)
-                if ROBOT_OPACITY_FOR_CAPTURE < 1.0:
-                    set_robot_opacity(env.franka, opacity=ROBOT_OPACITY_FOR_CAPTURE)
-                    # Ein kurzer Render-Update damit Opacity wirkt
-                    shared_world.render()
+                data_collected = collect_timestep_data(
+                    env=env,
+                    camera=camera,
+                    episode_data=episode_data[i],
+                    controller=controller,
+                    env_idx=i,
+                    shared_world=shared_world
+                )
                 
-                # Extrahiere RGB-Bild aus Kamera
-                rgb = get_rgb(camera, env_idx=i)
-                
-                # Roboter wieder voll sichtbar machen
-                if ROBOT_OPACITY_FOR_CAPTURE < 1.0:
-                    set_robot_opacity(env.franka, opacity=1.0)
-
-                if rgb is None:
-                    # Kamera nicht bereit - überspringe diesen Timestep
+                if not data_collected:
+                    # Kamera nicht bereit - nur Action ausführen, kein Log
                     articulations[i].apply_action(action)
                     step_counts[i] += 1
                     continue
-                
-                if rgb is not None and rgb.size > 0:
-                    
-                    # Endeffektor-Pose extrahieren
-                    ee_pos, ee_quat = env.franka.end_effector.get_world_pose()
-                    ee_pos = np.atleast_1d(ee_pos).flatten()[:3].astype(np.float32)
-                    ee_quat = np.atleast_1d(ee_quat).flatten()[:4].astype(np.float32)
-                    
-                    # Würfel-Positionen extrahieren (x, y, z, yaw)
-                    cube_positions = []
-                    cube_names = env.task.get_cube_names()
-                    for cube_name in cube_names:
-                        try:
-                            cube = env.task.scene.get_object(cube_name)
-                            cube_pos, cube_quat = cube.get_world_pose()
-                            cube_pos = np.atleast_1d(cube_pos).flatten()[:3]
-                            cube_quat = np.atleast_1d(cube_quat).flatten()[:4]
-                            
-                            # Yaw aus Quaternion extrahieren
-                            rot = R.from_quat([cube_quat[1], cube_quat[2], cube_quat[3], cube_quat[0]])  # [x, y, z, w]
-                            euler = rot.as_euler('xyz', degrees=False)
-                            yaw = float(euler[2])  # Z-Rotation = Yaw
-                            
-                            cube_positions.append((float(cube_pos[0]), float(cube_pos[1]), float(cube_pos[2]), yaw))
-                        except Exception as e:
-                            log.warning(f"Env {i}: Konnte Würfel {cube_name} nicht finden: {e}")
-                            cube_positions.append((0.0, 0.0, 0.0, 0.0))
-                    
-                    depth = np.zeros((CAM_RESOLUTION[0], CAM_RESOLUTION[1]), dtype=np.float32)
-                    
-                    # In Episode-Buffer speichern (nicht direkt im Logger)
-                    # Action wird im Logger aus EE-Bewegung berechnet, nicht hier!
-                    episode_data[i]["observations"].append(rgb)
-                    episode_data[i]["depths"].append(depth)
-                    episode_data[i]["ee_positions"].append(ee_pos)
-                    episode_data[i]["ee_quaternions"].append(ee_quat)
-                    episode_data[i]["cube_positions"].append(cube_positions)
-                    
-                    # Phase-Tracking: Aktuelle Phase vom Controller abfragen und zählen
-                    try:
-                        current_phase = controller._pick_place_ctrl.get_current_event()
-                        if current_phase < 10:  # Nur Phasen 0-9
-                            episode_data[i]["phase_timesteps"][current_phase] += 1
-                            episode_data[i]["current_phase"] = current_phase
-                    except Exception as e:
-                        log.debug(f"Env {i}: Konnte Phase nicht abfragen: {e}")
                     
             except Exception as e:
                 log.error(f"Env {i}: Fehler beim Datensammeln!")
@@ -1065,199 +1452,84 @@ def main():
                 log.error(f"  Episode ID: {active_episode_ids[i]}")
                 import traceback
                 log.error(f"  Full Traceback:\n{traceback.format_exc()}")
-                # Re-raise für besseres Debugging
                 raise
             
-            # Action ausführen
+            # 3. Action ausführen
             articulations[i].apply_action(action)
             step_counts[i] += 1
             
-            # Episode fertig?
+            # 4. Episode-Ende-Handling
+            #    → Validierung, Speichern/Verwerfen, Work-Stealing
             if controller.is_done():
-                # Validiere ob Würfel korrekt gestapelt wurden
                 is_valid, reason = validate_stacking(env.task, target_positions[i])
                 
-                ep_id = active_episode_ids[i]
-                
                 if is_valid and len(episode_data[i]["observations"]) > 0:
-                    # Episode erfolgreich - in zentralen Logger übertragen
-                    try:
-                        # Sammle echte Phase-Daten vom Controller-Tracking
-                        phase_data = {}
-                        phase_timesteps = episode_data[i].get("phase_timesteps", {})
-                        
-                        # Konvertiere Timesteps zu Phase-Daten
-                        for phase_idx in range(10):
-                            timesteps = phase_timesteps.get(phase_idx, 0)
-                            phase_data[phase_idx] = {
-                                "waypoints": timesteps,
-                                "time": timesteps * (1.0 / 60.0),  # 60 Hz Simulation
-                            }
-                        
-                        logger.start_episode(total_successful)
-                        # property_params werden nicht mehr gespeichert (wie gewünscht)
-                        # logger.set_episode_params(episode_data[i]["params"])  # Auskommentiert
-                        
-                        # Alle gesammelten Daten übertragen (neues Format)
-                        # Action wird im Logger automatisch aus EE-Bewegung berechnet!
-                        log.debug(f"Env {i}: Übertrage {len(episode_data[i]['observations'])} Timesteps in Logger...")
-                        for t_idx, (obs, depth, ee_pos, ee_quat, cube_pos) in enumerate(zip(
-                            episode_data[i]["observations"],
-                            episode_data[i]["depths"],
-                            episode_data[i]["ee_positions"],
-                            episode_data[i]["ee_quaternions"],
-                            episode_data[i]["cube_positions"],
-                        )):
-                            try:
-                                logger.log_step(
-                                    rgb_image=obs,
-                                    depth_image=depth,
-                                    ee_pos=ee_pos,
-                                    ee_quat=ee_quat,
-                                    cube_positions=cube_pos
-                                )
-                            except Exception as e:
-                                log.error(f"Env {i}: Fehler beim log_step (Timestep {t_idx}):")
-                                log.error(f"  Exception: {type(e).__name__}: {str(e)}")
-                                import traceback
-                                log.error(f"  Traceback:\n{traceback.format_exc()}")
-                                raise
-                        
-                        logger.end_episode()
-                        
-                        # Schreibe Episode-Daten in CSV
-                        try:
-                            # Controller-Parameter aus globalen Konstanten (nicht vom Controller-Objekt)
-                            controller_params = {
-                                "trajectory_resolution": TRAJECTORY_RESOLUTION,
-                                "air_speed_multiplier": AIR_SPEED_MULTIPLIER,
-                                "height_adaptive_speed": HEIGHT_ADAPTIVE_SPEED,
-                                "critical_height_threshold": CRITICAL_HEIGHT_THRESHOLD,
-                                "critical_speed_factor": CRITICAL_SPEED_FACTOR,
-                                "guarantee_final_position": GUARANTEE_FINAL_POSITION,
-                                "guarantee_phases": GUARANTEE_PHASES,
-                            }
-                            
-                            log.debug(f"CSV-Logging: Phase-Daten = {phase_data}")
-                            log.debug(f"CSV-Logging: Total Timesteps = {step_counts[i]}, Total Time = {step_counts[i] * (1.0 / 60.0)}")
-                            
-                            csv_logger.log_episode(
-                                episode_seed=total_successful,
-                                controller_params=controller_params,
-                                phase_data=phase_data,
-                                total_timesteps=step_counts[i],
-                                total_time=step_counts[i] * (1.0 / 60.0),
-                                validation_success=True,
-                                notes=f"Seed: {seeds[i]}, Env: {i}",
-                            )
-                            log.info(f"✅ CSV-Eintrag geschrieben für Episode {total_successful}")
-                        except Exception as e:
-                            log.warning(f"Fehler beim CSV-Logging für Episode {total_successful}: {e}")
-                            import traceback
-                            log.warning(f"Traceback: {traceback.format_exc()}")
-                        
+                    # --- ERFOLGREICHE EPISODE ---
+                    # → save_successful_episode() kapselt Logger + CSV
+                    success = save_successful_episode(
+                        logger=logger,
+                        csv_logger=csv_logger,
+                        episode_data=episode_data[i],
+                        episode_number=total_successful,
+                        step_count=step_counts[i],
+                        seed=seeds[i],
+                        env_idx=i
+                    )
+                    
+                    if success:
                         successful_counts[i] += 1
                         total_successful += 1
                         log.info(f"✅ Env {i}: Episode {total_successful} erfolgreich ({step_counts[i]} steps, Seed {seeds[i]})")
-                    except Exception as e:
-                        log.error(f"Env {i}: Fehler beim Speichern der Episode {total_successful}:")
-                        log.error(f"  Exception: {type(e).__name__}: {str(e)}")
-                        import traceback
-                        log.error(f"  Traceback:\n{traceback.format_exc()}")
-                        # Episode verwerfen
+                    else:
+                        # Speichern fehlgeschlagen
                         failed_seeds.append(seeds[i])
                         log.error(f"  Episode wird verworfen")
                 else:
-                    # Episode fehlgeschlagen - Daten verwerfen
+                    # --- FEHLGESCHLAGENE EPISODE ---
                     failed_seeds.append(seeds[i])
                     log.warning(f"❌ Env {i}: Episode verworfen (Seed {seeds[i]}): {reason}")
                     
-                    # WICHTIG: Bei Fehlschlag den Pool nachfüllen, damit wir das Ziel erreichen
-                    # Aber nur wenn wir unter dem Max-Limit sind
+                    # Pool nachfüllen für Kompensation (wenn unter Max-Limit)
                     if total_attempts < MAX_TOTAL_ATTEMPTS:
                         remaining_episodes_to_start += 1
                         log.info(f"   -> Pool nachgefüllt (verbleibend: {remaining_episodes_to_start})")
                     else:
                         log.warning(f"   -> Max. Versuche erreicht, kein Nachfüllen")
                     
-                    # Schreibe auch fehlgeschlagene Episode in CSV (für Tracking)
-                    try:
-                        # Controller-Parameter aus globalen Konstanten (nicht vom Controller-Objekt)
-                        controller_params = {
-                            "trajectory_resolution": TRAJECTORY_RESOLUTION,
-                            "air_speed_multiplier": AIR_SPEED_MULTIPLIER,
-                            "height_adaptive_speed": HEIGHT_ADAPTIVE_SPEED,
-                            "critical_height_threshold": CRITICAL_HEIGHT_THRESHOLD,
-                            "critical_speed_factor": CRITICAL_SPEED_FACTOR,
-                            "guarantee_final_position": GUARANTEE_FINAL_POSITION,
-                            "guarantee_phases": GUARANTEE_PHASES,
-                        }
-                        
-                        # Auch für fehlgeschlagene Episoden Phase-Daten sammeln
-                        failed_phase_data = {}
-                        phase_timesteps = episode_data[i].get("phase_timesteps", {})
-                        for phase_idx in range(10):
-                            timesteps = phase_timesteps.get(phase_idx, 0)
-                            failed_phase_data[phase_idx] = {
-                                "waypoints": timesteps,
-                                "time": timesteps * (1.0 / 60.0),
-                            }
-                        
-                        csv_logger.log_episode(
-                            episode_seed=f"FAILED_{total_episodes}",
-                            controller_params=controller_params,
-                            phase_data=failed_phase_data,
-                            total_timesteps=step_counts[i],
-                            total_time=step_counts[i] * (1.0 / 60.0),
-                            validation_success=False,
-                            notes=f"Seed: {seeds[i]}, Env: {i}, Grund: {reason}",
-                        )
-                        log.info(f"CSV-Eintrag geschrieben für fehlgeschlagene Episode {total_episodes}")
-                    except Exception as e:
-                        log.warning(f"Fehler beim CSV-Logging für fehlgeschlagene Episode {total_episodes}: {e}")
-                        import traceback
-                        log.warning(f"Traceback: {traceback.format_exc()}")
+                    # CSV-Logging für fehlgeschlagene Episode
+                    log_failed_episode(
+                        csv_logger=csv_logger,
+                        episode_data=episode_data[i],
+                        total_episodes=total_episodes,
+                        step_count=step_counts[i],
+                        seed=seeds[i],
+                        env_idx=i,
+                        reason=reason
+                    )
                 
+                # --- EPISODE-ZÄHLER UND CLEANUP ---
                 episode_counts[i] += 1
                 total_episodes += 1
                 step_counts[i] = 0
                 seeds[i] += 1
-                episodes_in_progress -= 1  # Episode abgeschlossen
+                episodes_in_progress -= 1
                 
-                # ============================================================
-                # DYNAMISCHE EPISODE-ZUWEISUNG (Work-Stealing)
-                # ============================================================
-                # Prüfe ob noch Episoden zu starten sind UND Ziel noch nicht erreicht
-                # UND wir unter dem Max-Versuchs-Limit sind
+                # --- WORK-STEALING: Neue Episode aus Pool holen ---
                 if remaining_episodes_to_start > 0 and total_successful < NUM_EPISODES and total_attempts < MAX_TOTAL_ATTEMPTS:
                     remaining_episodes_to_start -= 1
                     episodes_in_progress += 1
-                    total_attempts += 1  # Zähle gestartete Episode
+                    total_attempts += 1
                     
                     controller.reset()
                     cube_pos, target_pos = env.domain_randomization(seeds[i])
                     target_positions[i] = target_pos
                     cube_positions_list[i] = cube_pos
                     
-                    # Neuen Episode-Buffer initialisieren
-                    # Action wird im Logger automatisch aus EE-Bewegung berechnet!
+                    # Neuen Episode-Buffer mit Hilfsfunktion erstellen
                     active_episode_ids[i] = global_episode_id
-                    episode_data[i] = {
-                        "observations": [],
-                        "depths": [],
-                        "ee_positions": [],
-                        "ee_quaternions": [],
-                        "cube_positions": [],
-                        "phase_timesteps": {p: 0 for p in range(10)},  # Timesteps pro Phase (0-9)
-                        "current_phase": 0,  # Aktuelle Phase für Tracking
-                        "params": {
-                            "seed": seeds[i],
-                            "env_idx": i,
-                            "cube_positions": [p.tolist() for p in cube_pos],
-                            "target_position": target_pos.tolist(),
-                        }
-                    }
+                    episode_data[i] = create_episode_data_buffer(seeds[i], i, cube_pos, target_pos)
                     global_episode_id += 1
+                    
                     log.info(f"Env {i}: Neue Episode gestartet (verbleibend: {remaining_episodes_to_start}, in Arbeit: {episodes_in_progress}, Versuche: {total_attempts}/{MAX_TOTAL_ATTEMPTS})")
                 else:
                     env_done[i] = True
@@ -1266,64 +1538,27 @@ def main():
                     else:
                         log.info(f"Env {i}: Fertig ({successful_counts[i]} erfolgreiche Episoden, keine weiteren Episoden verfügbar)")
         
-        # World Step
+        # World-Step
         shared_world.step()
         
-        # Alle fertig?
         if all(env_done):
             break
     
     # ================================================================
-    # FINALES SPEICHERN - Ein zentraler Datensatz
+    # FINALISIERUNG: Datensatz speichern und Statistiken ausgeben
+    # → finalize_dataset() kapselt alle Abschlussoperationen
     # ================================================================
-    # Speichere Kamera-Kalibrierung (wird am Ende gespeichert)
-    average_step_count = sum(step_counts) / NUM_ENVS if NUM_ENVS > 0 else 0
-    logger.dataset_path = logger.dataset_path + f"__Steps{int(average_step_count)}"
-    logger.save_camera_calibration()
-    log.info(f"Zentraler Datensatz gespeichert: {logger.dataset_path}/")
-    log.info(f"  Episoden: {total_successful}")
-    log.info(f"  Format: Rope-kompatibel (H5-Dateien pro Timestep)")
-    
-    # Speichere fehlgeschlagene Seeds
-    if failed_seeds:
-        failed_seeds_path = logger.dataset_path / "failed_seeds.txt"
-        os.makedirs(os.path.dirname(failed_seeds_path), exist_ok=True)
-        with open(failed_seeds_path, "w") as f:
-            f.write("# Fehlgeschlagene Seeds - Würfel nicht korrekt gestapelt\n")
-            f.write(f"# Datum: {datetime.now().isoformat()}\n")
-            f.write(f"# Anzahl: {len(failed_seeds)}\n")
-            f.write(f"# Parallele Envs: {NUM_ENVS}\n\n")
-            for s in failed_seeds:
-                f.write(f"{s}\n")
-        log.info(f"Fehlgeschlagene Seeds gespeichert: {failed_seeds_path}")
-    
-    log.info("=" * 60)
-    log.info(f"Datensammlung abgeschlossen!")
-    log.info(f"  Modus: DYNAMISCHER TASK-POOL (Work-Stealing)")
-    log.info(f"  Zentraler Datensatz: {DATASET_NAME}")
-    log.info(f"  Erfolgreiche Episoden: {total_successful} / {NUM_EPISODES} (Ziel)")
-    log.info(f"  Gesamte Versuche: {total_attempts} (inkl. Fehlschläge)")
-    log.info(f"  Episoden pro Env: {successful_counts}")
-    log.info(f"  Fehlgeschlagene Seeds: {len(failed_seeds)}")
-    if total_episodes > 0:
-        log.info(f"  Erfolgsrate: {total_successful / total_episodes * 100:.1f}%")
-        log.info(f"  Durchschnittliche Steps: {sum(step_counts)/NUM_ENVS}, Controller dt = {event_dt}")
-    log.info("=" * 60)
-    
-    # Speichere CSV-Matrix mit allen gesammelten Episode-Daten
-    try:
-        log.info("Speichere CSV-Matrix...")
-        csv_logger.save_matrix()
-    except Exception as e:
-        log.warning(f"WARNUNG: Fehler beim Speichern der CSV-Matrix: {e}")
-    
-    try:
-        simulation_app.close()
-    except Exception as e:
-        log.error(f"Fehler beim Schließen der Simulation:")
-        log.error(f"  Exception: {type(e).__name__}: {str(e)}")
-        import traceback
-        log.error(f"  Traceback:\n{traceback.format_exc()}")
+    finalize_dataset(
+        logger=logger,
+        csv_logger=csv_logger,
+        failed_seeds=failed_seeds,
+        total_successful=total_successful,
+        total_attempts=total_attempts,
+        successful_counts=successful_counts,
+        total_episodes=total_episodes,
+        step_counts=step_counts,
+        event_dt=event_dt
+    )
 
 
 if __name__ == "__main__":

@@ -1326,3 +1326,769 @@ TypeError: Camera.__init__() got an unexpected keyword argument 'horizontal_aper
 2026-01-30 10:43:24,443 [    INFO] FrankaCubeStacking: ✅ Env 9: Episode 4 erfolgreich (152 steps, Seed 9111)
 2026-01-30 10:43:24,465 [    INFO] FrankaCubeStacking: Start Randomization
 2026-01-30 10:43:24,507 [    INFO] FrankaCubeStacking: Env 9: Neue Episode gestartet (verbleibend: 36, in Arbeit: 10, Versuche: 20/150)
+2026-01-30 10:43:48,820 [    INFO] MinDataLogger: Episode 4 gestartet
+2026-01-30 10:43:49,721 [    INFO] MinDataLogger: Episode 4 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:43:49,731 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 4
+2026-01-30 10:43:49,732 [    INFO] FrankaCubeStacking: ✅ Env 0: Episode 5 erfolgreich (152 steps, Seed 112)
+2026-01-30 10:43:49,759 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:49,767 [    INFO] FrankaCubeStacking: Env 0: Neue Episode gestartet (verbleibend: 35, in Arbeit: 10, Versuche: 21/150)
+2026-01-30 10:43:49,794 [    INFO] MinDataLogger: Episode 5 gestartet
+2026-01-30 10:43:50,721 [    INFO] MinDataLogger: Episode 5 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:43:50,730 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 5
+2026-01-30 10:43:50,730 [    INFO] FrankaCubeStacking: ✅ Env 1: Episode 6 erfolgreich (152 steps, Seed 1112)
+2026-01-30 10:43:50,753 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:50,787 [    INFO] FrankaCubeStacking: Env 1: Neue Episode gestartet (verbleibend: 34, in Arbeit: 10, Versuche: 22/150)
+2026-01-30 10:43:50,813 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2112): Würfel 0 nicht an Zielposition (dx=0.384, dy=0.041)
+2026-01-30 10:43:50,814 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 35)
+2026-01-30 10:43:50,814 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 12
+2026-01-30 10:43:50,844 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:50,880 [    INFO] FrankaCubeStacking: Env 2: Neue Episode gestartet (verbleibend: 34, in Arbeit: 10, Versuche: 23/150)
+2026-01-30 10:43:50,911 [    INFO] MinDataLogger: Episode 6 gestartet
+2026-01-30 10:43:51,759 [    INFO] MinDataLogger: Episode 6 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:43:51,762 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 6
+2026-01-30 10:43:51,762 [    INFO] FrankaCubeStacking: ✅ Env 3: Episode 7 erfolgreich (152 steps, Seed 3112)
+2026-01-30 10:43:51,784 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:51,817 [    INFO] FrankaCubeStacking: Env 3: Neue Episode gestartet (verbleibend: 33, in Arbeit: 10, Versuche: 24/150)
+2026-01-30 10:43:51,841 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4112): Würfel 0 nicht an Zielposition (dx=0.129, dy=0.172)
+2026-01-30 10:43:51,841 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 34)
+2026-01-30 10:43:51,841 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 14
+2026-01-30 10:43:51,864 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:51,898 [    INFO] FrankaCubeStacking: Env 4: Neue Episode gestartet (verbleibend: 33, in Arbeit: 10, Versuche: 25/150)
+2026-01-30 10:43:51,929 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5112): Würfel 0 nicht an Zielposition (dx=0.219, dy=0.048)
+2026-01-30 10:43:51,929 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 34)
+2026-01-30 10:43:51,929 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 15
+2026-01-30 10:43:51,961 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:52,000 [    INFO] FrankaCubeStacking: Env 5: Neue Episode gestartet (verbleibend: 33, in Arbeit: 10, Versuche: 26/150)
+2026-01-30 10:43:52,028 [ WARNING] FrankaCubeStacking: ❌ Env 6: Episode verworfen (Seed 6112): Würfel 0 nicht an Zielposition (dx=0.271, dy=0.219)
+2026-01-30 10:43:52,029 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 34)
+2026-01-30 10:43:52,029 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 16
+2026-01-30 10:43:52,061 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:52,092 [    INFO] FrankaCubeStacking: Env 6: Neue Episode gestartet (verbleibend: 33, in Arbeit: 10, Versuche: 27/150)
+2026-01-30 10:43:52,129 [ WARNING] FrankaCubeStacking: ❌ Env 7: Episode verworfen (Seed 7112): Würfel 0 nicht an Zielposition (dx=0.051, dy=0.347)
+2026-01-30 10:43:52,129 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 34)
+2026-01-30 10:43:52,129 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 17
+2026-01-30 10:43:52,157 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:52,199 [    INFO] FrankaCubeStacking: Env 7: Neue Episode gestartet (verbleibend: 33, in Arbeit: 10, Versuche: 28/150)
+2026-01-30 10:43:52,234 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8112): Würfel 0 nicht an Zielposition (dx=0.099, dy=0.035)
+2026-01-30 10:43:52,234 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 34)
+2026-01-30 10:43:52,234 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 18
+2026-01-30 10:43:52,264 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:52,305 [    INFO] FrankaCubeStacking: Env 8: Neue Episode gestartet (verbleibend: 33, in Arbeit: 10, Versuche: 29/150)
+2026-01-30 10:43:52,330 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9112): Würfel 0 nicht an Zielposition (dx=0.226, dy=0.456)
+2026-01-30 10:43:52,330 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 34)
+2026-01-30 10:43:52,331 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 19
+2026-01-30 10:43:52,352 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:52,384 [    INFO] FrankaCubeStacking: Env 9: Neue Episode gestartet (verbleibend: 33, in Arbeit: 10, Versuche: 30/150)
+2026-01-30 10:44:16,990 [ WARNING] FrankaCubeStacking: ❌ Env 0: Episode verworfen (Seed 113): Würfel 0 nicht an Zielposition (dx=0.028, dy=0.497)
+2026-01-30 10:44:16,991 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 34)
+2026-01-30 10:44:16,991 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 20
+2026-01-30 10:44:17,012 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:17,020 [    INFO] FrankaCubeStacking: Env 0: Neue Episode gestartet (verbleibend: 33, in Arbeit: 10, Versuche: 31/150)
+2026-01-30 10:44:17,045 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1113): Würfel 0 nicht an Zielposition (dx=0.054, dy=0.005)
+2026-01-30 10:44:17,045 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 34)
+2026-01-30 10:44:17,045 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 21
+2026-01-30 10:44:17,068 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:17,104 [    INFO] FrankaCubeStacking: Env 1: Neue Episode gestartet (verbleibend: 33, in Arbeit: 10, Versuche: 32/150)
+2026-01-30 10:44:17,131 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2113): Würfel 0 nicht an Zielposition (dx=0.014, dy=0.211)
+2026-01-30 10:44:17,131 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 34)
+2026-01-30 10:44:17,131 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 22
+2026-01-30 10:44:17,153 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:17,188 [    INFO] FrankaCubeStacking: Env 2: Neue Episode gestartet (verbleibend: 33, in Arbeit: 10, Versuche: 33/150)
+2026-01-30 10:44:17,216 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3113): Würfel 0 nicht an Zielposition (dx=0.356, dy=0.186)
+2026-01-30 10:44:17,216 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 34)
+2026-01-30 10:44:17,217 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 23
+2026-01-30 10:44:17,239 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:17,274 [    INFO] FrankaCubeStacking: Env 3: Neue Episode gestartet (verbleibend: 33, in Arbeit: 10, Versuche: 34/150)
+2026-01-30 10:44:17,301 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4113): Würfel 0 nicht an Zielposition (dx=0.031, dy=0.021)
+2026-01-30 10:44:17,301 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 34)
+2026-01-30 10:44:17,302 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 24
+2026-01-30 10:44:17,323 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:17,356 [    INFO] FrankaCubeStacking: Env 4: Neue Episode gestartet (verbleibend: 33, in Arbeit: 10, Versuche: 35/150)
+2026-01-30 10:44:17,383 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5113): Würfel 0 nicht an Zielposition (dx=0.082, dy=0.066)
+2026-01-30 10:44:17,383 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 34)
+2026-01-30 10:44:17,383 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 25
+2026-01-30 10:44:17,405 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:17,439 [    INFO] FrankaCubeStacking: Env 5: Neue Episode gestartet (verbleibend: 33, in Arbeit: 10, Versuche: 36/150)
+2026-01-30 10:44:17,464 [    INFO] MinDataLogger: Episode 7 gestartet
+2026-01-30 10:44:18,367 [    INFO] MinDataLogger: Episode 7 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:44:18,369 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 7
+2026-01-30 10:44:18,369 [    INFO] FrankaCubeStacking: ✅ Env 6: Episode 8 erfolgreich (152 steps, Seed 6113)
+2026-01-30 10:44:18,391 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:18,424 [    INFO] FrankaCubeStacking: Env 6: Neue Episode gestartet (verbleibend: 32, in Arbeit: 10, Versuche: 37/150)
+2026-01-30 10:44:18,450 [ WARNING] FrankaCubeStacking: ❌ Env 7: Episode verworfen (Seed 7113): Würfel 0 nicht an Zielposition (dx=0.214, dy=0.034)
+2026-01-30 10:44:18,450 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 33)
+2026-01-30 10:44:18,450 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 27
+2026-01-30 10:44:18,472 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:18,505 [    INFO] FrankaCubeStacking: Env 7: Neue Episode gestartet (verbleibend: 32, in Arbeit: 10, Versuche: 38/150)
+2026-01-30 10:44:18,531 [    INFO] MinDataLogger: Episode 8 gestartet
+2026-01-30 10:44:19,339 [    INFO] MinDataLogger: Episode 8 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:44:19,340 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 8
+2026-01-30 10:44:19,340 [    INFO] FrankaCubeStacking: ✅ Env 8: Episode 9 erfolgreich (152 steps, Seed 8113)
+2026-01-30 10:44:19,370 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:19,405 [    INFO] FrankaCubeStacking: Env 8: Neue Episode gestartet (verbleibend: 31, in Arbeit: 10, Versuche: 39/150)
+2026-01-30 10:44:19,434 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9113): Würfel 0 nicht an Zielposition (dx=0.008, dy=0.306)
+2026-01-30 10:44:19,435 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 32)
+2026-01-30 10:44:19,435 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 29
+2026-01-30 10:44:19,465 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:19,505 [    INFO] FrankaCubeStacking: Env 9: Neue Episode gestartet (verbleibend: 31, in Arbeit: 10, Versuche: 40/150)
+2026-01-30 10:44:43,266 [ WARNING] FrankaCubeStacking: ❌ Env 0: Episode verworfen (Seed 114): Würfel 0 nicht an Zielposition (dx=0.221, dy=0.337)
+2026-01-30 10:44:43,266 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 32)
+2026-01-30 10:44:43,267 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 30
+2026-01-30 10:44:43,289 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:43,294 [    INFO] FrankaCubeStacking: Env 0: Neue Episode gestartet (verbleibend: 31, in Arbeit: 10, Versuche: 41/150)
+2026-01-30 10:44:43,319 [    INFO] MinDataLogger: Episode 9 gestartet
+2026-01-30 10:44:44,173 [    INFO] MinDataLogger: Episode 9 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:44:44,184 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 9
+2026-01-30 10:44:44,184 [    INFO] FrankaCubeStacking: ✅ Env 1: Episode 10 erfolgreich (152 steps, Seed 1114)
+2026-01-30 10:44:44,205 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:44,238 [    INFO] FrankaCubeStacking: Env 1: Neue Episode gestartet (verbleibend: 30, in Arbeit: 10, Versuche: 42/150)
+2026-01-30 10:44:44,264 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2114): Würfel 0 nicht an Zielposition (dx=0.238, dy=0.059)
+2026-01-30 10:44:44,264 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 31)
+2026-01-30 10:44:44,264 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 32
+2026-01-30 10:44:44,288 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:44,324 [    INFO] FrankaCubeStacking: Env 2: Neue Episode gestartet (verbleibend: 30, in Arbeit: 10, Versuche: 43/150)
+2026-01-30 10:44:44,351 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3114): Würfel 0 nicht an Zielposition (dx=0.106, dy=0.371)
+2026-01-30 10:44:44,351 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 31)
+2026-01-30 10:44:44,351 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 33
+2026-01-30 10:44:44,373 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:44,404 [    INFO] FrankaCubeStacking: Env 3: Neue Episode gestartet (verbleibend: 30, in Arbeit: 10, Versuche: 44/150)
+2026-01-30 10:44:44,430 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4114): Würfel 0 nicht an Zielposition (dx=0.432, dy=0.043)
+2026-01-30 10:44:44,431 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 31)
+2026-01-30 10:44:44,431 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 34
+2026-01-30 10:44:44,453 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:44,485 [    INFO] FrankaCubeStacking: Env 4: Neue Episode gestartet (verbleibend: 30, in Arbeit: 10, Versuche: 45/150)
+2026-01-30 10:44:44,511 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5114): Würfel 0 nicht an Zielposition (dx=0.089, dy=0.137)
+2026-01-30 10:44:44,511 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 31)
+2026-01-30 10:44:44,512 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 35
+2026-01-30 10:44:44,535 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:44,567 [    INFO] FrankaCubeStacking: Env 5: Neue Episode gestartet (verbleibend: 30, in Arbeit: 10, Versuche: 46/150)
+2026-01-30 10:44:44,592 [    INFO] MinDataLogger: Episode 10 gestartet
+2026-01-30 10:44:45,435 [    INFO] MinDataLogger: Episode 10 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:44:45,437 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 10
+2026-01-30 10:44:45,437 [    INFO] FrankaCubeStacking: ✅ Env 6: Episode 11 erfolgreich (152 steps, Seed 6114)
+2026-01-30 10:44:45,459 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:45,490 [    INFO] FrankaCubeStacking: Env 6: Neue Episode gestartet (verbleibend: 29, in Arbeit: 10, Versuche: 47/150)
+2026-01-30 10:44:45,515 [    INFO] MinDataLogger: Episode 11 gestartet
+2026-01-30 10:44:46,362 [    INFO] MinDataLogger: Episode 11 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:44:46,364 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 11
+2026-01-30 10:44:46,364 [    INFO] FrankaCubeStacking: ✅ Env 7: Episode 12 erfolgreich (152 steps, Seed 7114)
+2026-01-30 10:44:46,386 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:46,418 [    INFO] FrankaCubeStacking: Env 7: Neue Episode gestartet (verbleibend: 28, in Arbeit: 10, Versuche: 48/150)
+2026-01-30 10:44:46,443 [    INFO] MinDataLogger: Episode 12 gestartet
+2026-01-30 10:44:47,253 [    INFO] MinDataLogger: Episode 12 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:44:47,254 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 12
+2026-01-30 10:44:47,255 [    INFO] FrankaCubeStacking: ✅ Env 8: Episode 13 erfolgreich (152 steps, Seed 8114)
+2026-01-30 10:44:47,276 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:47,308 [    INFO] FrankaCubeStacking: Env 8: Neue Episode gestartet (verbleibend: 27, in Arbeit: 10, Versuche: 49/150)
+2026-01-30 10:44:47,334 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9114): Würfel 0 nicht an Zielposition (dx=0.287, dy=0.106)
+2026-01-30 10:44:47,334 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 28)
+2026-01-30 10:44:47,335 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 39
+2026-01-30 10:44:47,359 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:44:47,391 [    INFO] FrankaCubeStacking: Env 9: Neue Episode gestartet (verbleibend: 27, in Arbeit: 10, Versuche: 50/150)
+2026-01-30 10:45:11,749 [    INFO] MinDataLogger: Episode 13 gestartet
+2026-01-30 10:45:12,623 [    INFO] MinDataLogger: Episode 13 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:45:12,634 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 13
+2026-01-30 10:45:12,634 [    INFO] FrankaCubeStacking: ✅ Env 0: Episode 14 erfolgreich (152 steps, Seed 115)
+2026-01-30 10:45:12,664 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:12,672 [    INFO] FrankaCubeStacking: Env 0: Neue Episode gestartet (verbleibend: 26, in Arbeit: 10, Versuche: 51/150)
+2026-01-30 10:45:12,706 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1115): Würfel 0 nicht an Zielposition (dx=0.263, dy=0.560)
+2026-01-30 10:45:12,706 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 27)
+2026-01-30 10:45:12,707 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 41
+2026-01-30 10:45:12,735 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:12,774 [    INFO] FrankaCubeStacking: Env 1: Neue Episode gestartet (verbleibend: 26, in Arbeit: 10, Versuche: 52/150)
+2026-01-30 10:45:12,808 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2115): Würfel 0 nicht an Zielposition (dx=0.280, dy=0.123)
+2026-01-30 10:45:12,808 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 27)
+2026-01-30 10:45:12,808 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 42
+2026-01-30 10:45:12,830 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:12,865 [    INFO] FrankaCubeStacking: Env 2: Neue Episode gestartet (verbleibend: 26, in Arbeit: 10, Versuche: 53/150)
+2026-01-30 10:45:12,891 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3115): Würfel 0 nicht an Zielposition (dx=0.128, dy=0.360)
+2026-01-30 10:45:12,891 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 27)
+2026-01-30 10:45:12,891 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 43
+2026-01-30 10:45:12,913 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:12,953 [    INFO] FrankaCubeStacking: Env 3: Neue Episode gestartet (verbleibend: 26, in Arbeit: 10, Versuche: 54/150)
+2026-01-30 10:45:12,978 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4115): Würfel 0 nicht an Zielposition (dx=0.230, dy=0.086)
+2026-01-30 10:45:12,978 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 27)
+2026-01-30 10:45:12,978 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 44
+2026-01-30 10:45:13,009 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:13,043 [    INFO] FrankaCubeStacking: Env 4: Neue Episode gestartet (verbleibend: 26, in Arbeit: 10, Versuche: 55/150)
+2026-01-30 10:45:13,075 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5115): Würfel 0 nicht an Zielposition (dx=0.110, dy=0.125)
+2026-01-30 10:45:13,075 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 27)
+2026-01-30 10:45:13,075 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 45
+2026-01-30 10:45:13,103 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:13,134 [    INFO] FrankaCubeStacking: Env 5: Neue Episode gestartet (verbleibend: 26, in Arbeit: 10, Versuche: 56/150)
+2026-01-30 10:45:13,159 [    INFO] MinDataLogger: Episode 14 gestartet
+2026-01-30 10:45:14,054 [    INFO] MinDataLogger: Episode 14 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:45:14,056 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 14
+2026-01-30 10:45:14,056 [    INFO] FrankaCubeStacking: ✅ Env 6: Episode 15 erfolgreich (152 steps, Seed 6115)
+2026-01-30 10:45:14,078 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:14,109 [    INFO] FrankaCubeStacking: Env 6: Neue Episode gestartet (verbleibend: 25, in Arbeit: 10, Versuche: 57/150)
+2026-01-30 10:45:14,133 [    INFO] MinDataLogger: Episode 15 gestartet
+2026-01-30 10:45:14,895 [    INFO] MinDataLogger: Episode 15 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:45:14,896 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 15
+2026-01-30 10:45:14,896 [    INFO] FrankaCubeStacking: ✅ Env 7: Episode 16 erfolgreich (152 steps, Seed 7115)
+2026-01-30 10:45:14,917 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:14,948 [    INFO] FrankaCubeStacking: Env 7: Neue Episode gestartet (verbleibend: 24, in Arbeit: 10, Versuche: 58/150)
+2026-01-30 10:45:14,975 [    INFO] MinDataLogger: Episode 16 gestartet
+2026-01-30 10:45:15,765 [    INFO] MinDataLogger: Episode 16 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:45:15,767 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 16
+2026-01-30 10:45:15,767 [    INFO] FrankaCubeStacking: ✅ Env 8: Episode 17 erfolgreich (152 steps, Seed 8115)
+2026-01-30 10:45:15,796 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:15,835 [    INFO] FrankaCubeStacking: Env 8: Neue Episode gestartet (verbleibend: 23, in Arbeit: 10, Versuche: 59/150)
+2026-01-30 10:45:15,870 [    INFO] MinDataLogger: Episode 17 gestartet
+2026-01-30 10:45:16,677 [    INFO] MinDataLogger: Episode 17 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:45:16,678 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 17
+2026-01-30 10:45:16,678 [    INFO] FrankaCubeStacking: ✅ Env 9: Episode 18 erfolgreich (152 steps, Seed 9115)
+2026-01-30 10:45:16,708 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:16,742 [    INFO] FrankaCubeStacking: Env 9: Neue Episode gestartet (verbleibend: 22, in Arbeit: 10, Versuche: 60/150)
+2026-01-30 10:45:40,485 [    INFO] MinDataLogger: Episode 18 gestartet
+2026-01-30 10:45:41,373 [    INFO] MinDataLogger: Episode 18 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:45:41,381 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 18
+2026-01-30 10:45:41,381 [    INFO] FrankaCubeStacking: ✅ Env 0: Episode 19 erfolgreich (152 steps, Seed 116)
+2026-01-30 10:45:41,411 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:41,418 [    INFO] FrankaCubeStacking: Env 0: Neue Episode gestartet (verbleibend: 21, in Arbeit: 10, Versuche: 61/150)
+2026-01-30 10:45:41,444 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1116): Würfel 0 nicht an Zielposition (dx=0.300, dy=0.208)
+2026-01-30 10:45:41,444 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 22)
+2026-01-30 10:45:41,444 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 51
+2026-01-30 10:45:41,476 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:41,511 [    INFO] FrankaCubeStacking: Env 1: Neue Episode gestartet (verbleibend: 21, in Arbeit: 10, Versuche: 62/150)
+2026-01-30 10:45:41,540 [    INFO] MinDataLogger: Episode 19 gestartet
+2026-01-30 10:45:42,406 [    INFO] MinDataLogger: Episode 19 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:45:42,416 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 19
+2026-01-30 10:45:42,416 [    INFO] FrankaCubeStacking: ✅ Env 2: Episode 20 erfolgreich (152 steps, Seed 2116)
+2026-01-30 10:45:42,438 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:42,474 [    INFO] FrankaCubeStacking: Env 2: Neue Episode gestartet (verbleibend: 20, in Arbeit: 10, Versuche: 63/150)
+2026-01-30 10:45:42,502 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3116): Würfel 0 nicht an Zielposition (dx=0.259, dy=0.195)
+2026-01-30 10:45:42,503 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 21)
+2026-01-30 10:45:42,503 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 53
+2026-01-30 10:45:42,526 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:42,562 [    INFO] FrankaCubeStacking: Env 3: Neue Episode gestartet (verbleibend: 20, in Arbeit: 10, Versuche: 64/150)
+2026-01-30 10:45:42,588 [    INFO] MinDataLogger: Episode 20 gestartet
+2026-01-30 10:45:43,462 [    INFO] MinDataLogger: Episode 20 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:45:43,463 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 20
+2026-01-30 10:45:43,463 [    INFO] FrankaCubeStacking: ✅ Env 4: Episode 21 erfolgreich (152 steps, Seed 4116)
+2026-01-30 10:45:43,485 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:43,519 [    INFO] FrankaCubeStacking: Env 4: Neue Episode gestartet (verbleibend: 19, in Arbeit: 10, Versuche: 65/150)
+2026-01-30 10:45:43,544 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5116): Würfel 0 nicht an Zielposition (dx=0.012, dy=0.113)
+2026-01-30 10:45:43,545 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 20)
+2026-01-30 10:45:43,545 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 55
+2026-01-30 10:45:43,569 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:43,605 [    INFO] FrankaCubeStacking: Env 5: Neue Episode gestartet (verbleibend: 19, in Arbeit: 10, Versuche: 66/150)
+2026-01-30 10:45:43,631 [    INFO] MinDataLogger: Episode 21 gestartet
+2026-01-30 10:45:44,500 [    INFO] MinDataLogger: Episode 21 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:45:44,502 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 21
+2026-01-30 10:45:44,502 [    INFO] FrankaCubeStacking: ✅ Env 6: Episode 22 erfolgreich (152 steps, Seed 6116)
+2026-01-30 10:45:44,524 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:44,558 [    INFO] FrankaCubeStacking: Env 6: Neue Episode gestartet (verbleibend: 18, in Arbeit: 10, Versuche: 67/150)
+2026-01-30 10:45:44,583 [ WARNING] FrankaCubeStacking: ❌ Env 7: Episode verworfen (Seed 7116): Würfel 0 nicht an Zielposition (dx=0.035, dy=0.029)
+2026-01-30 10:45:44,583 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 19)
+2026-01-30 10:45:44,584 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 57
+2026-01-30 10:45:44,607 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:44,643 [    INFO] FrankaCubeStacking: Env 7: Neue Episode gestartet (verbleibend: 18, in Arbeit: 10, Versuche: 68/150)
+2026-01-30 10:45:44,669 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8116): Würfel 0 nicht an Zielposition (dx=0.035, dy=0.012)
+2026-01-30 10:45:44,669 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 19)
+2026-01-30 10:45:44,669 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 58
+2026-01-30 10:45:44,696 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:44,738 [    INFO] FrankaCubeStacking: Env 8: Neue Episode gestartet (verbleibend: 18, in Arbeit: 10, Versuche: 69/150)
+2026-01-30 10:45:44,776 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9116): Würfel 0 nicht an Zielposition (dx=0.090, dy=0.037)
+2026-01-30 10:45:44,777 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 19)
+2026-01-30 10:45:44,777 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 59
+2026-01-30 10:45:44,798 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:45:44,848 [    INFO] FrankaCubeStacking: Env 9: Neue Episode gestartet (verbleibend: 18, in Arbeit: 10, Versuche: 70/150)
+2026-01-30 10:46:09,747 [ WARNING] FrankaCubeStacking: ❌ Env 0: Episode verworfen (Seed 117): Würfel 0 nicht an Zielposition (dx=0.203, dy=0.122)
+2026-01-30 10:46:09,748 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 19)
+2026-01-30 10:46:09,748 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 60
+2026-01-30 10:46:09,769 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:09,776 [    INFO] FrankaCubeStacking: Env 0: Neue Episode gestartet (verbleibend: 18, in Arbeit: 10, Versuche: 71/150)
+2026-01-30 10:46:09,802 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1117): Würfel 0 nicht an Zielposition (dx=0.033, dy=0.020)
+2026-01-30 10:46:09,802 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 19)
+2026-01-30 10:46:09,802 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 61
+2026-01-30 10:46:09,825 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:09,863 [    INFO] FrankaCubeStacking: Env 1: Neue Episode gestartet (verbleibend: 18, in Arbeit: 10, Versuche: 72/150)
+2026-01-30 10:46:09,889 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2117): Würfel 0 nicht an Zielposition (dx=0.046, dy=0.027)
+2026-01-30 10:46:09,890 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 19)
+2026-01-30 10:46:09,890 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 62
+2026-01-30 10:46:09,915 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:09,948 [    INFO] FrankaCubeStacking: Env 2: Neue Episode gestartet (verbleibend: 18, in Arbeit: 10, Versuche: 73/150)
+2026-01-30 10:46:09,974 [    INFO] MinDataLogger: Episode 22 gestartet
+2026-01-30 10:46:10,884 [    INFO] MinDataLogger: Episode 22 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:46:10,887 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 22
+2026-01-30 10:46:10,887 [    INFO] FrankaCubeStacking: ✅ Env 3: Episode 23 erfolgreich (152 steps, Seed 3117)
+2026-01-30 10:46:10,910 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:10,945 [    INFO] FrankaCubeStacking: Env 3: Neue Episode gestartet (verbleibend: 17, in Arbeit: 10, Versuche: 74/150)
+2026-01-30 10:46:10,970 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4117): Würfel 0 nicht an Zielposition (dx=0.185, dy=0.010)
+2026-01-30 10:46:10,971 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 18)
+2026-01-30 10:46:10,971 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 64
+2026-01-30 10:46:10,993 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:11,024 [    INFO] FrankaCubeStacking: Env 4: Neue Episode gestartet (verbleibend: 17, in Arbeit: 10, Versuche: 75/150)
+2026-01-30 10:46:11,049 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5117): Würfel 0 nicht an Zielposition (dx=0.208, dy=0.000)
+2026-01-30 10:46:11,050 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 18)
+2026-01-30 10:46:11,050 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 65
+2026-01-30 10:46:11,072 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:11,103 [    INFO] FrankaCubeStacking: Env 5: Neue Episode gestartet (verbleibend: 17, in Arbeit: 10, Versuche: 76/150)
+2026-01-30 10:46:11,128 [ WARNING] FrankaCubeStacking: ❌ Env 6: Episode verworfen (Seed 6117): Würfel 0 nicht an Zielposition (dx=0.251, dy=0.162)
+2026-01-30 10:46:11,128 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 18)
+2026-01-30 10:46:11,128 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 66
+2026-01-30 10:46:11,149 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:11,179 [    INFO] FrankaCubeStacking: Env 6: Neue Episode gestartet (verbleibend: 17, in Arbeit: 10, Versuche: 77/150)
+2026-01-30 10:46:11,204 [    INFO] MinDataLogger: Episode 23 gestartet
+2026-01-30 10:46:12,042 [    INFO] MinDataLogger: Episode 23 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:46:12,043 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 23
+2026-01-30 10:46:12,043 [    INFO] FrankaCubeStacking: ✅ Env 7: Episode 24 erfolgreich (152 steps, Seed 7117)
+2026-01-30 10:46:12,064 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:12,094 [    INFO] FrankaCubeStacking: Env 7: Neue Episode gestartet (verbleibend: 16, in Arbeit: 10, Versuche: 78/150)
+2026-01-30 10:46:12,119 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8117): Würfel 0 nicht an Zielposition (dx=0.294, dy=0.286)
+2026-01-30 10:46:12,120 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 17)
+2026-01-30 10:46:12,120 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 68
+2026-01-30 10:46:12,144 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:12,176 [    INFO] FrankaCubeStacking: Env 8: Neue Episode gestartet (verbleibend: 16, in Arbeit: 10, Versuche: 79/150)
+2026-01-30 10:46:12,201 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9117): Würfel 0 nicht an Zielposition (dx=0.334, dy=0.570)
+2026-01-30 10:46:12,202 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 17)
+2026-01-30 10:46:12,202 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 69
+2026-01-30 10:46:12,224 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:12,255 [    INFO] FrankaCubeStacking: Env 9: Neue Episode gestartet (verbleibend: 16, in Arbeit: 10, Versuche: 80/150)
+2026-01-30 10:46:36,600 [ WARNING] FrankaCubeStacking: ❌ Env 0: Episode verworfen (Seed 118): Würfel 0 nicht an Zielposition (dx=0.300, dy=0.541)
+2026-01-30 10:46:36,600 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 17)
+2026-01-30 10:46:36,601 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 70
+2026-01-30 10:46:36,622 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:36,629 [    INFO] FrankaCubeStacking: Env 0: Neue Episode gestartet (verbleibend: 16, in Arbeit: 10, Versuche: 81/150)
+2026-01-30 10:46:36,665 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1118): Würfel 0 nicht an Zielposition (dx=0.218, dy=0.477)
+2026-01-30 10:46:36,666 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 17)
+2026-01-30 10:46:36,666 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 71
+2026-01-30 10:46:36,688 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:36,721 [    INFO] FrankaCubeStacking: Env 1: Neue Episode gestartet (verbleibend: 16, in Arbeit: 10, Versuche: 82/150)
+2026-01-30 10:46:36,748 [    INFO] MinDataLogger: Episode 24 gestartet
+2026-01-30 10:46:37,644 [    INFO] MinDataLogger: Episode 24 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:46:37,653 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 24
+2026-01-30 10:46:37,653 [    INFO] FrankaCubeStacking: ✅ Env 2: Episode 25 erfolgreich (152 steps, Seed 2118)
+2026-01-30 10:46:37,677 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:37,719 [    INFO] FrankaCubeStacking: Env 2: Neue Episode gestartet (verbleibend: 15, in Arbeit: 10, Versuche: 83/150)
+2026-01-30 10:46:37,756 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3118): Würfel 0 nicht an Zielposition (dx=0.032, dy=0.014)
+2026-01-30 10:46:37,756 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 16)
+2026-01-30 10:46:37,757 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 73
+2026-01-30 10:46:37,790 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:37,836 [    INFO] FrankaCubeStacking: Env 3: Neue Episode gestartet (verbleibend: 15, in Arbeit: 10, Versuche: 84/150)
+2026-01-30 10:46:37,876 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4118): Würfel 0 nicht an Zielposition (dx=0.535, dy=0.500)
+2026-01-30 10:46:37,877 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 16)
+2026-01-30 10:46:37,877 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 74
+2026-01-30 10:46:37,910 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:37,949 [    INFO] FrankaCubeStacking: Env 4: Neue Episode gestartet (verbleibend: 15, in Arbeit: 10, Versuche: 85/150)
+2026-01-30 10:46:37,986 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5118): Würfel 0 nicht an Zielposition (dx=0.045, dy=0.286)
+2026-01-30 10:46:37,986 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 16)
+2026-01-30 10:46:37,987 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 75
+2026-01-30 10:46:38,014 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:38,060 [    INFO] FrankaCubeStacking: Env 5: Neue Episode gestartet (verbleibend: 15, in Arbeit: 10, Versuche: 86/150)
+2026-01-30 10:46:38,096 [ WARNING] FrankaCubeStacking: ❌ Env 6: Episode verworfen (Seed 6118): Würfel 0 nicht an Zielposition (dx=0.063, dy=0.024)
+2026-01-30 10:46:38,096 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 16)
+2026-01-30 10:46:38,096 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 76
+2026-01-30 10:46:38,125 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:38,166 [    INFO] FrankaCubeStacking: Env 6: Neue Episode gestartet (verbleibend: 15, in Arbeit: 10, Versuche: 87/150)
+2026-01-30 10:46:38,193 [ WARNING] FrankaCubeStacking: ❌ Env 7: Episode verworfen (Seed 7118): Würfel 0 nicht an Zielposition (dx=0.081, dy=0.047)
+2026-01-30 10:46:38,193 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 16)
+2026-01-30 10:46:38,193 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 77
+2026-01-30 10:46:38,216 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:38,249 [    INFO] FrankaCubeStacking: Env 7: Neue Episode gestartet (verbleibend: 15, in Arbeit: 10, Versuche: 88/150)
+2026-01-30 10:46:38,275 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8118): Würfel 0 nicht an Zielposition (dx=0.079, dy=0.261)
+2026-01-30 10:46:38,275 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 16)
+2026-01-30 10:46:38,275 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 78
+2026-01-30 10:46:38,299 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:38,332 [    INFO] FrankaCubeStacking: Env 8: Neue Episode gestartet (verbleibend: 15, in Arbeit: 10, Versuche: 89/150)
+2026-01-30 10:46:38,361 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9118): Würfel 0 nicht an Zielposition (dx=0.239, dy=0.192)
+2026-01-30 10:46:38,361 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 16)
+2026-01-30 10:46:38,361 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 79
+2026-01-30 10:46:38,386 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:46:38,421 [    INFO] FrankaCubeStacking: Env 9: Neue Episode gestartet (verbleibend: 15, in Arbeit: 10, Versuche: 90/150)
+2026-01-30 10:47:02,450 [ WARNING] FrankaCubeStacking: ❌ Env 0: Episode verworfen (Seed 119): Würfel 0 nicht an Zielposition (dx=0.103, dy=0.353)
+2026-01-30 10:47:02,450 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 16)
+2026-01-30 10:47:02,450 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 80
+2026-01-30 10:47:02,472 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:02,478 [    INFO] FrankaCubeStacking: Env 0: Neue Episode gestartet (verbleibend: 15, in Arbeit: 10, Versuche: 91/150)
+2026-01-30 10:47:02,503 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1119): Würfel 0 nicht an Zielposition (dx=0.143, dy=0.395)
+2026-01-30 10:47:02,504 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 16)
+2026-01-30 10:47:02,504 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 81
+2026-01-30 10:47:02,526 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:02,559 [    INFO] FrankaCubeStacking: Env 1: Neue Episode gestartet (verbleibend: 15, in Arbeit: 10, Versuche: 92/150)
+2026-01-30 10:47:02,585 [    INFO] MinDataLogger: Episode 25 gestartet
+2026-01-30 10:47:03,457 [    INFO] MinDataLogger: Episode 25 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:47:03,465 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 25
+2026-01-30 10:47:03,465 [    INFO] FrankaCubeStacking: ✅ Env 2: Episode 26 erfolgreich (152 steps, Seed 2119)
+2026-01-30 10:47:03,489 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:03,525 [    INFO] FrankaCubeStacking: Env 2: Neue Episode gestartet (verbleibend: 14, in Arbeit: 10, Versuche: 93/150)
+2026-01-30 10:47:03,551 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3119): Würfel 0 nicht an Zielposition (dx=0.256, dy=0.237)
+2026-01-30 10:47:03,552 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 15)
+2026-01-30 10:47:03,552 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 83
+2026-01-30 10:47:03,575 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:03,609 [    INFO] FrankaCubeStacking: Env 3: Neue Episode gestartet (verbleibend: 14, in Arbeit: 10, Versuche: 94/150)
+2026-01-30 10:47:03,636 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4119): Würfel 0 nicht an Zielposition (dx=0.353, dy=0.062)
+2026-01-30 10:47:03,636 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 15)
+2026-01-30 10:47:03,636 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 84
+2026-01-30 10:47:03,668 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:03,701 [    INFO] FrankaCubeStacking: Env 4: Neue Episode gestartet (verbleibend: 14, in Arbeit: 10, Versuche: 95/150)
+2026-01-30 10:47:03,728 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5119): Würfel 0 nicht an Zielposition (dx=0.032, dy=0.344)
+2026-01-30 10:47:03,729 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 15)
+2026-01-30 10:47:03,729 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 85
+2026-01-30 10:47:03,751 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:03,784 [    INFO] FrankaCubeStacking: Env 5: Neue Episode gestartet (verbleibend: 14, in Arbeit: 10, Versuche: 96/150)
+2026-01-30 10:47:03,810 [ WARNING] FrankaCubeStacking: ❌ Env 6: Episode verworfen (Seed 6119): Würfel 0 nicht an Zielposition (dx=0.144, dy=0.006)
+2026-01-30 10:47:03,811 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 15)
+2026-01-30 10:47:03,811 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 86
+2026-01-30 10:47:03,832 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:03,864 [    INFO] FrankaCubeStacking: Env 6: Neue Episode gestartet (verbleibend: 14, in Arbeit: 10, Versuche: 97/150)
+2026-01-30 10:47:03,890 [ WARNING] FrankaCubeStacking: ❌ Env 7: Episode verworfen (Seed 7119): Würfel 0 nicht an Zielposition (dx=0.196, dy=0.138)
+2026-01-30 10:47:03,891 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 15)
+2026-01-30 10:47:03,891 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 87
+2026-01-30 10:47:03,913 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:03,945 [    INFO] FrankaCubeStacking: Env 7: Neue Episode gestartet (verbleibend: 14, in Arbeit: 10, Versuche: 98/150)
+2026-01-30 10:47:03,971 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8119): Würfel 0 nicht an Zielposition (dx=0.015, dy=0.052)
+2026-01-30 10:47:03,972 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 15)
+2026-01-30 10:47:03,972 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 88
+2026-01-30 10:47:03,995 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:04,026 [    INFO] FrankaCubeStacking: Env 8: Neue Episode gestartet (verbleibend: 14, in Arbeit: 10, Versuche: 99/150)
+2026-01-30 10:47:04,055 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9119): Würfel 0 nicht an Zielposition (dx=0.156, dy=0.349)
+2026-01-30 10:47:04,056 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 15)
+2026-01-30 10:47:04,056 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 89
+2026-01-30 10:47:04,086 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:04,128 [    INFO] FrankaCubeStacking: Env 9: Neue Episode gestartet (verbleibend: 14, in Arbeit: 10, Versuche: 100/150)
+2026-01-30 10:47:27,761 [    INFO] MinDataLogger: Episode 26 gestartet
+2026-01-30 10:47:28,613 [    INFO] MinDataLogger: Episode 26 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:47:28,621 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 26
+2026-01-30 10:47:28,621 [    INFO] FrankaCubeStacking: ✅ Env 0: Episode 27 erfolgreich (152 steps, Seed 120)
+2026-01-30 10:47:28,642 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:28,647 [    INFO] FrankaCubeStacking: Env 0: Neue Episode gestartet (verbleibend: 13, in Arbeit: 10, Versuche: 101/150)
+2026-01-30 10:47:28,672 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1120): Würfel 0 nicht an Zielposition (dx=0.182, dy=0.341)
+2026-01-30 10:47:28,672 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 14)
+2026-01-30 10:47:28,672 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 91
+2026-01-30 10:47:28,693 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:28,724 [    INFO] FrankaCubeStacking: Env 1: Neue Episode gestartet (verbleibend: 13, in Arbeit: 10, Versuche: 102/150)
+2026-01-30 10:47:28,749 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2120): Würfel 0 nicht an Zielposition (dx=0.274, dy=0.100)
+2026-01-30 10:47:28,750 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 14)
+2026-01-30 10:47:28,750 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 92
+2026-01-30 10:47:28,772 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:28,805 [    INFO] FrankaCubeStacking: Env 2: Neue Episode gestartet (verbleibend: 13, in Arbeit: 10, Versuche: 103/150)
+2026-01-30 10:47:28,830 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3120): Würfel 0 nicht an Zielposition (dx=0.040, dy=0.070)
+2026-01-30 10:47:28,830 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 14)
+2026-01-30 10:47:28,830 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 93
+2026-01-30 10:47:28,852 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:28,883 [    INFO] FrankaCubeStacking: Env 3: Neue Episode gestartet (verbleibend: 13, in Arbeit: 10, Versuche: 104/150)
+2026-01-30 10:47:28,915 [    INFO] MinDataLogger: Episode 27 gestartet
+2026-01-30 10:47:29,725 [    INFO] MinDataLogger: Episode 27 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:47:29,726 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 27
+2026-01-30 10:47:29,726 [    INFO] FrankaCubeStacking: ✅ Env 4: Episode 28 erfolgreich (152 steps, Seed 4120)
+2026-01-30 10:47:29,747 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:29,778 [    INFO] FrankaCubeStacking: Env 4: Neue Episode gestartet (verbleibend: 12, in Arbeit: 10, Versuche: 105/150)
+2026-01-30 10:47:29,802 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5120): Würfel 0 nicht an Zielposition (dx=0.085, dy=0.095)
+2026-01-30 10:47:29,803 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 13)
+2026-01-30 10:47:29,803 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 95
+2026-01-30 10:47:29,826 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:29,858 [    INFO] FrankaCubeStacking: Env 5: Neue Episode gestartet (verbleibend: 12, in Arbeit: 10, Versuche: 106/150)
+2026-01-30 10:47:29,883 [ WARNING] FrankaCubeStacking: ❌ Env 6: Episode verworfen (Seed 6120): Würfel 0 nicht an Zielposition (dx=0.219, dy=0.212)
+2026-01-30 10:47:29,883 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 13)
+2026-01-30 10:47:29,883 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 96
+2026-01-30 10:47:29,906 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:29,939 [    INFO] FrankaCubeStacking: Env 6: Neue Episode gestartet (verbleibend: 12, in Arbeit: 10, Versuche: 107/150)
+2026-01-30 10:47:29,965 [    INFO] MinDataLogger: Episode 28 gestartet
+2026-01-30 10:47:30,755 [    INFO] MinDataLogger: Episode 28 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:47:30,757 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 28
+2026-01-30 10:47:30,757 [    INFO] FrankaCubeStacking: ✅ Env 7: Episode 29 erfolgreich (152 steps, Seed 7120)
+2026-01-30 10:47:30,778 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:30,822 [    INFO] FrankaCubeStacking: Env 7: Neue Episode gestartet (verbleibend: 11, in Arbeit: 10, Versuche: 108/150)
+2026-01-30 10:47:30,848 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8120): Würfel 0 nicht an Zielposition (dx=0.219, dy=0.037)
+2026-01-30 10:47:30,849 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 12)
+2026-01-30 10:47:30,849 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 98
+2026-01-30 10:47:30,880 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:30,913 [    INFO] FrankaCubeStacking: Env 8: Neue Episode gestartet (verbleibend: 11, in Arbeit: 10, Versuche: 109/150)
+2026-01-30 10:47:30,947 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9120): Würfel 0 nicht an Zielposition (dx=0.140, dy=0.457)
+2026-01-30 10:47:30,947 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 12)
+2026-01-30 10:47:30,947 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 99
+2026-01-30 10:47:30,968 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:30,997 [    INFO] FrankaCubeStacking: Env 9: Neue Episode gestartet (verbleibend: 11, in Arbeit: 10, Versuche: 110/150)
+2026-01-30 10:47:55,276 [ WARNING] FrankaCubeStacking: ❌ Env 0: Episode verworfen (Seed 121): Würfel 0 nicht an Zielposition (dx=0.144, dy=0.168)
+2026-01-30 10:47:55,276 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 12)
+2026-01-30 10:47:55,277 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 100
+2026-01-30 10:47:55,299 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:55,307 [    INFO] FrankaCubeStacking: Env 0: Neue Episode gestartet (verbleibend: 11, in Arbeit: 10, Versuche: 111/150)
+2026-01-30 10:47:55,340 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1121): Würfel 0 nicht an Zielposition (dx=0.059, dy=0.044)
+2026-01-30 10:47:55,341 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 12)
+2026-01-30 10:47:55,341 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 101
+2026-01-30 10:47:55,360 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:55,401 [    INFO] FrankaCubeStacking: Env 1: Neue Episode gestartet (verbleibend: 11, in Arbeit: 10, Versuche: 112/150)
+2026-01-30 10:47:55,435 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2121): Würfel 0 nicht an Zielposition (dx=0.091, dy=0.116)
+2026-01-30 10:47:55,435 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 12)
+2026-01-30 10:47:55,435 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 102
+2026-01-30 10:47:55,459 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:55,488 [    INFO] FrankaCubeStacking: Env 2: Neue Episode gestartet (verbleibend: 11, in Arbeit: 10, Versuche: 113/150)
+2026-01-30 10:47:55,526 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3121): Würfel 0 nicht an Zielposition (dx=0.015, dy=0.169)
+2026-01-30 10:47:55,526 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 12)
+2026-01-30 10:47:55,526 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 103
+2026-01-30 10:47:55,557 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:55,594 [    INFO] FrankaCubeStacking: Env 3: Neue Episode gestartet (verbleibend: 11, in Arbeit: 10, Versuche: 114/150)
+2026-01-30 10:47:55,628 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4121): Würfel 0 nicht an Zielposition (dx=0.117, dy=0.179)
+2026-01-30 10:47:55,628 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 12)
+2026-01-30 10:47:55,628 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 104
+2026-01-30 10:47:55,655 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:55,696 [    INFO] FrankaCubeStacking: Env 4: Neue Episode gestartet (verbleibend: 11, in Arbeit: 10, Versuche: 115/150)
+2026-01-30 10:47:55,730 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5121): Würfel 0 nicht an Zielposition (dx=0.254, dy=0.221)
+2026-01-30 10:47:55,730 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 12)
+2026-01-30 10:47:55,730 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 105
+2026-01-30 10:47:55,760 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:55,803 [    INFO] FrankaCubeStacking: Env 5: Neue Episode gestartet (verbleibend: 11, in Arbeit: 10, Versuche: 116/150)
+2026-01-30 10:47:55,831 [    INFO] MinDataLogger: Episode 29 gestartet
+2026-01-30 10:47:56,731 [    INFO] MinDataLogger: Episode 29 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:47:56,732 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 29
+2026-01-30 10:47:56,733 [    INFO] FrankaCubeStacking: ✅ Env 6: Episode 30 erfolgreich (152 steps, Seed 6121)
+2026-01-30 10:47:56,762 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:56,801 [    INFO] FrankaCubeStacking: Env 6: Neue Episode gestartet (verbleibend: 10, in Arbeit: 10, Versuche: 117/150)
+2026-01-30 10:47:56,828 [    INFO] MinDataLogger: Episode 30 gestartet
+2026-01-30 10:47:57,674 [    INFO] MinDataLogger: Episode 30 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:47:57,675 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 30
+2026-01-30 10:47:57,676 [    INFO] FrankaCubeStacking: ✅ Env 7: Episode 31 erfolgreich (152 steps, Seed 7121)
+2026-01-30 10:47:57,698 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:57,730 [    INFO] FrankaCubeStacking: Env 7: Neue Episode gestartet (verbleibend: 9, in Arbeit: 10, Versuche: 118/150)
+2026-01-30 10:47:57,755 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8121): Würfel 0 nicht an Zielposition (dx=0.171, dy=0.085)
+2026-01-30 10:47:57,756 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 10)
+2026-01-30 10:47:57,756 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 108
+2026-01-30 10:47:57,777 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:57,809 [    INFO] FrankaCubeStacking: Env 8: Neue Episode gestartet (verbleibend: 9, in Arbeit: 10, Versuche: 119/150)
+2026-01-30 10:47:57,834 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9121): Würfel 0 nicht an Zielposition (dx=0.160, dy=0.230)
+2026-01-30 10:47:57,835 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 10)
+2026-01-30 10:47:57,835 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 109
+2026-01-30 10:47:57,858 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:47:57,891 [    INFO] FrankaCubeStacking: Env 9: Neue Episode gestartet (verbleibend: 9, in Arbeit: 10, Versuche: 120/150)
+2026-01-30 10:48:23,039 [    INFO] MinDataLogger: Episode 31 gestartet
+2026-01-30 10:48:23,919 [    INFO] MinDataLogger: Episode 31 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:48:23,931 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 31
+2026-01-30 10:48:23,931 [    INFO] FrankaCubeStacking: ✅ Env 0: Episode 32 erfolgreich (152 steps, Seed 122)
+2026-01-30 10:48:23,959 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:23,967 [    INFO] FrankaCubeStacking: Env 0: Neue Episode gestartet (verbleibend: 8, in Arbeit: 10, Versuche: 121/150)
+2026-01-30 10:48:23,998 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1122): Würfel 0 nicht an Zielposition (dx=0.201, dy=0.231)
+2026-01-30 10:48:23,998 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 9)
+2026-01-30 10:48:23,998 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 111
+2026-01-30 10:48:24,030 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:24,065 [    INFO] FrankaCubeStacking: Env 1: Neue Episode gestartet (verbleibend: 8, in Arbeit: 10, Versuche: 122/150)
+2026-01-30 10:48:24,092 [    INFO] MinDataLogger: Episode 32 gestartet
+2026-01-30 10:48:24,932 [    INFO] MinDataLogger: Episode 32 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:48:24,940 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 32
+2026-01-30 10:48:24,940 [    INFO] FrankaCubeStacking: ✅ Env 2: Episode 33 erfolgreich (152 steps, Seed 2122)
+2026-01-30 10:48:24,962 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:24,995 [    INFO] FrankaCubeStacking: Env 2: Neue Episode gestartet (verbleibend: 7, in Arbeit: 10, Versuche: 123/150)
+2026-01-30 10:48:25,023 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3122): Würfel 0 nicht an Zielposition (dx=0.115, dy=0.104)
+2026-01-30 10:48:25,023 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 8)
+2026-01-30 10:48:25,023 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 113
+2026-01-30 10:48:25,045 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:25,078 [    INFO] FrankaCubeStacking: Env 3: Neue Episode gestartet (verbleibend: 7, in Arbeit: 10, Versuche: 124/150)
+2026-01-30 10:48:25,110 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4122): Würfel 0 nicht an Zielposition (dx=0.193, dy=0.505)
+2026-01-30 10:48:25,111 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 8)
+2026-01-30 10:48:25,111 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 114
+2026-01-30 10:48:25,135 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:25,168 [    INFO] FrankaCubeStacking: Env 4: Neue Episode gestartet (verbleibend: 7, in Arbeit: 10, Versuche: 125/150)
+2026-01-30 10:48:25,195 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5122): Würfel 0 nicht an Zielposition (dx=0.205, dy=0.006)
+2026-01-30 10:48:25,195 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 8)
+2026-01-30 10:48:25,195 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 115
+2026-01-30 10:48:25,217 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:25,250 [    INFO] FrankaCubeStacking: Env 5: Neue Episode gestartet (verbleibend: 7, in Arbeit: 10, Versuche: 126/150)
+2026-01-30 10:48:25,278 [ WARNING] FrankaCubeStacking: ❌ Env 6: Episode verworfen (Seed 6122): Würfel 0 nicht an Zielposition (dx=0.012, dy=0.380)
+2026-01-30 10:48:25,279 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 8)
+2026-01-30 10:48:25,279 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 116
+2026-01-30 10:48:25,301 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:25,337 [    INFO] FrankaCubeStacking: Env 6: Neue Episode gestartet (verbleibend: 7, in Arbeit: 10, Versuche: 127/150)
+2026-01-30 10:48:25,363 [    INFO] MinDataLogger: Episode 33 gestartet
+2026-01-30 10:48:26,244 [    INFO] MinDataLogger: Episode 33 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:48:26,245 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 33
+2026-01-30 10:48:26,246 [    INFO] FrankaCubeStacking: ✅ Env 7: Episode 34 erfolgreich (152 steps, Seed 7122)
+2026-01-30 10:48:26,267 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:26,298 [    INFO] FrankaCubeStacking: Env 7: Neue Episode gestartet (verbleibend: 6, in Arbeit: 10, Versuche: 128/150)
+2026-01-30 10:48:26,323 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8122): Würfel 0 nicht an Zielposition (dx=0.070, dy=0.170)
+2026-01-30 10:48:26,324 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 7)
+2026-01-30 10:48:26,324 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 118
+2026-01-30 10:48:26,346 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:26,378 [    INFO] FrankaCubeStacking: Env 8: Neue Episode gestartet (verbleibend: 6, in Arbeit: 10, Versuche: 129/150)
+2026-01-30 10:48:26,404 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9122): Würfel 0 nicht an Zielposition (dx=0.050, dy=0.406)
+2026-01-30 10:48:26,404 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 7)
+2026-01-30 10:48:26,405 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 119
+2026-01-30 10:48:26,426 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:26,459 [    INFO] FrankaCubeStacking: Env 9: Neue Episode gestartet (verbleibend: 6, in Arbeit: 10, Versuche: 130/150)
+2026-01-30 10:48:50,875 [    INFO] MinDataLogger: Episode 34 gestartet
+2026-01-30 10:48:51,732 [    INFO] MinDataLogger: Episode 34 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:48:51,744 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 34
+2026-01-30 10:48:51,744 [    INFO] FrankaCubeStacking: ✅ Env 0: Episode 35 erfolgreich (152 steps, Seed 123)
+2026-01-30 10:48:51,779 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:51,785 [    INFO] FrankaCubeStacking: Env 0: Neue Episode gestartet (verbleibend: 5, in Arbeit: 10, Versuche: 131/150)
+2026-01-30 10:48:51,814 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1123): Würfel 0 nicht an Zielposition (dx=0.004, dy=0.255)
+2026-01-30 10:48:51,814 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 6)
+2026-01-30 10:48:51,814 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 121
+2026-01-30 10:48:51,837 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:51,870 [    INFO] FrankaCubeStacking: Env 1: Neue Episode gestartet (verbleibend: 5, in Arbeit: 10, Versuche: 132/150)
+2026-01-30 10:48:51,895 [    INFO] MinDataLogger: Episode 35 gestartet
+2026-01-30 10:48:52,734 [    INFO] MinDataLogger: Episode 35 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:48:52,741 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 35
+2026-01-30 10:48:52,741 [    INFO] FrankaCubeStacking: ✅ Env 2: Episode 36 erfolgreich (152 steps, Seed 2123)
+2026-01-30 10:48:52,762 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:52,793 [    INFO] FrankaCubeStacking: Env 2: Neue Episode gestartet (verbleibend: 4, in Arbeit: 10, Versuche: 133/150)
+2026-01-30 10:48:52,817 [    INFO] MinDataLogger: Episode 36 gestartet
+2026-01-30 10:48:53,638 [    INFO] MinDataLogger: Episode 36 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:48:53,641 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 36
+2026-01-30 10:48:53,641 [    INFO] FrankaCubeStacking: ✅ Env 3: Episode 37 erfolgreich (152 steps, Seed 3123)
+2026-01-30 10:48:53,661 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:53,692 [    INFO] FrankaCubeStacking: Env 3: Neue Episode gestartet (verbleibend: 3, in Arbeit: 10, Versuche: 134/150)
+2026-01-30 10:48:53,717 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4123): Würfel 0 nicht an Zielposition (dx=0.129, dy=0.350)
+2026-01-30 10:48:53,717 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 4)
+2026-01-30 10:48:53,717 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 124
+2026-01-30 10:48:53,739 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:53,771 [    INFO] FrankaCubeStacking: Env 4: Neue Episode gestartet (verbleibend: 3, in Arbeit: 10, Versuche: 135/150)
+2026-01-30 10:48:53,797 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5123): Würfel 0 nicht an Zielposition (dx=0.234, dy=0.114)
+2026-01-30 10:48:53,797 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 4)
+2026-01-30 10:48:53,798 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 125
+2026-01-30 10:48:53,820 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:53,851 [    INFO] FrankaCubeStacking: Env 5: Neue Episode gestartet (verbleibend: 3, in Arbeit: 10, Versuche: 136/150)
+2026-01-30 10:48:53,876 [ WARNING] FrankaCubeStacking: ❌ Env 6: Episode verworfen (Seed 6123): Würfel 0 nicht an Zielposition (dx=0.235, dy=0.090)
+2026-01-30 10:48:53,876 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 4)
+2026-01-30 10:48:53,876 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 126
+2026-01-30 10:48:53,896 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:53,930 [    INFO] FrankaCubeStacking: Env 6: Neue Episode gestartet (verbleibend: 3, in Arbeit: 10, Versuche: 137/150)
+2026-01-30 10:48:53,957 [ WARNING] FrankaCubeStacking: ❌ Env 7: Episode verworfen (Seed 7123): Würfel 0 nicht an Zielposition (dx=0.311, dy=0.014)
+2026-01-30 10:48:53,957 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 4)
+2026-01-30 10:48:53,957 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 127
+2026-01-30 10:48:53,980 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:54,011 [    INFO] FrankaCubeStacking: Env 7: Neue Episode gestartet (verbleibend: 3, in Arbeit: 10, Versuche: 138/150)
+2026-01-30 10:48:54,037 [    INFO] MinDataLogger: Episode 37 gestartet
+2026-01-30 10:48:54,857 [    INFO] MinDataLogger: Episode 37 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:48:54,858 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 37
+2026-01-30 10:48:54,858 [    INFO] FrankaCubeStacking: ✅ Env 8: Episode 38 erfolgreich (152 steps, Seed 8123)
+2026-01-30 10:48:54,879 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:54,910 [    INFO] FrankaCubeStacking: Env 8: Neue Episode gestartet (verbleibend: 2, in Arbeit: 10, Versuche: 139/150)
+2026-01-30 10:48:54,935 [    INFO] MinDataLogger: Episode 38 gestartet
+2026-01-30 10:48:55,748 [    INFO] MinDataLogger: Episode 38 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:48:55,749 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 38
+2026-01-30 10:48:55,749 [    INFO] FrankaCubeStacking: ✅ Env 9: Episode 39 erfolgreich (152 steps, Seed 9123)
+2026-01-30 10:48:55,772 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:48:55,804 [    INFO] FrankaCubeStacking: Env 9: Neue Episode gestartet (verbleibend: 1, in Arbeit: 10, Versuche: 140/150)
+2026-01-30 10:49:20,004 [    INFO] MinDataLogger: Episode 39 gestartet
+2026-01-30 10:49:20,807 [    INFO] MinDataLogger: Episode 39 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:49:20,814 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 39
+2026-01-30 10:49:20,814 [    INFO] FrankaCubeStacking: ✅ Env 0: Episode 40 erfolgreich (152 steps, Seed 124)
+2026-01-30 10:49:20,834 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:49:20,840 [    INFO] FrankaCubeStacking: Env 0: Neue Episode gestartet (verbleibend: 0, in Arbeit: 10, Versuche: 141/150)
+2026-01-30 10:49:20,864 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1124): Würfel 0 nicht an Zielposition (dx=0.017, dy=0.036)
+2026-01-30 10:49:20,864 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 1)
+2026-01-30 10:49:20,864 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 131
+2026-01-30 10:49:20,885 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:49:20,916 [    INFO] FrankaCubeStacking: Env 1: Neue Episode gestartet (verbleibend: 0, in Arbeit: 10, Versuche: 142/150)
+2026-01-30 10:49:20,941 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2124): Würfel 0 nicht an Zielposition (dx=0.338, dy=0.325)
+2026-01-30 10:49:20,941 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 1)
+2026-01-30 10:49:20,942 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 132
+2026-01-30 10:49:20,964 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:49:20,995 [    INFO] FrankaCubeStacking: Env 2: Neue Episode gestartet (verbleibend: 0, in Arbeit: 10, Versuche: 143/150)
+2026-01-30 10:49:21,021 [    INFO] MinDataLogger: Episode 40 gestartet
+2026-01-30 10:49:21,809 [    INFO] MinDataLogger: Episode 40 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:49:21,812 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 40
+2026-01-30 10:49:21,812 [    INFO] FrankaCubeStacking: ✅ Env 3: Episode 41 erfolgreich (152 steps, Seed 3124)
+2026-01-30 10:49:21,812 [    INFO] FrankaCubeStacking: Env 3: Fertig (4 erfolgreiche Episoden, keine weiteren Episoden verfügbar)
+2026-01-30 10:49:21,837 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4124): Würfel 0 nicht an Zielposition (dx=0.096, dy=0.010)
+2026-01-30 10:49:21,837 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 1)
+2026-01-30 10:49:21,838 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 134
+2026-01-30 10:49:21,859 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:49:21,889 [    INFO] FrankaCubeStacking: Env 4: Neue Episode gestartet (verbleibend: 0, in Arbeit: 9, Versuche: 144/150)
+2026-01-30 10:49:21,914 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5124): Würfel 0 nicht an Zielposition (dx=0.311, dy=0.180)
+2026-01-30 10:49:21,914 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 1)
+2026-01-30 10:49:21,915 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 135
+2026-01-30 10:49:21,937 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:49:21,972 [    INFO] FrankaCubeStacking: Env 5: Neue Episode gestartet (verbleibend: 0, in Arbeit: 9, Versuche: 145/150)
+2026-01-30 10:49:21,997 [    INFO] MinDataLogger: Episode 41 gestartet
+2026-01-30 10:49:22,795 [    INFO] MinDataLogger: Episode 41 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:49:22,798 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 41
+2026-01-30 10:49:22,798 [    INFO] FrankaCubeStacking: ✅ Env 6: Episode 42 erfolgreich (152 steps, Seed 6124)
+2026-01-30 10:49:22,798 [    INFO] FrankaCubeStacking: Env 6: Fertig (7 erfolgreiche Episoden, keine weiteren Episoden verfügbar)
+2026-01-30 10:49:22,821 [ WARNING] FrankaCubeStacking: ❌ Env 7: Episode verworfen (Seed 7124): Würfel 0 nicht an Zielposition (dx=0.083, dy=0.116)
+2026-01-30 10:49:22,822 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 1)
+2026-01-30 10:49:22,822 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 137
+2026-01-30 10:49:22,844 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:49:22,874 [    INFO] FrankaCubeStacking: Env 7: Neue Episode gestartet (verbleibend: 0, in Arbeit: 8, Versuche: 146/150)
+2026-01-30 10:49:22,900 [    INFO] MinDataLogger: Episode 42 gestartet
+2026-01-30 10:49:23,694 [    INFO] MinDataLogger: Episode 42 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:49:23,696 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 42
+2026-01-30 10:49:23,696 [    INFO] FrankaCubeStacking: ✅ Env 8: Episode 43 erfolgreich (152 steps, Seed 8124)
+2026-01-30 10:49:23,696 [    INFO] FrankaCubeStacking: Env 8: Fertig (5 erfolgreiche Episoden, keine weiteren Episoden verfügbar)
+2026-01-30 10:49:23,721 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9124): Würfel 0 nicht an Zielposition (dx=0.111, dy=0.079)
+2026-01-30 10:49:23,721 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 1)
+2026-01-30 10:49:23,721 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 139
+2026-01-30 10:49:23,743 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:49:23,776 [    INFO] FrankaCubeStacking: Env 9: Neue Episode gestartet (verbleibend: 0, in Arbeit: 7, Versuche: 147/150)
+2026-01-30 10:49:46,895 [    INFO] MinDataLogger: Episode 43 gestartet
+2026-01-30 10:49:47,755 [    INFO] MinDataLogger: Episode 43 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:49:47,764 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 43
+2026-01-30 10:49:47,764 [    INFO] FrankaCubeStacking: ✅ Env 0: Episode 44 erfolgreich (152 steps, Seed 125)
+2026-01-30 10:49:47,764 [    INFO] FrankaCubeStacking: Env 0: Fertig (8 erfolgreiche Episoden, keine weiteren Episoden verfügbar)
+2026-01-30 10:49:47,794 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1125): Würfel 0 nicht an Zielposition (dx=0.280, dy=0.382)
+2026-01-30 10:49:47,794 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 1)
+2026-01-30 10:49:47,794 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 141
+2026-01-30 10:49:47,824 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:49:47,834 [    INFO] FrankaCubeStacking: Env 1: Neue Episode gestartet (verbleibend: 0, in Arbeit: 6, Versuche: 148/150)
+2026-01-30 10:49:47,865 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2125): Würfel 0 nicht an Zielposition (dx=0.013, dy=0.083)
+2026-01-30 10:49:47,866 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 1)
+2026-01-30 10:49:47,866 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 142
+2026-01-30 10:49:47,888 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:49:47,924 [    INFO] FrankaCubeStacking: Env 2: Neue Episode gestartet (verbleibend: 0, in Arbeit: 6, Versuche: 149/150)
+2026-01-30 10:49:47,952 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4125): Würfel 0 nicht an Zielposition (dx=0.114, dy=0.531)
+2026-01-30 10:49:47,952 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 1)
+2026-01-30 10:49:47,952 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 143
+2026-01-30 10:49:47,974 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:49:48,006 [    INFO] FrankaCubeStacking: Env 4: Neue Episode gestartet (verbleibend: 0, in Arbeit: 6, Versuche: 150/150)
+2026-01-30 10:49:48,041 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5125): Würfel 0 nicht an Zielposition (dx=0.061, dy=0.185)
+2026-01-30 10:49:48,042 [ WARNING] FrankaCubeStacking:    -> Max. Versuche erreicht, kein Nachfüllen
+2026-01-30 10:49:48,042 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 144
+2026-01-30 10:49:48,042 [ WARNING] FrankaCubeStacking: Env 5: Gestoppt - Max. Versuche erreicht (150/150)
+2026-01-30 10:49:48,069 [ WARNING] FrankaCubeStacking: ❌ Env 7: Episode verworfen (Seed 7125): Würfel 0 nicht an Zielposition (dx=0.101, dy=0.282)
+2026-01-30 10:49:48,069 [ WARNING] FrankaCubeStacking:    -> Max. Versuche erreicht, kein Nachfüllen
+2026-01-30 10:49:48,070 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 145
+2026-01-30 10:49:48,070 [ WARNING] FrankaCubeStacking: Env 7: Gestoppt - Max. Versuche erreicht (150/150)
+2026-01-30 10:49:48,094 [    INFO] MinDataLogger: Episode 44 gestartet
+2026-01-30 10:49:48,971 [    INFO] MinDataLogger: Episode 44 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:49:48,978 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 44
+2026-01-30 10:49:48,978 [    INFO] FrankaCubeStacking: ✅ Env 9: Episode 45 erfolgreich (152 steps, Seed 9125)
+2026-01-30 10:49:48,978 [ WARNING] FrankaCubeStacking: Env 9: Gestoppt - Max. Versuche erreicht (150/150)
+2026-01-30 10:50:10,080 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1126): Würfel 0 nicht an Zielposition (dx=0.127, dy=0.353)
+2026-01-30 10:50:10,081 [ WARNING] FrankaCubeStacking:    -> Max. Versuche erreicht, kein Nachfüllen
+2026-01-30 10:50:10,081 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 147
+2026-01-30 10:50:10,081 [ WARNING] FrankaCubeStacking: Env 1: Gestoppt - Max. Versuche erreicht (150/150)
+2026-01-30 10:50:10,107 [    INFO] MinDataLogger: Episode 45 gestartet
+2026-01-30 10:50:10,971 [    INFO] MinDataLogger: Episode 45 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:50:10,981 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 45
+2026-01-30 10:50:10,981 [    INFO] FrankaCubeStacking: ✅ Env 2: Episode 46 erfolgreich (152 steps, Seed 2126)
+2026-01-30 10:50:10,981 [ WARNING] FrankaCubeStacking: Env 2: Gestoppt - Max. Versuche erreicht (150/150)
+2026-01-30 10:50:11,019 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4126): Würfel 0 nicht an Zielposition (dx=0.275, dy=0.355)
+2026-01-30 10:50:11,019 [ WARNING] FrankaCubeStacking:    -> Max. Versuche erreicht, kein Nachfüllen
+2026-01-30 10:50:11,019 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 149
+2026-01-30 10:50:11,020 [ WARNING] FrankaCubeStacking: Env 4: Gestoppt - Max. Versuche erreicht (150/150)
+2026-01-30 10:50:11,115 [   ERROR] FrankaCubeStacking: ================================================================================
+2026-01-30 10:50:11,115 [   ERROR] FrankaCubeStacking: KRITISCHER FEHLER - Programm wird beendet
+2026-01-30 10:50:11,115 [   ERROR] FrankaCubeStacking: Exception Type: TypeError
+2026-01-30 10:50:11,115 [   ERROR] FrankaCubeStacking: Exception Message: unsupported operand type(s) for +: 'PosixPath' and 'str'
+2026-01-30 10:50:11,115 [   ERROR] FrankaCubeStacking: Full Traceback:
+2026-01-30 10:50:11,118 [   ERROR] FrankaCubeStacking: Traceback (most recent call last):
+2026-01-30 10:50:11,118 [   ERROR] FrankaCubeStacking:   File "/home/tsp_jw/Desktop/isaacsim/00_Franka_Cube_Stack/Franka_Cube_Stacking/fcs_main_parallel.py", line 1331, in <module>
+    # Tracking für parallele Episodes (eine pro Env gleichzeitig aktiv)
+        ^^^^^^
+2026-01-30 10:50:11,118 [   ERROR] FrankaCubeStacking:   File "/home/tsp_jw/Desktop/isaacsim/00_Franka_Cube_Stack/Franka_Cube_Stacking/fcs_main_parallel.py", line 1281, in main
+    event_dt = BASE_EVENT_DT
+                  ^^^^^^^^^^^
+2026-01-30 10:50:11,118 [   ERROR] FrankaCubeStacking: TypeError: unsupported operand type(s) for +: 'PosixPath' and 'str'
+2026-01-30 10:50:11,118 [   ERROR] FrankaCubeStacking: ================================================================================
+2026-01-30 10:50:11,119 [   ERROR] FrankaCubeStacking: ================================================================================
+Traceback (most recent call last):
+  File "/home/tsp_jw/Desktop/isaacsim/00_Franka_Cube_Stack/Franka_Cube_Stacking/fcs_main_parallel.py", line 1331, in <module>
+    # Tracking für parallele Episodes (eine pro Env gleichzeitig aktiv)
+        ^^^^^^
+  File "/home/tsp_jw/Desktop/isaacsim/00_Franka_Cube_Stack/Franka_Cube_Stacking/fcs_main_parallel.py", line 1281, in main
+    event_dt = BASE_EVENT_DT
+                  ^^^^^^^^^^^
+TypeError: unsupported operand type(s) for +: 'PosixPath' and 'str'
+2026-01-30 10:50:11,121 [   ERROR] FrankaCubeStacking: Exception Type: TypeError
+2026-01-30 10:50:11,121 [   ERROR] FrankaCubeStacking: Exception Value: unsupported operand type(s) for +: 'PosixPath' and 'str'
+2026-01-30 10:50:11,121 [   ERROR] FrankaCubeStacking: Full Traceback:
+2026-01-30 10:50:11,122 [   ERROR] FrankaCubeStacking: Traceback (most recent call last):
+2026-01-30 10:50:11,122 [   ERROR] FrankaCubeStacking:   File "/home/tsp_jw/Desktop/isaacsim/00_Franka_Cube_Stack/Franka_Cube_Stacking/fcs_main_parallel.py", line 1331, in <module>
+    # Tracking für parallele Episodes (eine pro Env gleichzeitig aktiv)
+        ^^^^^^
+2026-01-30 10:50:11,122 [   ERROR] FrankaCubeStacking:   File "/home/tsp_jw/Desktop/isaacsim/00_Franka_Cube_Stack/Franka_Cube_Stacking/fcs_main_parallel.py", line 1281, in main
+    event_dt = BASE_EVENT_DT
+                  ^^^^^^^^^^^
+2026-01-30 10:50:11,122 [   ERROR] FrankaCubeStacking: TypeError: unsupported operand type(s) for +: 'PosixPath' and 'str'
