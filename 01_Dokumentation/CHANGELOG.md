@@ -2,6 +2,123 @@
 
 Diese Datei dokumentiert alle Änderungen und Entwicklungsfortschritte am Data Logger für das Franka Cube Stacking Projekt.
 
+## [2026-01-30] - ⚡ Dynamischer Task-Pool: Work-Stealing für optimale Parallelisierung
+
+### 🎯 Problem
+
+Bei der bisherigen statischen Episode-Verteilung (`episodes_per_env = NUM_EPISODES // NUM_ENVS`) kam es zu **Leerlauf-Situationen**:
+
+```
+Beispiel: 50 Episoden auf 10 Environments = 5 pro Env
+
+Env 0: ████████████ fertig (5 Episoden)
+Env 1: ████████████ fertig (5 Episoden)
+...
+Env 8: ████████████ fertig (5 Episoden)
+Env 9: ████████░░░░ noch 2 offen   ← 9 Envs IDLE!
+```
+
+**Ursache**: Unterschiedliche Episode-Dauern durch:
+- Verschiedene Würfel-Positionen (längere/kürzere Wege)
+- Fehlgeschlagene Episoden (Retry-Overhead)
+- Zufällige Controller-Varianz
+
+### 💡 Lösung: Dynamischer Task-Pool (Work-Stealing)
+
+Statt fester Zuteilung: **Zentrale Warteschlange** – wer fertig ist, holt sich die nächste Episode.
+
+```
+┌─────────────────────────────────────────┐
+│         EPISODE-POOL (zentral)          │
+│        remaining_episodes = 50          │
+└────────────────┬────────────────────────┘
+                 │
+    ┌────────────┼────────────┐
+    ▼            ▼            ▼
+┌───────┐   ┌───────┐   ┌───────┐
+│ Env 0 │   │ Env 1 │   │ Env 2 │ ...
+│ holt  │   │ holt  │   │ holt  │
+│ Ep.1  │   │ Ep.2  │   │ Ep.3  │
+└───┬───┘   └───┬───┘   └───┬───┘
+    │           │           │
+    ▼ fertig    │           │
+ holt Ep.11     ▼ fertig    │
+    │        holt Ep.12     ▼ fertig
+    ...         ...      holt Ep.13
+```
+
+### ✅ Implementierung
+
+#### Neue Variablen
+```python
+remaining_episodes_to_start = NUM_EPISODES  # Pool-Größe
+episodes_in_progress = 0                     # Aktuell laufende
+total_attempts = 0                           # Zähler inkl. Fehlschläge
+MAX_TOTAL_ATTEMPTS = NUM_EPISODES * 3        # Sicherheitslimit
+```
+
+#### Kernlogik (nach Episode-Ende)
+```python
+# Episode abgeschlossen
+episodes_in_progress -= 1
+
+# Nächste Episode aus Pool holen
+if remaining_episodes_to_start > 0 and total_successful < NUM_EPISODES:
+    remaining_episodes_to_start -= 1
+    episodes_in_progress += 1
+    total_attempts += 1
+    # → Neue Episode starten
+else:
+    env_done[i] = True  # Env geht in Ruhestand
+```
+
+#### Fehlschlag-Kompensation
+```python
+# Bei fehlgeschlagener Episode: Pool nachfüllen
+if not is_valid:
+    if total_attempts < MAX_TOTAL_ATTEMPTS:
+        remaining_episodes_to_start += 1  # ← Kompensation!
+```
+
+### 📊 Vorteile
+
+| Aspekt | Statisch (alt) | Dynamisch (neu) |
+|--------|----------------|-----------------|
+| Idle-Zeit | Hoch (bis zu 90%) | Minimal |
+| Auslastung | Ungleichmäßig | Optimal |
+| Fehlschlag-Handling | Feste Quote | Automatische Kompensation |
+| Episode-Anzahl | Kann unterschreiten | Exakt garantiert* |
+
+*Solange Erfolgsrate > 33% (bei 3x Retry-Limit)
+
+### 🔒 Garantien
+
+1. **Exakt `NUM_EPISODES` erfolgreiche Episoden** (wenn möglich)
+2. **Keine Idle-Environments** bis Pool leer
+3. **Keine Überschreitung** der Ziel-Anzahl
+4. **Abbruch-Sicherheit** bei zu vielen Fehlschlägen
+
+### 📋 Geänderte Dateien
+
+- `fcs_main_parallel.py`:
+  - Zeile ~900: Task-Pool Variablen
+  - Zeile ~930: Initiale Episode-Verteilung mit Pool
+  - Zeile ~970: Hauptschleifen-Abbruchbedingung
+  - Zeile ~1220: Work-Stealing Logik nach Episode-Ende
+  - Zeile ~1170: Fehlschlag-Kompensation
+  - Zeile ~1300: Erweiterte Abschluss-Statistik
+
+### 📝 Logging-Verbesserungen
+
+```
+INFO: Task-Pool initialisiert: 50 Episoden zu verteilen
+INFO:   Max. Versuche bei Fehlschlägen: 150
+INFO: Env 3: Neue Episode gestartet (verbleibend: 42, in Arbeit: 8, Versuche: 12/150)
+INFO: Env 7: Fertig (6 erfolgreiche Episoden, keine weiteren verfügbar)
+```
+
+---
+
 ## [2026-01-28] - 🤖 Robot-Opacity: Roboter-freie Trainingsbilder
 
 ### 🎯 Problem

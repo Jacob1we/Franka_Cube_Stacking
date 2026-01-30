@@ -9,22 +9,22 @@ simulation:
 
 # Parallelisierung
 parallel:
-  num_envs: 4                     # 1 = Single, >1 = Parallel (z.B. 4 für 2x2 Grid)
+  num_envs: 10                     # 1 = Single, >1 = Parallel (z.B. 4 für 2x2 Grid)
   env_spacing: 2.5                  # Abstand zwischen Umgebungen (Meter)
 
 # Datensammlung
 dataset:
-  num_episodes: 16                  # Anzahl zu sammelnder Episoden (TOTAL)
+  num_episodes: 50                  # Anzahl zu sammelnder Episoden (TOTAL)
   # path: "E:/00_Coding_SSD/fcs_datasets" 
-  path: "~/Desktop/fcs_datasets"
+  path: "/home/tsp_jw/Desktop/fcs_datasets"
   # path: "/media/tsp_jw/fc8bca1b-cab8-4522-81d0-06172d2beae8/fcs_datasets"
-  name: "franka_cube_stack_ds"
+  name: "NEps50_ActInt10_RobOpac10_NCams1_NCube1"
   save_png: true                    # Speichere alle Bilder auch als PNG
   action_mode: "ee_pos"             # Action-Codierung:
                                     #   "delta_pose": [dx, dy, dz, d_yaw] - relative Positionsänderung (4D)
                                     #   "velocity":   [vx, vy, vz, omega_z] - Geschwindigkeiten (4D)
                                     #   "ee_pos":     [x_s, y_s, z_s, x_e, y_e, z_e] - EE Start/End Position (6D, wie DINO WM)
-  action_interval: 50               # Frames pro Action (wie Rope-Format):
+  action_interval: 10               # Frames pro Action (wie Rope-Format):
                                     #   1 = jeder Frame wird gespeichert
                                     #   10 = alle 10 Frames wird eine Action/H5 gespeichert
                                     #   Die Action beschreibt dann die Bewegung über N Frames
@@ -35,7 +35,7 @@ camera:
   euler: [66.0, 0.0, 32.05]         # Roll, Pitch, Yaw in Grad
   frequency: 20
   resolution: [224, 224]            # Breite x Höhe
-  robot_opacity_for_capture: 0.0    # Roboter-Opazität für Bildaufnahme (0.0 - 1.0)
+  robot_opacity_for_capture: 1.0    # Roboter-Opazität für Bildaufnahme (0.0 - 1.0)
                                     # 1.0 = Voll sichtbar (opak)
                                     # 0.5 = Halbtransparent (50%)
                                     # 0.0 = Komplett unsichtbar (wie Referenz-Datensatz)

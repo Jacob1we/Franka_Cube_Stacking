@@ -1,0 +1,1328 @@
+2026-01-30 10:14:02,029 [    INFO] FrankaCubeStacking: ============================================================
+2026-01-30 10:14:02,029 [    INFO] FrankaCubeStacking: Franka Cube Stacking - PARALLEL Mode
+2026-01-30 10:14:02,029 [    INFO] FrankaCubeStacking:   Config: config.yaml (default)
+2026-01-30 10:14:02,029 [    INFO] FrankaCubeStacking:   Headless: True
+2026-01-30 10:14:02,029 [    INFO] FrankaCubeStacking:   Anzahl Umgebungen: 10
+2026-01-30 10:14:02,029 [    INFO] FrankaCubeStacking:   Episoden gesamt: 50
+2026-01-30 10:14:02,029 [    INFO] FrankaCubeStacking:   Episoden pro Env: 5
+2026-01-30 10:14:02,029 [    INFO] FrankaCubeStacking: ============================================================
+2026-01-30 10:14:02,030 [    INFO] FrankaCubeStacking: Setup Environment 0...
+2026-01-30 10:14:02,934 [    INFO] FrankaCubeStacking: Setup Environment 1...
+2026-01-30 10:14:02,935 [    INFO] FrankaCubeStacking: Setup Environment 2...
+2026-01-30 10:14:02,935 [    INFO] FrankaCubeStacking: Setup Environment 3...
+2026-01-30 10:14:02,936 [    INFO] FrankaCubeStacking: Setup Environment 4...
+2026-01-30 10:14:02,936 [    INFO] FrankaCubeStacking: Setup Environment 5...
+2026-01-30 10:14:02,936 [    INFO] FrankaCubeStacking: Setup Environment 6...
+2026-01-30 10:14:02,936 [    INFO] FrankaCubeStacking: Setup Environment 7...
+2026-01-30 10:14:02,937 [    INFO] FrankaCubeStacking: Setup Environment 8...
+2026-01-30 10:14:02,937 [    INFO] FrankaCubeStacking: Setup Environment 9...
+2026-01-30 10:14:06,136 [    INFO] FrankaCubeStacking: All environments created, world reset complete
+2026-01-30 10:14:06,137 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:14:06,138 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:14:06,138 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:06,138 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:06,139 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:06,139 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:06,139 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:06,139 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:06,139 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:14:06,139 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:06,139 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:06,140 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:06,140 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:06,140 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:14:06,140 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:14:06,175 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:14:06,176 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:06,176 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:06,176 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:14:06,176 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:14:06,196 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:14:06,200 [   ERROR] FrankaCubeStacking: ================================================================================
+2026-01-30 10:14:06,200 [   ERROR] FrankaCubeStacking: KRITISCHER FEHLER - Programm wird beendet
+2026-01-30 10:14:06,200 [   ERROR] FrankaCubeStacking: Exception Type: TypeError
+2026-01-30 10:14:06,200 [   ERROR] FrankaCubeStacking: Exception Message: Camera.__init__() got an unexpected keyword argument 'horizontal_aperture'
+2026-01-30 10:14:06,200 [   ERROR] FrankaCubeStacking: Full Traceback:
+2026-01-30 10:14:06,201 [   ERROR] FrankaCubeStacking: Traceback (most recent call last):
+2026-01-30 10:14:06,201 [   ERROR] FrankaCubeStacking:   File "/home/tsp_jw/Desktop/isaacsim/00_Franka_Cube_Stack/Franka_Cube_Stacking/fcs_main_parallel.py", line 1275, in <module>
+    main()
+2026-01-30 10:14:06,201 [   ERROR] FrankaCubeStacking:   File "/home/tsp_jw/Desktop/isaacsim/00_Franka_Cube_Stack/Franka_Cube_Stacking/fcs_main_parallel.py", line 842, in main
+    camera = env.add_scene_cam()
+             ^^^^^^^^^^^^^^^^^^^
+2026-01-30 10:14:06,201 [   ERROR] FrankaCubeStacking:   File "/home/tsp_jw/Desktop/isaacsim/00_Franka_Cube_Stack/Franka_Cube_Stacking/fcs_main_parallel.py", line 344, in add_scene_cam
+    cam = Camera(
+          ^^^^^^^
+2026-01-30 10:14:06,201 [   ERROR] FrankaCubeStacking: TypeError: Camera.__init__() got an unexpected keyword argument 'horizontal_aperture'
+2026-01-30 10:14:06,202 [   ERROR] FrankaCubeStacking: ================================================================================
+2026-01-30 10:14:06,203 [   ERROR] FrankaCubeStacking: ================================================================================
+Traceback (most recent call last):
+  File "/home/tsp_jw/Desktop/isaacsim/00_Franka_Cube_Stack/Franka_Cube_Stacking/fcs_main_parallel.py", line 1275, in <module>
+    main()
+  File "/home/tsp_jw/Desktop/isaacsim/00_Franka_Cube_Stack/Franka_Cube_Stacking/fcs_main_parallel.py", line 842, in main
+    camera = env.add_scene_cam()
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/tsp_jw/Desktop/isaacsim/00_Franka_Cube_Stack/Franka_Cube_Stacking/fcs_main_parallel.py", line 344, in add_scene_cam
+    cam = Camera(
+          ^^^^^^^
+TypeError: Camera.__init__() got an unexpected keyword argument 'horizontal_aperture'
+2026-01-30 10:14:06,203 [   ERROR] FrankaCubeStacking: Exception Type: TypeError
+2026-01-30 10:14:06,204 [   ERROR] FrankaCubeStacking: Exception Value: Camera.__init__() got an unexpected keyword argument 'horizontal_aperture'
+2026-01-30 10:14:06,204 [   ERROR] FrankaCubeStacking: Full Traceback:
+2026-01-30 10:14:06,204 [   ERROR] FrankaCubeStacking: Traceback (most recent call last):
+2026-01-30 10:14:06,204 [   ERROR] FrankaCubeStacking:   File "/home/tsp_jw/Desktop/isaacsim/00_Franka_Cube_Stack/Franka_Cube_Stacking/fcs_main_parallel.py", line 1275, in <module>
+    main()
+2026-01-30 10:14:06,204 [   ERROR] FrankaCubeStacking:   File "/home/tsp_jw/Desktop/isaacsim/00_Franka_Cube_Stack/Franka_Cube_Stacking/fcs_main_parallel.py", line 842, in main
+    camera = env.add_scene_cam()
+             ^^^^^^^^^^^^^^^^^^^
+2026-01-30 10:14:06,204 [   ERROR] FrankaCubeStacking:   File "/home/tsp_jw/Desktop/isaacsim/00_Franka_Cube_Stack/Franka_Cube_Stacking/fcs_main_parallel.py", line 344, in add_scene_cam
+    cam = Camera(
+          ^^^^^^^
+2026-01-30 10:14:06,205 [   ERROR] FrankaCubeStacking: TypeError: Camera.__init__() got an unexpected keyword argument 'horizontal_aperture'
+2026-01-30 10:14:48,032 [    INFO] FrankaCubeStacking: ============================================================
+2026-01-30 10:14:48,033 [    INFO] FrankaCubeStacking: Franka Cube Stacking - PARALLEL Mode
+2026-01-30 10:14:48,033 [    INFO] FrankaCubeStacking:   Config: config.yaml (default)
+2026-01-30 10:14:48,033 [    INFO] FrankaCubeStacking:   Headless: True
+2026-01-30 10:14:48,033 [    INFO] FrankaCubeStacking:   Anzahl Umgebungen: 10
+2026-01-30 10:14:48,033 [    INFO] FrankaCubeStacking:   Episoden gesamt: 50
+2026-01-30 10:14:48,033 [    INFO] FrankaCubeStacking:   Episoden pro Env: 5
+2026-01-30 10:14:48,033 [    INFO] FrankaCubeStacking: ============================================================
+2026-01-30 10:14:48,033 [    INFO] FrankaCubeStacking: Setup Environment 0...
+2026-01-30 10:14:48,946 [    INFO] FrankaCubeStacking: Setup Environment 1...
+2026-01-30 10:14:48,947 [    INFO] FrankaCubeStacking: Setup Environment 2...
+2026-01-30 10:14:48,947 [    INFO] FrankaCubeStacking: Setup Environment 3...
+2026-01-30 10:14:48,947 [    INFO] FrankaCubeStacking: Setup Environment 4...
+2026-01-30 10:14:48,948 [    INFO] FrankaCubeStacking: Setup Environment 5...
+2026-01-30 10:14:48,949 [    INFO] FrankaCubeStacking: Setup Environment 6...
+2026-01-30 10:14:48,949 [    INFO] FrankaCubeStacking: Setup Environment 7...
+2026-01-30 10:14:48,949 [    INFO] FrankaCubeStacking: Setup Environment 8...
+2026-01-30 10:14:48,950 [    INFO] FrankaCubeStacking: Setup Environment 9...
+2026-01-30 10:14:52,158 [    INFO] FrankaCubeStacking: All environments created, world reset complete
+2026-01-30 10:14:52,159 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:14:52,159 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:14:52,160 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:52,160 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:52,160 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:52,160 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:52,160 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:52,160 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:52,160 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:14:52,160 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:52,160 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:52,160 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:52,161 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:52,161 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:14:52,161 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:14:52,188 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:14:52,189 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:52,189 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:52,189 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:14:52,189 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:14:52,211 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:14:52,416 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:14:52,418 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:14:52,418 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:52,418 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:52,418 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:52,418 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:52,418 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:52,418 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:52,418 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:14:52,418 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:52,419 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:52,419 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:52,419 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:52,419 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:14:52,419 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:14:52,444 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:14:52,444 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:52,445 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:52,445 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:14:52,445 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:14:52,466 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:14:52,601 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:14:52,602 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:14:52,602 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:52,602 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:52,602 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:52,602 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:52,602 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:52,602 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:52,603 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:14:52,603 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:52,603 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:52,603 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:52,603 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:52,603 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:14:52,603 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:14:52,627 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:14:52,627 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:52,627 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:52,628 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:14:52,628 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:14:52,649 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:14:52,808 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:14:52,809 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:14:52,809 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:52,809 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:52,809 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:52,810 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:52,810 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:52,810 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:52,810 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:14:52,810 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:52,810 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:52,810 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:52,811 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:52,811 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:14:52,811 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:14:52,836 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:14:52,837 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:52,837 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:52,837 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:14:52,837 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:14:52,858 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:14:53,015 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:14:53,016 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:14:53,016 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:53,016 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:53,017 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:53,017 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:53,017 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:53,017 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:53,017 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:14:53,017 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:53,017 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:53,017 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:53,017 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:53,017 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:14:53,017 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:14:53,042 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:14:53,042 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:53,042 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:53,042 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:14:53,042 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:14:53,063 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:14:53,242 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:14:53,243 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:14:53,243 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:53,243 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:53,243 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:53,244 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:53,244 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:53,244 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:53,244 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:14:53,244 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:53,244 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:53,244 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:53,244 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:53,244 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:14:53,244 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:14:53,269 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:14:53,269 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:53,269 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:53,269 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:14:53,269 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:14:53,290 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:14:53,484 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:14:53,485 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:14:53,485 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:53,485 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:53,485 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:53,485 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:53,485 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:53,485 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:53,485 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:14:53,486 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:53,486 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:53,486 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:53,486 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:53,486 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:14:53,486 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:14:53,511 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:14:53,511 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:53,511 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:53,511 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:14:53,512 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:14:53,532 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:14:53,744 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:14:53,745 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:14:53,745 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:53,745 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:53,745 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:53,746 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:53,746 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:53,746 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:53,746 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:14:53,746 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:53,746 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:53,746 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:53,746 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:53,746 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:14:53,746 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:14:53,773 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:14:53,774 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:53,774 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:53,774 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:14:53,774 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:14:53,798 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:14:54,026 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:14:54,027 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:14:54,027 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:54,027 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:54,027 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:54,027 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:54,027 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:54,027 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:54,027 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:14:54,027 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:54,027 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:54,028 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:54,028 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:54,028 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:14:54,028 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:14:54,053 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:14:54,053 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:54,053 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:54,053 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:14:54,053 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:14:54,074 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:14:54,308 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:14:54,309 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:14:54,309 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:54,309 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:54,309 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:54,310 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:54,310 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:54,310 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:54,310 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:14:54,310 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:14:54,310 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:14:54,310 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:14:54,310 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:14:54,310 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:14:54,310 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:14:54,344 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:14:54,344 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:14:54,344 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:14:54,345 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:14:54,345 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:14:54,371 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:14:54,651 [    INFO] FrankaCubeStacking: Warte auf Kamera-Initialisierung...
+2026-01-30 10:14:56,355 [    INFO] FrankaCubeStacking: Kamera-Initialisierung abgeschlossen
+2026-01-30 10:14:56,356 [    INFO] MinDataLogger: MinDataLogger initialisiert: ~/Desktop/fcs_datasets/NEps50_ActInt10_RobOpac10_NCams1_NCube1
+2026-01-30 10:14:56,356 [    INFO] MinDataLogger:   Action Mode: ee_pos (6D: start + end Position)
+2026-01-30 10:14:56,356 [    INFO] FrankaCubeStacking: CSV Episode Logger initialisiert: ~/Desktop/fcs_datasets/episode_tracking.csv
+2026-01-30 10:14:56,364 [    INFO] FrankaCubeStacking: Kamera-Kalibrierung gesetzt
+2026-01-30 10:14:56,365 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:14:56,382 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:14:56,431 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:14:56,479 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:14:56,527 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:14:56,575 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:14:56,626 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:14:56,671 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:14:56,722 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:14:56,768 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:14:56,814 [    INFO] FrankaCubeStacking: Warte auf Kamera-Initialisierung...
+2026-01-30 10:14:57,479 [    INFO] FrankaCubeStacking: Kamera-Initialisierung abgeschlossen
+2026-01-30 10:15:20,259 [ WARNING] FrankaCubeStacking: ❌ Env 0: Episode verworfen (Seed 111): Würfel 0 nicht an Zielposition (dx=0.196, dy=0.329)
+2026-01-30 10:15:20,260 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 0
+2026-01-30 10:15:20,281 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:20,310 [    INFO] MinDataLogger: Episode 0 gestartet
+2026-01-30 10:15:21,166 [    INFO] MinDataLogger: Episode 0 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:15:21,173 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 0
+2026-01-30 10:15:21,173 [    INFO] FrankaCubeStacking: ✅ Env 1: Episode 1 erfolgreich (152 steps, Seed 1111)
+2026-01-30 10:15:21,195 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:21,255 [    INFO] MinDataLogger: Episode 1 gestartet
+2026-01-30 10:15:22,055 [    INFO] MinDataLogger: Episode 1 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:15:22,062 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 1
+2026-01-30 10:15:22,062 [    INFO] FrankaCubeStacking: ✅ Env 2: Episode 2 erfolgreich (152 steps, Seed 2111)
+2026-01-30 10:15:22,084 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:22,138 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3111): Würfel 0 nicht an Zielposition (dx=0.139, dy=0.047)
+2026-01-30 10:15:22,139 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 3
+2026-01-30 10:15:22,160 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:22,215 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4111): Würfel 0 nicht an Zielposition (dx=0.309, dy=0.084)
+2026-01-30 10:15:22,215 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 4
+2026-01-30 10:15:22,236 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:22,290 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5111): Würfel 0 nicht an Zielposition (dx=0.386, dy=0.540)
+2026-01-30 10:15:22,291 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 5
+2026-01-30 10:15:22,316 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:22,390 [    INFO] MinDataLogger: Episode 2 gestartet
+2026-01-30 10:15:23,201 [    INFO] MinDataLogger: Episode 2 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:15:23,202 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 2
+2026-01-30 10:15:23,203 [    INFO] FrankaCubeStacking: ✅ Env 6: Episode 3 erfolgreich (152 steps, Seed 6111)
+2026-01-30 10:15:23,228 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:23,300 [ WARNING] FrankaCubeStacking: ❌ Env 7: Episode verworfen (Seed 7111): Würfel 0 nicht an Zielposition (dx=0.352, dy=0.171)
+2026-01-30 10:15:23,301 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 7
+2026-01-30 10:15:23,332 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:23,401 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8111): Würfel 0 nicht an Zielposition (dx=0.051, dy=0.380)
+2026-01-30 10:15:23,402 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 8
+2026-01-30 10:15:23,423 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:23,497 [    INFO] MinDataLogger: Episode 3 gestartet
+2026-01-30 10:15:24,266 [    INFO] MinDataLogger: Episode 3 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:15:24,267 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 3
+2026-01-30 10:15:24,267 [    INFO] FrankaCubeStacking: ✅ Env 9: Episode 4 erfolgreich (152 steps, Seed 9111)
+2026-01-30 10:15:24,288 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:46,515 [    INFO] MinDataLogger: Episode 4 gestartet
+2026-01-30 10:15:47,306 [    INFO] MinDataLogger: Episode 4 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:15:47,313 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 4
+2026-01-30 10:15:47,313 [    INFO] FrankaCubeStacking: ✅ Env 0: Episode 5 erfolgreich (152 steps, Seed 112)
+2026-01-30 10:15:47,334 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:47,363 [    INFO] MinDataLogger: Episode 5 gestartet
+2026-01-30 10:15:48,155 [    INFO] MinDataLogger: Episode 5 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:15:48,161 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 5
+2026-01-30 10:15:48,161 [    INFO] FrankaCubeStacking: ✅ Env 1: Episode 6 erfolgreich (152 steps, Seed 1112)
+2026-01-30 10:15:48,182 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:48,237 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2112): Würfel 0 nicht an Zielposition (dx=0.384, dy=0.041)
+2026-01-30 10:15:48,237 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 12
+2026-01-30 10:15:48,258 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:48,313 [    INFO] MinDataLogger: Episode 6 gestartet
+2026-01-30 10:15:49,069 [    INFO] MinDataLogger: Episode 6 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:15:49,071 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 6
+2026-01-30 10:15:49,071 [    INFO] FrankaCubeStacking: ✅ Env 3: Episode 7 erfolgreich (152 steps, Seed 3112)
+2026-01-30 10:15:49,092 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:49,146 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4112): Würfel 0 nicht an Zielposition (dx=0.129, dy=0.172)
+2026-01-30 10:15:49,146 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 14
+2026-01-30 10:15:49,168 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:49,222 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5112): Würfel 0 nicht an Zielposition (dx=0.219, dy=0.048)
+2026-01-30 10:15:49,222 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 15
+2026-01-30 10:15:49,243 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:49,298 [ WARNING] FrankaCubeStacking: ❌ Env 6: Episode verworfen (Seed 6112): Würfel 0 nicht an Zielposition (dx=0.271, dy=0.219)
+2026-01-30 10:15:49,298 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 16
+2026-01-30 10:15:49,319 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:49,372 [ WARNING] FrankaCubeStacking: ❌ Env 7: Episode verworfen (Seed 7112): Würfel 0 nicht an Zielposition (dx=0.051, dy=0.347)
+2026-01-30 10:15:49,373 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 17
+2026-01-30 10:15:49,395 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:49,449 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8112): Würfel 0 nicht an Zielposition (dx=0.099, dy=0.035)
+2026-01-30 10:15:49,450 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 18
+2026-01-30 10:15:49,470 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:15:49,524 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9112): Würfel 0 nicht an Zielposition (dx=0.226, dy=0.456)
+2026-01-30 10:15:49,524 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 19
+2026-01-30 10:15:49,545 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:12,175 [ WARNING] FrankaCubeStacking: ❌ Env 0: Episode verworfen (Seed 113): Würfel 0 nicht an Zielposition (dx=0.028, dy=0.497)
+2026-01-30 10:16:12,175 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 20
+2026-01-30 10:16:12,196 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:12,224 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1113): Würfel 0 nicht an Zielposition (dx=0.054, dy=0.005)
+2026-01-30 10:16:12,224 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 21
+2026-01-30 10:16:12,245 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:12,301 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2113): Würfel 0 nicht an Zielposition (dx=0.014, dy=0.211)
+2026-01-30 10:16:12,301 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 22
+2026-01-30 10:16:12,323 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:12,377 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3113): Würfel 0 nicht an Zielposition (dx=0.356, dy=0.186)
+2026-01-30 10:16:12,378 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 23
+2026-01-30 10:16:12,399 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:12,454 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4113): Würfel 0 nicht an Zielposition (dx=0.031, dy=0.021)
+2026-01-30 10:16:12,454 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 24
+2026-01-30 10:16:12,477 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:12,537 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5113): Würfel 0 nicht an Zielposition (dx=0.082, dy=0.066)
+2026-01-30 10:16:12,538 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 25
+2026-01-30 10:16:12,560 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:12,630 [    INFO] MinDataLogger: Episode 7 gestartet
+2026-01-30 10:16:13,419 [    INFO] MinDataLogger: Episode 7 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:16:13,420 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 7
+2026-01-30 10:16:13,420 [    INFO] FrankaCubeStacking: ✅ Env 6: Episode 8 erfolgreich (152 steps, Seed 6113)
+2026-01-30 10:16:13,441 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:13,518 [ WARNING] FrankaCubeStacking: ❌ Env 7: Episode verworfen (Seed 7113): Würfel 0 nicht an Zielposition (dx=0.214, dy=0.034)
+2026-01-30 10:16:13,519 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 27
+2026-01-30 10:16:13,549 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:13,616 [    INFO] MinDataLogger: Episode 8 gestartet
+2026-01-30 10:16:14,356 [    INFO] MinDataLogger: Episode 8 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:16:14,357 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 8
+2026-01-30 10:16:14,357 [    INFO] FrankaCubeStacking: ✅ Env 8: Episode 9 erfolgreich (152 steps, Seed 8113)
+2026-01-30 10:16:14,383 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:14,460 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9113): Würfel 0 nicht an Zielposition (dx=0.008, dy=0.306)
+2026-01-30 10:16:14,461 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 29
+2026-01-30 10:16:14,483 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:36,603 [ WARNING] FrankaCubeStacking: ❌ Env 0: Episode verworfen (Seed 114): Würfel 0 nicht an Zielposition (dx=0.221, dy=0.337)
+2026-01-30 10:16:36,603 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 30
+2026-01-30 10:16:36,625 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:36,652 [    INFO] MinDataLogger: Episode 9 gestartet
+2026-01-30 10:16:37,436 [    INFO] MinDataLogger: Episode 9 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:16:37,442 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 9
+2026-01-30 10:16:37,442 [    INFO] FrankaCubeStacking: ✅ Env 1: Episode 10 erfolgreich (152 steps, Seed 1114)
+2026-01-30 10:16:37,464 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:37,517 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2114): Würfel 0 nicht an Zielposition (dx=0.238, dy=0.059)
+2026-01-30 10:16:37,517 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 32
+2026-01-30 10:16:37,538 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:37,591 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3114): Würfel 0 nicht an Zielposition (dx=0.106, dy=0.371)
+2026-01-30 10:16:37,592 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 33
+2026-01-30 10:16:37,613 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:37,668 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4114): Würfel 0 nicht an Zielposition (dx=0.432, dy=0.043)
+2026-01-30 10:16:37,668 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 34
+2026-01-30 10:16:37,689 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:37,743 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5114): Würfel 0 nicht an Zielposition (dx=0.089, dy=0.137)
+2026-01-30 10:16:37,744 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 35
+2026-01-30 10:16:37,765 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:37,819 [    INFO] MinDataLogger: Episode 10 gestartet
+2026-01-30 10:16:38,553 [    INFO] MinDataLogger: Episode 10 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:16:38,554 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 10
+2026-01-30 10:16:38,554 [    INFO] FrankaCubeStacking: ✅ Env 6: Episode 11 erfolgreich (152 steps, Seed 6114)
+2026-01-30 10:16:38,576 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:38,631 [    INFO] MinDataLogger: Episode 11 gestartet
+2026-01-30 10:16:39,362 [    INFO] MinDataLogger: Episode 11 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:16:39,363 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 11
+2026-01-30 10:16:39,363 [    INFO] FrankaCubeStacking: ✅ Env 7: Episode 12 erfolgreich (152 steps, Seed 7114)
+2026-01-30 10:16:39,384 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:39,439 [    INFO] MinDataLogger: Episode 12 gestartet
+2026-01-30 10:16:40,181 [    INFO] MinDataLogger: Episode 12 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:16:40,183 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 12
+2026-01-30 10:16:40,183 [    INFO] FrankaCubeStacking: ✅ Env 8: Episode 13 erfolgreich (152 steps, Seed 8114)
+2026-01-30 10:16:40,204 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:16:40,261 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9114): Würfel 0 nicht an Zielposition (dx=0.287, dy=0.106)
+2026-01-30 10:16:40,261 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 39
+2026-01-30 10:16:40,283 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:02,963 [    INFO] MinDataLogger: Episode 13 gestartet
+2026-01-30 10:17:03,747 [    INFO] MinDataLogger: Episode 13 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:17:03,754 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 13
+2026-01-30 10:17:03,754 [    INFO] FrankaCubeStacking: ✅ Env 0: Episode 14 erfolgreich (152 steps, Seed 115)
+2026-01-30 10:17:03,775 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:03,804 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1115): Würfel 0 nicht an Zielposition (dx=0.263, dy=0.560)
+2026-01-30 10:17:03,804 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 41
+2026-01-30 10:17:03,825 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:03,878 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2115): Würfel 0 nicht an Zielposition (dx=0.280, dy=0.123)
+2026-01-30 10:17:03,879 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 42
+2026-01-30 10:17:03,899 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:03,952 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3115): Würfel 0 nicht an Zielposition (dx=0.128, dy=0.360)
+2026-01-30 10:17:03,953 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 43
+2026-01-30 10:17:03,974 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:04,028 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4115): Würfel 0 nicht an Zielposition (dx=0.230, dy=0.086)
+2026-01-30 10:17:04,028 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 44
+2026-01-30 10:17:04,049 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:04,102 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5115): Würfel 0 nicht an Zielposition (dx=0.110, dy=0.125)
+2026-01-30 10:17:04,102 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 45
+2026-01-30 10:17:04,124 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:04,178 [    INFO] MinDataLogger: Episode 14 gestartet
+2026-01-30 10:17:04,953 [    INFO] MinDataLogger: Episode 14 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:17:04,954 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 14
+2026-01-30 10:17:04,954 [    INFO] FrankaCubeStacking: ✅ Env 6: Episode 15 erfolgreich (152 steps, Seed 6115)
+2026-01-30 10:17:04,975 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:05,029 [    INFO] MinDataLogger: Episode 15 gestartet
+2026-01-30 10:17:05,760 [    INFO] MinDataLogger: Episode 15 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:17:05,761 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 15
+2026-01-30 10:17:05,761 [    INFO] FrankaCubeStacking: ✅ Env 7: Episode 16 erfolgreich (152 steps, Seed 7115)
+2026-01-30 10:17:05,783 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:05,836 [    INFO] MinDataLogger: Episode 16 gestartet
+2026-01-30 10:17:06,576 [    INFO] MinDataLogger: Episode 16 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:17:06,577 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 16
+2026-01-30 10:17:06,577 [    INFO] FrankaCubeStacking: ✅ Env 8: Episode 17 erfolgreich (152 steps, Seed 8115)
+2026-01-30 10:17:06,598 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:06,652 [    INFO] MinDataLogger: Episode 17 gestartet
+2026-01-30 10:17:07,376 [    INFO] MinDataLogger: Episode 17 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:17:07,377 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 17
+2026-01-30 10:17:07,378 [    INFO] FrankaCubeStacking: ✅ Env 9: Episode 18 erfolgreich (152 steps, Seed 9115)
+2026-01-30 10:17:07,398 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:29,727 [    INFO] MinDataLogger: Episode 18 gestartet
+2026-01-30 10:17:30,520 [    INFO] MinDataLogger: Episode 18 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:17:30,526 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 18
+2026-01-30 10:17:30,527 [    INFO] FrankaCubeStacking: ✅ Env 0: Episode 19 erfolgreich (152 steps, Seed 116)
+2026-01-30 10:17:30,548 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:30,576 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1116): Würfel 0 nicht an Zielposition (dx=0.300, dy=0.208)
+2026-01-30 10:17:30,577 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 51
+2026-01-30 10:17:30,597 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:30,658 [    INFO] MinDataLogger: Episode 19 gestartet
+2026-01-30 10:17:31,456 [    INFO] MinDataLogger: Episode 19 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:17:31,465 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 19
+2026-01-30 10:17:31,465 [    INFO] FrankaCubeStacking: ✅ Env 2: Episode 20 erfolgreich (152 steps, Seed 2116)
+2026-01-30 10:17:31,486 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:31,539 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3116): Würfel 0 nicht an Zielposition (dx=0.259, dy=0.195)
+2026-01-30 10:17:31,540 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 53
+2026-01-30 10:17:31,561 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:31,615 [    INFO] MinDataLogger: Episode 20 gestartet
+2026-01-30 10:17:32,368 [    INFO] MinDataLogger: Episode 20 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:17:32,370 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 20
+2026-01-30 10:17:32,370 [    INFO] FrankaCubeStacking: ✅ Env 4: Episode 21 erfolgreich (152 steps, Seed 4116)
+2026-01-30 10:17:32,393 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:32,447 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5116): Würfel 0 nicht an Zielposition (dx=0.012, dy=0.113)
+2026-01-30 10:17:32,447 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 55
+2026-01-30 10:17:32,469 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:32,523 [    INFO] MinDataLogger: Episode 21 gestartet
+2026-01-30 10:17:33,272 [    INFO] MinDataLogger: Episode 21 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:17:33,273 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 21
+2026-01-30 10:17:33,273 [    INFO] FrankaCubeStacking: ✅ Env 6: Episode 22 erfolgreich (152 steps, Seed 6116)
+2026-01-30 10:17:33,274 [    INFO] FrankaCubeStacking: Env 6: Fertig (5 erfolgreiche Episoden)
+2026-01-30 10:17:33,299 [ WARNING] FrankaCubeStacking: ❌ Env 7: Episode verworfen (Seed 7116): Würfel 0 nicht an Zielposition (dx=0.035, dy=0.029)
+2026-01-30 10:17:33,299 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 57
+2026-01-30 10:17:33,321 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:33,375 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8116): Würfel 0 nicht an Zielposition (dx=0.035, dy=0.012)
+2026-01-30 10:17:33,376 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 58
+2026-01-30 10:17:33,397 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:33,452 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9116): Würfel 0 nicht an Zielposition (dx=0.090, dy=0.037)
+2026-01-30 10:17:33,453 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 59
+2026-01-30 10:17:33,474 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:56,143 [ WARNING] FrankaCubeStacking: ❌ Env 0: Episode verworfen (Seed 117): Würfel 0 nicht an Zielposition (dx=0.203, dy=0.122)
+2026-01-30 10:17:56,144 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 60
+2026-01-30 10:17:56,166 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:56,195 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1117): Würfel 0 nicht an Zielposition (dx=0.033, dy=0.020)
+2026-01-30 10:17:56,196 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 61
+2026-01-30 10:17:56,217 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:56,273 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2117): Würfel 0 nicht an Zielposition (dx=0.046, dy=0.027)
+2026-01-30 10:17:56,274 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 62
+2026-01-30 10:17:56,295 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:56,351 [    INFO] MinDataLogger: Episode 22 gestartet
+2026-01-30 10:17:57,116 [    INFO] MinDataLogger: Episode 22 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:17:57,118 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 22
+2026-01-30 10:17:57,118 [    INFO] FrankaCubeStacking: ✅ Env 3: Episode 23 erfolgreich (152 steps, Seed 3117)
+2026-01-30 10:17:57,141 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:57,198 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4117): Würfel 0 nicht an Zielposition (dx=0.185, dy=0.010)
+2026-01-30 10:17:57,198 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 64
+2026-01-30 10:17:57,220 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:57,276 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5117): Würfel 0 nicht an Zielposition (dx=0.208, dy=0.000)
+2026-01-30 10:17:57,276 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 65
+2026-01-30 10:17:57,298 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:57,353 [    INFO] MinDataLogger: Episode 23 gestartet
+2026-01-30 10:17:58,110 [    INFO] MinDataLogger: Episode 23 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:17:58,112 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 23
+2026-01-30 10:17:58,112 [    INFO] FrankaCubeStacking: ✅ Env 7: Episode 24 erfolgreich (152 steps, Seed 7117)
+2026-01-30 10:17:58,133 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:58,189 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8117): Würfel 0 nicht an Zielposition (dx=0.294, dy=0.286)
+2026-01-30 10:17:58,190 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 67
+2026-01-30 10:17:58,211 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:17:58,270 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9117): Würfel 0 nicht an Zielposition (dx=0.334, dy=0.570)
+2026-01-30 10:17:58,270 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 68
+2026-01-30 10:17:58,292 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:20,451 [ WARNING] FrankaCubeStacking: ❌ Env 0: Episode verworfen (Seed 118): Würfel 0 nicht an Zielposition (dx=0.300, dy=0.541)
+2026-01-30 10:18:20,451 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 69
+2026-01-30 10:18:20,472 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:20,501 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1118): Würfel 0 nicht an Zielposition (dx=0.218, dy=0.477)
+2026-01-30 10:18:20,501 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 70
+2026-01-30 10:18:20,523 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:20,593 [    INFO] MinDataLogger: Episode 24 gestartet
+2026-01-30 10:18:21,392 [    INFO] MinDataLogger: Episode 24 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:18:21,398 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 24
+2026-01-30 10:18:21,398 [    INFO] FrankaCubeStacking: ✅ Env 2: Episode 25 erfolgreich (152 steps, Seed 2118)
+2026-01-30 10:18:21,429 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:21,506 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3118): Würfel 0 nicht an Zielposition (dx=0.032, dy=0.014)
+2026-01-30 10:18:21,506 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 72
+2026-01-30 10:18:21,530 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:21,605 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4118): Würfel 0 nicht an Zielposition (dx=0.535, dy=0.500)
+2026-01-30 10:18:21,605 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 73
+2026-01-30 10:18:21,629 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:21,698 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5118): Würfel 0 nicht an Zielposition (dx=0.045, dy=0.286)
+2026-01-30 10:18:21,698 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 74
+2026-01-30 10:18:21,719 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:21,787 [ WARNING] FrankaCubeStacking: ❌ Env 7: Episode verworfen (Seed 7118): Würfel 0 nicht an Zielposition (dx=0.081, dy=0.047)
+2026-01-30 10:18:21,787 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 75
+2026-01-30 10:18:21,809 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:21,865 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8118): Würfel 0 nicht an Zielposition (dx=0.079, dy=0.261)
+2026-01-30 10:18:21,865 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 76
+2026-01-30 10:18:21,886 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:21,941 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9118): Würfel 0 nicht an Zielposition (dx=0.239, dy=0.192)
+2026-01-30 10:18:21,941 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 77
+2026-01-30 10:18:21,963 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:44,078 [ WARNING] FrankaCubeStacking: ❌ Env 0: Episode verworfen (Seed 119): Würfel 0 nicht an Zielposition (dx=0.103, dy=0.353)
+2026-01-30 10:18:44,078 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 78
+2026-01-30 10:18:44,104 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:44,143 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1119): Würfel 0 nicht an Zielposition (dx=0.143, dy=0.395)
+2026-01-30 10:18:44,144 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 79
+2026-01-30 10:18:44,177 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:44,256 [    INFO] MinDataLogger: Episode 25 gestartet
+2026-01-30 10:18:45,071 [    INFO] MinDataLogger: Episode 25 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:18:45,078 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 25
+2026-01-30 10:18:45,078 [    INFO] FrankaCubeStacking: ✅ Env 2: Episode 26 erfolgreich (152 steps, Seed 2119)
+2026-01-30 10:18:45,110 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:45,190 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3119): Würfel 0 nicht an Zielposition (dx=0.256, dy=0.237)
+2026-01-30 10:18:45,190 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 81
+2026-01-30 10:18:45,217 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:45,297 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4119): Würfel 0 nicht an Zielposition (dx=0.353, dy=0.062)
+2026-01-30 10:18:45,298 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 82
+2026-01-30 10:18:45,319 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:45,404 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5119): Würfel 0 nicht an Zielposition (dx=0.032, dy=0.344)
+2026-01-30 10:18:45,405 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 83
+2026-01-30 10:18:45,434 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:45,511 [ WARNING] FrankaCubeStacking: ❌ Env 7: Episode verworfen (Seed 7119): Würfel 0 nicht an Zielposition (dx=0.196, dy=0.138)
+2026-01-30 10:18:45,511 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 84
+2026-01-30 10:18:45,542 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:45,625 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8119): Würfel 0 nicht an Zielposition (dx=0.015, dy=0.052)
+2026-01-30 10:18:45,626 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 85
+2026-01-30 10:18:45,649 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:18:45,732 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9119): Würfel 0 nicht an Zielposition (dx=0.156, dy=0.349)
+2026-01-30 10:18:45,732 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 86
+2026-01-30 10:18:45,757 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:08,509 [    INFO] MinDataLogger: Episode 26 gestartet
+2026-01-30 10:19:09,313 [    INFO] MinDataLogger: Episode 26 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:19:09,320 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 26
+2026-01-30 10:19:09,320 [    INFO] FrankaCubeStacking: ✅ Env 0: Episode 27 erfolgreich (152 steps, Seed 120)
+2026-01-30 10:19:09,352 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:09,388 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1120): Würfel 0 nicht an Zielposition (dx=0.182, dy=0.341)
+2026-01-30 10:19:09,389 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 88
+2026-01-30 10:19:09,423 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:09,492 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2120): Würfel 0 nicht an Zielposition (dx=0.275, dy=0.096)
+2026-01-30 10:19:09,493 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 89
+2026-01-30 10:19:09,521 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:09,599 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3120): Würfel 0 nicht an Zielposition (dx=0.040, dy=0.070)
+2026-01-30 10:19:09,599 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 90
+2026-01-30 10:19:09,621 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:09,693 [    INFO] MinDataLogger: Episode 27 gestartet
+2026-01-30 10:19:10,462 [    INFO] MinDataLogger: Episode 27 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:19:10,464 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 27
+2026-01-30 10:19:10,464 [    INFO] FrankaCubeStacking: ✅ Env 4: Episode 28 erfolgreich (152 steps, Seed 4120)
+2026-01-30 10:19:10,492 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:10,562 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5120): Würfel 0 nicht an Zielposition (dx=0.085, dy=0.095)
+2026-01-30 10:19:10,563 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 92
+2026-01-30 10:19:10,592 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:10,661 [    INFO] MinDataLogger: Episode 28 gestartet
+2026-01-30 10:19:11,412 [    INFO] MinDataLogger: Episode 28 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:19:11,414 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 28
+2026-01-30 10:19:11,414 [    INFO] FrankaCubeStacking: ✅ Env 7: Episode 29 erfolgreich (152 steps, Seed 7120)
+2026-01-30 10:19:11,441 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:11,516 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8120): Würfel 0 nicht an Zielposition (dx=0.219, dy=0.037)
+2026-01-30 10:19:11,517 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 94
+2026-01-30 10:19:11,540 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:11,606 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9120): Würfel 0 nicht an Zielposition (dx=0.140, dy=0.457)
+2026-01-30 10:19:11,607 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 95
+2026-01-30 10:19:11,638 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:34,336 [ WARNING] FrankaCubeStacking: ❌ Env 0: Episode verworfen (Seed 121): Würfel 0 nicht an Zielposition (dx=0.144, dy=0.168)
+2026-01-30 10:19:34,336 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 96
+2026-01-30 10:19:34,359 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:34,390 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1121): Würfel 0 nicht an Zielposition (dx=0.059, dy=0.044)
+2026-01-30 10:19:34,390 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 97
+2026-01-30 10:19:34,414 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:34,489 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2121): Würfel 0 nicht an Zielposition (dx=0.091, dy=0.116)
+2026-01-30 10:19:34,489 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 98
+2026-01-30 10:19:34,516 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:34,583 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3121): Würfel 0 nicht an Zielposition (dx=0.015, dy=0.169)
+2026-01-30 10:19:34,584 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 99
+2026-01-30 10:19:34,618 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:34,684 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4121): Würfel 0 nicht an Zielposition (dx=0.117, dy=0.179)
+2026-01-30 10:19:34,684 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 100
+2026-01-30 10:19:34,708 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:34,781 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5121): Würfel 0 nicht an Zielposition (dx=0.254, dy=0.221)
+2026-01-30 10:19:34,782 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 101
+2026-01-30 10:19:34,812 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:34,880 [    INFO] MinDataLogger: Episode 29 gestartet
+2026-01-30 10:19:35,690 [    INFO] MinDataLogger: Episode 29 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:19:35,691 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 29
+2026-01-30 10:19:35,691 [    INFO] FrankaCubeStacking: ✅ Env 7: Episode 30 erfolgreich (152 steps, Seed 7121)
+2026-01-30 10:19:35,691 [    INFO] FrankaCubeStacking: Env 7: Fertig (5 erfolgreiche Episoden)
+2026-01-30 10:19:35,722 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8121): Würfel 0 nicht an Zielposition (dx=0.171, dy=0.085)
+2026-01-30 10:19:35,723 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 103
+2026-01-30 10:19:35,751 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:35,819 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9121): Würfel 0 nicht an Zielposition (dx=0.160, dy=0.230)
+2026-01-30 10:19:35,819 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 104
+2026-01-30 10:19:35,840 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:58,730 [    INFO] MinDataLogger: Episode 30 gestartet
+2026-01-30 10:19:59,533 [    INFO] MinDataLogger: Episode 30 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:19:59,539 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 30
+2026-01-30 10:19:59,539 [    INFO] FrankaCubeStacking: ✅ Env 0: Episode 31 erfolgreich (152 steps, Seed 122)
+2026-01-30 10:19:59,539 [    INFO] FrankaCubeStacking: Env 0: Fertig (5 erfolgreiche Episoden)
+2026-01-30 10:19:59,573 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1122): Würfel 0 nicht an Zielposition (dx=0.201, dy=0.231)
+2026-01-30 10:19:59,573 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 106
+2026-01-30 10:19:59,600 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:59,645 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2122): Würfel 0 nicht an Zielposition (dx=0.031, dy=0.017)
+2026-01-30 10:19:59,645 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 107
+2026-01-30 10:19:59,668 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:59,747 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3122): Würfel 0 nicht an Zielposition (dx=0.115, dy=0.104)
+2026-01-30 10:19:59,748 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 108
+2026-01-30 10:19:59,779 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:59,852 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4122): Würfel 0 nicht an Zielposition (dx=0.193, dy=0.505)
+2026-01-30 10:19:59,852 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 109
+2026-01-30 10:19:59,887 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:19:59,957 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5122): Würfel 0 nicht an Zielposition (dx=0.205, dy=0.006)
+2026-01-30 10:19:59,957 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 110
+2026-01-30 10:19:59,978 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:20:00,047 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8122): Würfel 0 nicht an Zielposition (dx=0.070, dy=0.170)
+2026-01-30 10:20:00,047 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 111
+2026-01-30 10:20:00,082 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:20:00,152 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9122): Würfel 0 nicht an Zielposition (dx=0.050, dy=0.406)
+2026-01-30 10:20:00,153 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 112
+2026-01-30 10:20:00,181 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:20:22,655 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1123): Würfel 0 nicht an Zielposition (dx=0.004, dy=0.255)
+2026-01-30 10:20:22,656 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 113
+2026-01-30 10:20:22,682 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:20:22,713 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2123): Würfel 0 nicht an Zielposition (dx=0.055, dy=0.032)
+2026-01-30 10:20:22,714 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 114
+2026-01-30 10:20:22,736 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:20:22,789 [    INFO] MinDataLogger: Episode 31 gestartet
+2026-01-30 10:20:23,575 [    INFO] MinDataLogger: Episode 31 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:20:23,582 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 31
+2026-01-30 10:20:23,582 [    INFO] FrankaCubeStacking: ✅ Env 3: Episode 32 erfolgreich (152 steps, Seed 3123)
+2026-01-30 10:20:23,603 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:20:23,660 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4123): Würfel 0 nicht an Zielposition (dx=0.129, dy=0.350)
+2026-01-30 10:20:23,661 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 116
+2026-01-30 10:20:23,681 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:20:23,749 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5123): Würfel 0 nicht an Zielposition (dx=0.234, dy=0.114)
+2026-01-30 10:20:23,750 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 117
+2026-01-30 10:20:23,773 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:20:23,830 [    INFO] MinDataLogger: Episode 32 gestartet
+2026-01-30 10:20:24,607 [    INFO] MinDataLogger: Episode 32 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:20:24,611 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 32
+2026-01-30 10:20:24,611 [    INFO] FrankaCubeStacking: ✅ Env 8: Episode 33 erfolgreich (152 steps, Seed 8123)
+2026-01-30 10:20:24,633 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:20:24,686 [    INFO] MinDataLogger: Episode 33 gestartet
+2026-01-30 10:20:25,456 [    INFO] MinDataLogger: Episode 33 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:20:25,459 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 33
+2026-01-30 10:20:25,459 [    INFO] FrankaCubeStacking: ✅ Env 9: Episode 34 erfolgreich (152 steps, Seed 9123)
+2026-01-30 10:20:25,480 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:20:47,770 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1124): Würfel 0 nicht an Zielposition (dx=0.017, dy=0.036)
+2026-01-30 10:20:47,770 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 120
+2026-01-30 10:20:47,795 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:20:47,832 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2124): Würfel 0 nicht an Zielposition (dx=0.337, dy=0.326)
+2026-01-30 10:20:47,832 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 121
+2026-01-30 10:20:47,861 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:20:47,937 [    INFO] MinDataLogger: Episode 34 gestartet
+2026-01-30 10:20:48,725 [    INFO] MinDataLogger: Episode 34 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:20:48,732 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 34
+2026-01-30 10:20:48,732 [    INFO] FrankaCubeStacking: ✅ Env 3: Episode 35 erfolgreich (152 steps, Seed 3124)
+2026-01-30 10:20:48,763 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:20:48,838 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4124): Würfel 0 nicht an Zielposition (dx=0.096, dy=0.010)
+2026-01-30 10:20:48,838 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 123
+2026-01-30 10:20:48,860 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:20:48,914 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5124): Würfel 0 nicht an Zielposition (dx=0.311, dy=0.180)
+2026-01-30 10:20:48,915 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 124
+2026-01-30 10:20:48,936 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:20:48,996 [    INFO] MinDataLogger: Episode 35 gestartet
+2026-01-30 10:20:49,770 [    INFO] MinDataLogger: Episode 35 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:20:49,773 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 35
+2026-01-30 10:20:49,774 [    INFO] FrankaCubeStacking: ✅ Env 8: Episode 36 erfolgreich (152 steps, Seed 8124)
+2026-01-30 10:20:49,774 [    INFO] FrankaCubeStacking: Env 8: Fertig (5 erfolgreiche Episoden)
+2026-01-30 10:20:49,799 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9124): Würfel 0 nicht an Zielposition (dx=0.111, dy=0.079)
+2026-01-30 10:20:49,799 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 126
+2026-01-30 10:20:49,820 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:21:11,999 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1125): Würfel 0 nicht an Zielposition (dx=0.280, dy=0.382)
+2026-01-30 10:21:12,000 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 127
+2026-01-30 10:21:12,022 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:21:12,052 [ WARNING] FrankaCubeStacking: ❌ Env 2: Episode verworfen (Seed 2125): Würfel 0 nicht an Zielposition (dx=0.013, dy=0.083)
+2026-01-30 10:21:12,052 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 128
+2026-01-30 10:21:12,081 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:21:12,149 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3125): Würfel 0 nicht an Zielposition (dx=0.566, dy=0.526)
+2026-01-30 10:21:12,150 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 129
+2026-01-30 10:21:12,174 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:21:12,233 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4125): Würfel 0 nicht an Zielposition (dx=0.114, dy=0.531)
+2026-01-30 10:21:12,233 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 130
+2026-01-30 10:21:12,255 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:21:12,314 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5125): Würfel 0 nicht an Zielposition (dx=0.061, dy=0.185)
+2026-01-30 10:21:12,315 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 131
+2026-01-30 10:21:12,336 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:21:12,394 [    INFO] MinDataLogger: Episode 36 gestartet
+2026-01-30 10:21:13,227 [    INFO] MinDataLogger: Episode 36 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:21:13,232 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 36
+2026-01-30 10:21:13,232 [    INFO] FrankaCubeStacking: ✅ Env 9: Episode 37 erfolgreich (152 steps, Seed 9125)
+2026-01-30 10:21:13,254 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:21:34,927 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1126): Würfel 0 nicht an Zielposition (dx=0.127, dy=0.353)
+2026-01-30 10:21:34,928 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 133
+2026-01-30 10:21:34,949 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:21:34,978 [    INFO] MinDataLogger: Episode 37 gestartet
+2026-01-30 10:21:35,778 [    INFO] MinDataLogger: Episode 37 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:21:35,784 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 37
+2026-01-30 10:21:35,785 [    INFO] FrankaCubeStacking: ✅ Env 2: Episode 38 erfolgreich (152 steps, Seed 2126)
+2026-01-30 10:21:35,785 [    INFO] FrankaCubeStacking: Env 2: Fertig (5 erfolgreiche Episoden)
+2026-01-30 10:21:35,809 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3126): Würfel 0 nicht an Zielposition (dx=0.206, dy=0.246)
+2026-01-30 10:21:35,810 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 135
+2026-01-30 10:21:35,831 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:21:35,886 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4126): Würfel 0 nicht an Zielposition (dx=0.275, dy=0.355)
+2026-01-30 10:21:35,886 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 136
+2026-01-30 10:21:35,907 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:21:35,964 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5126): Würfel 0 nicht an Zielposition (dx=0.090, dy=0.304)
+2026-01-30 10:21:35,965 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 137
+2026-01-30 10:21:35,987 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:21:36,042 [ WARNING] FrankaCubeStacking: ❌ Env 9: Episode verworfen (Seed 9126): Würfel 0 nicht an Zielposition (dx=0.063, dy=0.021)
+2026-01-30 10:21:36,042 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 138
+2026-01-30 10:21:36,063 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:21:58,256 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1127): Würfel 0 nicht an Zielposition (dx=0.204, dy=0.195)
+2026-01-30 10:21:58,256 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 139
+2026-01-30 10:21:58,277 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:21:58,307 [    INFO] MinDataLogger: Episode 38 gestartet
+2026-01-30 10:21:59,116 [    INFO] MinDataLogger: Episode 38 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:21:59,123 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 38
+2026-01-30 10:21:59,123 [    INFO] FrankaCubeStacking: ✅ Env 3: Episode 39 erfolgreich (152 steps, Seed 3127)
+2026-01-30 10:21:59,123 [    INFO] FrankaCubeStacking: Env 3: Fertig (5 erfolgreiche Episoden)
+2026-01-30 10:21:59,149 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4127): Würfel 0 nicht an Zielposition (dx=0.135, dy=0.144)
+2026-01-30 10:21:59,149 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 141
+2026-01-30 10:21:59,170 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:21:59,226 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5127): Würfel 0 nicht an Zielposition (dx=0.195, dy=0.074)
+2026-01-30 10:21:59,226 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 142
+2026-01-30 10:21:59,248 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:21:59,304 [    INFO] MinDataLogger: Episode 39 gestartet
+2026-01-30 10:22:00,107 [    INFO] MinDataLogger: Episode 39 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:22:00,114 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 39
+2026-01-30 10:22:00,114 [    INFO] FrankaCubeStacking: ✅ Env 9: Episode 40 erfolgreich (152 steps, Seed 9127)
+2026-01-30 10:22:00,114 [    INFO] FrankaCubeStacking: Env 9: Fertig (5 erfolgreiche Episoden)
+2026-01-30 10:22:21,190 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1128): Würfel 0 nicht an Zielposition (dx=0.573, dy=0.247)
+2026-01-30 10:22:21,191 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 144
+2026-01-30 10:22:21,216 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:22:21,257 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4128): Würfel 0 nicht an Zielposition (dx=0.058, dy=0.026)
+2026-01-30 10:22:21,258 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 145
+2026-01-30 10:22:21,280 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:22:21,339 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5128): Würfel 0 nicht an Zielposition (dx=0.027, dy=0.073)
+2026-01-30 10:22:21,339 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 146
+2026-01-30 10:22:21,360 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:22:42,416 [ WARNING] FrankaCubeStacking: ❌ Env 1: Episode verworfen (Seed 1129): Würfel 0 nicht an Zielposition (dx=0.286, dy=0.255)
+2026-01-30 10:22:42,417 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 147
+2026-01-30 10:22:42,438 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:22:42,467 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4129): Würfel 0 nicht an Zielposition (dx=0.322, dy=0.030)
+2026-01-30 10:22:42,467 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 148
+2026-01-30 10:22:42,489 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:22:42,547 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5129): Würfel 0 nicht an Zielposition (dx=0.172, dy=0.231)
+2026-01-30 10:22:42,547 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 149
+2026-01-30 10:22:42,568 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:23:03,934 [    INFO] MinDataLogger: Episode 40 gestartet
+2026-01-30 10:23:04,742 [    INFO] MinDataLogger: Episode 40 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:23:04,749 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 40
+2026-01-30 10:23:04,749 [    INFO] FrankaCubeStacking: ✅ Env 1: Episode 41 erfolgreich (152 steps, Seed 1130)
+2026-01-30 10:23:04,780 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:23:04,811 [    INFO] MinDataLogger: Episode 41 gestartet
+2026-01-30 10:23:05,601 [    INFO] MinDataLogger: Episode 41 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:23:05,608 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 41
+2026-01-30 10:23:05,608 [    INFO] FrankaCubeStacking: ✅ Env 4: Episode 42 erfolgreich (152 steps, Seed 4130)
+2026-01-30 10:23:05,639 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:23:05,704 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5130): Würfel 0 nicht an Zielposition (dx=0.059, dy=0.156)
+2026-01-30 10:23:05,705 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 152
+2026-01-30 10:23:05,732 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:23:27,110 [    INFO] MinDataLogger: Episode 42 gestartet
+2026-01-30 10:23:27,908 [    INFO] MinDataLogger: Episode 42 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:23:27,915 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 42
+2026-01-30 10:23:27,915 [    INFO] FrankaCubeStacking: ✅ Env 1: Episode 43 erfolgreich (152 steps, Seed 1131)
+2026-01-30 10:23:27,915 [    INFO] FrankaCubeStacking: Env 1: Fertig (5 erfolgreiche Episoden)
+2026-01-30 10:23:27,940 [    INFO] MinDataLogger: Episode 43 gestartet
+2026-01-30 10:23:28,736 [    INFO] MinDataLogger: Episode 43 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:23:28,743 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 43
+2026-01-30 10:23:28,743 [    INFO] FrankaCubeStacking: ✅ Env 4: Episode 44 erfolgreich (152 steps, Seed 4131)
+2026-01-30 10:23:28,764 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:23:28,794 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5131): Würfel 0 nicht an Zielposition (dx=0.246, dy=0.131)
+2026-01-30 10:23:28,795 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 155
+2026-01-30 10:23:28,816 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:23:49,901 [    INFO] MinDataLogger: Episode 44 gestartet
+2026-01-30 10:23:50,713 [    INFO] MinDataLogger: Episode 44 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:23:50,720 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 44
+2026-01-30 10:23:50,721 [    INFO] FrankaCubeStacking: ✅ Env 4: Episode 45 erfolgreich (152 steps, Seed 4132)
+2026-01-30 10:23:50,721 [    INFO] FrankaCubeStacking: Env 4: Fertig (5 erfolgreiche Episoden)
+2026-01-30 10:23:50,746 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5132): Würfel 0 nicht an Zielposition (dx=0.179, dy=0.169)
+2026-01-30 10:23:50,747 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 157
+2026-01-30 10:23:50,768 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:24:12,061 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5133): Würfel 0 nicht an Zielposition (dx=0.152, dy=0.117)
+2026-01-30 10:24:12,061 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 158
+2026-01-30 10:24:12,082 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:24:32,998 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5134): Würfel 0 nicht an Zielposition (dx=0.342, dy=0.176)
+2026-01-30 10:24:32,998 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 159
+2026-01-30 10:24:33,021 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:24:53,952 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5135): Würfel 0 nicht an Zielposition (dx=0.278, dy=0.374)
+2026-01-30 10:24:53,953 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 160
+2026-01-30 10:24:53,979 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:25:15,017 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5136): Würfel 0 nicht an Zielposition (dx=0.176, dy=0.120)
+2026-01-30 10:25:15,017 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 161
+2026-01-30 10:25:15,044 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:25:36,592 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5137): Würfel 0 nicht an Zielposition (dx=0.202, dy=0.206)
+2026-01-30 10:25:36,593 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 162
+2026-01-30 10:25:36,614 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:25:57,604 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5138): Würfel 0 nicht an Zielposition (dx=0.052, dy=0.067)
+2026-01-30 10:25:57,604 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 163
+2026-01-30 10:25:57,625 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:26:18,821 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5139): Würfel 0 nicht an Zielposition (dx=0.385, dy=0.256)
+2026-01-30 10:26:18,822 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 164
+2026-01-30 10:26:18,844 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:26:39,903 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5140): Würfel 0 nicht an Zielposition (dx=0.160, dy=0.131)
+2026-01-30 10:26:39,904 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 165
+2026-01-30 10:26:39,925 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:27:00,961 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5141): Würfel 0 nicht an Zielposition (dx=0.071, dy=0.198)
+2026-01-30 10:27:00,961 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 166
+2026-01-30 10:27:00,981 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:27:22,048 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5142): Würfel 0 nicht an Zielposition (dx=0.159, dy=0.184)
+2026-01-30 10:27:22,049 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 167
+2026-01-30 10:27:22,070 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:27:43,575 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5143): Würfel 0 nicht an Zielposition (dx=0.275, dy=0.139)
+2026-01-30 10:27:43,576 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 168
+2026-01-30 10:27:43,597 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:28:04,728 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5144): Würfel 0 nicht an Zielposition (dx=0.337, dy=0.020)
+2026-01-30 10:28:04,728 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 169
+2026-01-30 10:28:04,755 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:28:26,122 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5145): Würfel 0 nicht an Zielposition (dx=0.250, dy=0.082)
+2026-01-30 10:28:26,122 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 170
+2026-01-30 10:28:26,150 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:28:47,211 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5146): Würfel 0 nicht an Zielposition (dx=0.251, dy=0.121)
+2026-01-30 10:28:47,219 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 171
+2026-01-30 10:28:47,240 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:29:08,236 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5147): Würfel 0 nicht an Zielposition (dx=0.028, dy=0.245)
+2026-01-30 10:29:08,237 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 172
+2026-01-30 10:29:08,259 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:29:29,266 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5148): Würfel 0 nicht an Zielposition (dx=0.313, dy=0.023)
+2026-01-30 10:29:29,266 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 173
+2026-01-30 10:29:29,291 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:29:50,466 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5149): Würfel 0 nicht an Zielposition (dx=0.127, dy=0.005)
+2026-01-30 10:29:50,466 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 174
+2026-01-30 10:29:50,490 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:30:11,442 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5150): Würfel 0 nicht an Zielposition (dx=0.359, dy=0.329)
+2026-01-30 10:30:11,443 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 175
+2026-01-30 10:30:11,472 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:30:32,866 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5151): Würfel 0 nicht an Zielposition (dx=0.212, dy=0.418)
+2026-01-30 10:30:32,866 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 176
+2026-01-30 10:30:32,895 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:30:53,945 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5152): Würfel 0 nicht an Zielposition (dx=0.047, dy=0.154)
+2026-01-30 10:30:53,946 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 177
+2026-01-30 10:30:53,967 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:31:15,025 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5153): Würfel 0 nicht an Zielposition (dx=0.228, dy=0.516)
+2026-01-30 10:31:15,025 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 178
+2026-01-30 10:31:15,046 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:31:36,130 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5154): Würfel 0 nicht an Zielposition (dx=0.035, dy=0.171)
+2026-01-30 10:31:36,131 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 179
+2026-01-30 10:31:36,151 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:31:57,411 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5155): Würfel 0 nicht an Zielposition (dx=0.117, dy=0.311)
+2026-01-30 10:31:57,412 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 180
+2026-01-30 10:31:57,435 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:32:18,547 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5156): Würfel 0 nicht an Zielposition (dx=0.241, dy=0.010)
+2026-01-30 10:32:18,548 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 181
+2026-01-30 10:32:18,573 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:32:39,831 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5157): Würfel 0 nicht an Zielposition (dx=0.371, dy=0.026)
+2026-01-30 10:32:39,831 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 182
+2026-01-30 10:32:39,857 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:33:00,905 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5158): Würfel 0 nicht an Zielposition (dx=0.090, dy=0.100)
+2026-01-30 10:33:00,906 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 183
+2026-01-30 10:33:00,930 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:33:22,089 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5159): Würfel 0 nicht an Zielposition (dx=0.139, dy=0.113)
+2026-01-30 10:33:22,089 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 184
+2026-01-30 10:33:22,111 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:33:43,104 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5160): Würfel 0 nicht an Zielposition (dx=0.227, dy=0.192)
+2026-01-30 10:33:43,105 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 185
+2026-01-30 10:33:43,131 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:34:04,998 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5161): Würfel 0 nicht an Zielposition (dx=0.051, dy=0.195)
+2026-01-30 10:34:04,999 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 186
+2026-01-30 10:34:05,021 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:34:26,121 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5162): Würfel 0 nicht an Zielposition (dx=0.179, dy=0.015)
+2026-01-30 10:34:26,121 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 187
+2026-01-30 10:34:26,143 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:34:47,454 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5163): Würfel 0 nicht an Zielposition (dx=0.160, dy=0.187)
+2026-01-30 10:34:47,454 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 188
+2026-01-30 10:34:47,474 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:35:08,614 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5164): Würfel 0 nicht an Zielposition (dx=0.467, dy=0.055)
+2026-01-30 10:35:08,615 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 189
+2026-01-30 10:35:08,636 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:35:29,679 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5165): Würfel 0 nicht an Zielposition (dx=0.069, dy=0.441)
+2026-01-30 10:35:29,680 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 190
+2026-01-30 10:35:29,701 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:35:50,651 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5166): Würfel 0 nicht an Zielposition (dx=0.092, dy=0.246)
+2026-01-30 10:35:50,651 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 191
+2026-01-30 10:35:50,676 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:36:12,424 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5167): Würfel 0 nicht an Zielposition (dx=0.311, dy=0.470)
+2026-01-30 10:36:12,425 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 192
+2026-01-30 10:36:12,448 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:36:33,539 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5168): Würfel 0 nicht an Zielposition (dx=0.025, dy=0.251)
+2026-01-30 10:36:33,539 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 193
+2026-01-30 10:36:33,566 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:36:55,019 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5169): Würfel 0 nicht an Zielposition (dx=0.052, dy=0.162)
+2026-01-30 10:36:55,020 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 194
+2026-01-30 10:36:55,049 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:37:16,080 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5170): Würfel 0 nicht an Zielposition (dx=0.058, dy=0.165)
+2026-01-30 10:37:16,080 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 195
+2026-01-30 10:37:16,107 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:37:37,180 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5171): Würfel 0 nicht an Zielposition (dx=0.333, dy=0.034)
+2026-01-30 10:37:37,181 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 196
+2026-01-30 10:37:37,202 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:37:58,731 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5172): Würfel 0 nicht an Zielposition (dx=0.306, dy=0.335)
+2026-01-30 10:37:58,731 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 197
+2026-01-30 10:37:58,758 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:38:19,685 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5173): Würfel 0 nicht an Zielposition (dx=0.306, dy=0.196)
+2026-01-30 10:38:19,686 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 198
+2026-01-30 10:38:19,709 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:38:40,734 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5174): Würfel 0 nicht an Zielposition (dx=0.158, dy=0.283)
+2026-01-30 10:38:40,734 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 199
+2026-01-30 10:38:40,754 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:39:02,303 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5175): Würfel 0 nicht an Zielposition (dx=0.243, dy=0.276)
+2026-01-30 10:39:02,304 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 200
+2026-01-30 10:39:02,325 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:39:23,467 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5176): Würfel 0 nicht an Zielposition (dx=0.485, dy=0.296)
+2026-01-30 10:39:23,468 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 201
+2026-01-30 10:39:23,489 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:42:47,583 [    INFO] FrankaCubeStacking: ============================================================
+2026-01-30 10:42:47,583 [    INFO] FrankaCubeStacking: Franka Cube Stacking - PARALLEL Mode
+2026-01-30 10:42:47,583 [    INFO] FrankaCubeStacking:   Config: config.yaml (default)
+2026-01-30 10:42:47,583 [    INFO] FrankaCubeStacking:   Headless: True
+2026-01-30 10:42:47,583 [    INFO] FrankaCubeStacking:   Anzahl Umgebungen: 10
+2026-01-30 10:42:47,584 [    INFO] FrankaCubeStacking:   Episoden gesamt: 50
+2026-01-30 10:42:47,584 [    INFO] FrankaCubeStacking:   Modus: DYNAMISCHER TASK-POOL (Work-Stealing)
+2026-01-30 10:42:47,584 [    INFO] FrankaCubeStacking:   -> Freie Envs übernehmen verbleibende Episoden automatisch
+2026-01-30 10:42:47,584 [    INFO] FrankaCubeStacking: ============================================================
+2026-01-30 10:42:47,584 [    INFO] FrankaCubeStacking: Setup Environment 0...
+2026-01-30 10:42:48,459 [    INFO] FrankaCubeStacking: Setup Environment 1...
+2026-01-30 10:42:48,461 [    INFO] FrankaCubeStacking: Setup Environment 2...
+2026-01-30 10:42:48,462 [    INFO] FrankaCubeStacking: Setup Environment 3...
+2026-01-30 10:42:48,463 [    INFO] FrankaCubeStacking: Setup Environment 4...
+2026-01-30 10:42:48,464 [    INFO] FrankaCubeStacking: Setup Environment 5...
+2026-01-30 10:42:48,465 [    INFO] FrankaCubeStacking: Setup Environment 6...
+2026-01-30 10:42:48,466 [    INFO] FrankaCubeStacking: Setup Environment 7...
+2026-01-30 10:42:48,468 [    INFO] FrankaCubeStacking: Setup Environment 8...
+2026-01-30 10:42:48,469 [    INFO] FrankaCubeStacking: Setup Environment 9...
+2026-01-30 10:42:51,648 [    INFO] FrankaCubeStacking: All environments created, world reset complete
+2026-01-30 10:42:51,648 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:42:51,649 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:42:51,649 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:51,649 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:51,649 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:51,650 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:51,650 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:51,650 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:51,650 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:42:51,650 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:51,650 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:51,650 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:51,650 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:51,650 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:42:51,651 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:42:51,675 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:42:51,675 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:51,675 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:51,675 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:42:51,676 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:42:51,696 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:42:51,882 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:42:51,883 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:42:51,883 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:51,883 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:51,883 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:51,883 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:51,883 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:51,883 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:51,883 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:42:51,884 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:51,884 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:51,884 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:51,884 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:51,884 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:42:51,884 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:42:51,909 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:42:51,909 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:51,909 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:51,909 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:42:51,909 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:42:51,930 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:42:52,061 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:42:52,062 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:42:52,062 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:52,062 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:52,062 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:52,062 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:52,063 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:52,063 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:52,063 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:42:52,063 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:52,063 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:52,063 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:52,063 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:52,063 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:42:52,063 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:42:52,086 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:42:52,086 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:52,087 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:52,087 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:42:52,087 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:42:52,107 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:42:52,253 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:42:52,254 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:42:52,254 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:52,254 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:52,254 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:52,254 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:52,254 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:52,255 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:52,255 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:42:52,255 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:52,255 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:52,255 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:52,255 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:52,255 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:42:52,255 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:42:52,282 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:42:52,283 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:52,283 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:52,283 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:42:52,283 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:42:52,304 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:42:52,470 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:42:52,471 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:42:52,471 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:52,471 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:52,471 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:52,471 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:52,471 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:52,471 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:52,471 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:42:52,472 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:52,472 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:52,472 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:52,472 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:52,472 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:42:52,472 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:42:52,496 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:42:52,496 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:52,497 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:52,497 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:42:52,497 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:42:52,517 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:42:52,691 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:42:52,692 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:42:52,692 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:52,692 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:52,692 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:52,692 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:52,692 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:52,693 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:52,693 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:42:52,693 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:52,693 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:52,693 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:52,693 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:52,693 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:42:52,693 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:42:52,718 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:42:52,718 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:52,718 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:52,718 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:42:52,718 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:42:52,739 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:42:52,947 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:42:52,947 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:42:52,948 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:52,948 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:52,948 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:52,948 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:52,948 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:52,948 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:52,948 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:42:52,949 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:52,949 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:52,949 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:52,949 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:52,949 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:42:52,949 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:42:52,973 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:42:52,973 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:52,973 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:52,973 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:42:52,973 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:42:53,003 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:42:53,229 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:42:53,230 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:42:53,230 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:53,230 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:53,230 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:53,230 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:53,231 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:53,231 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:53,231 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:42:53,231 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:53,231 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:53,231 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:53,231 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:53,231 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:42:53,231 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:42:53,256 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:42:53,256 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:53,256 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:53,256 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:42:53,256 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:42:53,277 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:42:53,510 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:42:53,511 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:42:53,511 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:53,511 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:53,511 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:53,511 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:53,512 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:53,512 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:53,512 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:42:53,512 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:53,512 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:53,512 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:53,512 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:53,512 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:42:53,512 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:42:53,536 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:42:53,537 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:53,537 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:53,537 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:42:53,537 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:42:53,558 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:42:53,792 [    INFO] FrankaCubeStacking: Setup Post Load
+2026-01-30 10:42:53,793 [    INFO] StackingController_JW: Initializing StackingController_JW 'stacking_controller':
+2026-01-30 10:42:53,793 [    INFO] StackingController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:53,793 [    INFO] StackingController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:53,793 [    INFO] StackingController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:53,794 [    INFO] StackingController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:53,794 [    INFO] StackingController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:53,794 [    INFO] StackingController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:53,794 [    INFO] PickAndPlaceController_JW: PickPlaceController_JW initialized:
+2026-01-30 10:42:53,794 [    INFO] PickAndPlaceController_JW:   - preferred_joints: {2: 0.0, 4: 0.0, 6: 0.0}
+2026-01-30 10:42:53,794 [    INFO] PickAndPlaceController_JW:   - trajectory_resolution: 1.0
+2026-01-30 10:42:53,794 [    INFO] PickAndPlaceController_JW:   - air_speed_multiplier: 1.0
+2026-01-30 10:42:53,795 [    INFO] PickAndPlaceController_JW:   - height_adaptive_speed: False
+2026-01-30 10:42:53,795 [    INFO] PickAndPlaceController_JW:   - events_dt: [1.0, 0.015, 1.0, 0.2, 1.0, 1.0, 0.015, 0.2, 1.0, 1.0]
+2026-01-30 10:42:53,795 [    INFO] PickAndPlaceController_JW:     (air phases [0, 4, 5, 8, 9] boosted, critical phases [1, 6] preserved)
+2026-01-30 10:42:53,819 [    INFO] RMPFlowController_JW: RMPFlowController_JW initialized with preferred_joints={2: 0.0, 4: 0.0, 6: 0.0}, trajectory_scale=1.0
+2026-01-30 10:42:53,819 [    INFO] PickAndPlaceController_JW:   - guarantee_final_position: True
+2026-01-30 10:42:53,819 [    INFO] PickAndPlaceController_JW:     - guarantee_phases: [1, 6]
+2026-01-30 10:42:53,819 [    INFO] Base_PickAndPlaceController: Initiation of Base Pick and Place Controller is Done
+2026-01-30 10:42:53,819 [    INFO] BaseStackingController: Initiation of Base Stacking Controller is Done
+2026-01-30 10:42:53,840 [    INFO] BaseStackingController: StackingController_JW 'stacking_controller' initialized successfully
+2026-01-30 10:42:54,091 [    INFO] FrankaCubeStacking: Warte auf Kamera-Initialisierung...
+2026-01-30 10:42:55,694 [    INFO] FrankaCubeStacking: Kamera-Initialisierung abgeschlossen
+2026-01-30 10:42:55,694 [    INFO] MinDataLogger: MinDataLogger initialisiert: /home/tsp_jw/Desktop/fcs_datasets/NEps50_ActInt10_RobOpac10_NCams1_NCube1
+2026-01-30 10:42:55,694 [    INFO] MinDataLogger:   Action Mode: ee_pos (6D: start + end Position)
+2026-01-30 10:42:55,695 [    INFO] FrankaCubeStacking: CSV Episode Logger initialisiert: /home/tsp_jw/Desktop/fcs_datasets/episode_tracking.csv
+2026-01-30 10:42:55,695 [    INFO] FrankaCubeStacking: Kamera-Kalibrierung gesetzt
+2026-01-30 10:42:55,695 [    INFO] FrankaCubeStacking: Task-Pool initialisiert: 50 Episoden zu verteilen
+2026-01-30 10:42:55,695 [    INFO] FrankaCubeStacking:   Max. Versuche bei Fehlschlägen: 150
+2026-01-30 10:42:55,696 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:42:55,712 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:42:55,750 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:42:55,794 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:42:55,838 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:42:55,882 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:42:55,922 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:42:55,961 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:42:56,000 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:42:56,039 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:42:56,082 [    INFO] FrankaCubeStacking: Initial gestartet: 10 Episoden, verbleibend: 40
+2026-01-30 10:42:56,082 [    INFO] FrankaCubeStacking: Warte auf Kamera-Initialisierung...
+2026-01-30 10:42:56,722 [    INFO] FrankaCubeStacking: Kamera-Initialisierung abgeschlossen
+2026-01-30 10:43:20,062 [ WARNING] FrankaCubeStacking: ❌ Env 0: Episode verworfen (Seed 111): Würfel 0 nicht an Zielposition (dx=0.196, dy=0.329)
+2026-01-30 10:43:20,062 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 41)
+2026-01-30 10:43:20,062 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 0
+2026-01-30 10:43:20,084 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:20,091 [    INFO] FrankaCubeStacking: Env 0: Neue Episode gestartet (verbleibend: 40, in Arbeit: 10, Versuche: 11/150)
+2026-01-30 10:43:20,126 [    INFO] MinDataLogger: Episode 0 gestartet
+2026-01-30 10:43:21,036 [    INFO] MinDataLogger: Episode 0 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:43:21,042 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 0
+2026-01-30 10:43:21,043 [    INFO] FrankaCubeStacking: ✅ Env 1: Episode 1 erfolgreich (152 steps, Seed 1111)
+2026-01-30 10:43:21,064 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:21,115 [    INFO] FrankaCubeStacking: Env 1: Neue Episode gestartet (verbleibend: 39, in Arbeit: 10, Versuche: 12/150)
+2026-01-30 10:43:21,151 [    INFO] MinDataLogger: Episode 1 gestartet
+2026-01-30 10:43:22,030 [    INFO] MinDataLogger: Episode 1 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:43:22,037 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 1
+2026-01-30 10:43:22,037 [    INFO] FrankaCubeStacking: ✅ Env 2: Episode 2 erfolgreich (152 steps, Seed 2111)
+2026-01-30 10:43:22,062 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:22,105 [    INFO] FrankaCubeStacking: Env 2: Neue Episode gestartet (verbleibend: 38, in Arbeit: 10, Versuche: 13/150)
+2026-01-30 10:43:22,133 [ WARNING] FrankaCubeStacking: ❌ Env 3: Episode verworfen (Seed 3111): Würfel 0 nicht an Zielposition (dx=0.139, dy=0.047)
+2026-01-30 10:43:22,134 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 39)
+2026-01-30 10:43:22,134 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 3
+2026-01-30 10:43:22,164 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:22,197 [    INFO] FrankaCubeStacking: Env 3: Neue Episode gestartet (verbleibend: 38, in Arbeit: 10, Versuche: 14/150)
+2026-01-30 10:43:22,233 [ WARNING] FrankaCubeStacking: ❌ Env 4: Episode verworfen (Seed 4111): Würfel 0 nicht an Zielposition (dx=0.309, dy=0.084)
+2026-01-30 10:43:22,233 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 39)
+2026-01-30 10:43:22,233 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 4
+2026-01-30 10:43:22,255 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:22,305 [    INFO] FrankaCubeStacking: Env 4: Neue Episode gestartet (verbleibend: 38, in Arbeit: 10, Versuche: 15/150)
+2026-01-30 10:43:22,337 [ WARNING] FrankaCubeStacking: ❌ Env 5: Episode verworfen (Seed 5111): Würfel 0 nicht an Zielposition (dx=0.386, dy=0.540)
+2026-01-30 10:43:22,337 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 39)
+2026-01-30 10:43:22,337 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 5
+2026-01-30 10:43:22,363 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:22,410 [    INFO] FrankaCubeStacking: Env 5: Neue Episode gestartet (verbleibend: 38, in Arbeit: 10, Versuche: 16/150)
+2026-01-30 10:43:22,446 [    INFO] MinDataLogger: Episode 2 gestartet
+2026-01-30 10:43:23,363 [    INFO] MinDataLogger: Episode 2 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:43:23,364 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 2
+2026-01-30 10:43:23,365 [    INFO] FrankaCubeStacking: ✅ Env 6: Episode 3 erfolgreich (152 steps, Seed 6111)
+2026-01-30 10:43:23,385 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:23,417 [    INFO] FrankaCubeStacking: Env 6: Neue Episode gestartet (verbleibend: 37, in Arbeit: 10, Versuche: 17/150)
+2026-01-30 10:43:23,440 [ WARNING] FrankaCubeStacking: ❌ Env 7: Episode verworfen (Seed 7111): Würfel 0 nicht an Zielposition (dx=0.352, dy=0.171)
+2026-01-30 10:43:23,440 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 38)
+2026-01-30 10:43:23,440 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 7
+2026-01-30 10:43:23,461 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:23,495 [    INFO] FrankaCubeStacking: Env 7: Neue Episode gestartet (verbleibend: 37, in Arbeit: 10, Versuche: 18/150)
+2026-01-30 10:43:23,519 [ WARNING] FrankaCubeStacking: ❌ Env 8: Episode verworfen (Seed 8111): Würfel 0 nicht an Zielposition (dx=0.051, dy=0.380)
+2026-01-30 10:43:23,520 [    INFO] FrankaCubeStacking:    -> Pool nachgefüllt (verbleibend: 38)
+2026-01-30 10:43:23,520 [    INFO] FrankaCubeStacking: CSV-Eintrag geschrieben für fehlgeschlagene Episode 8
+2026-01-30 10:43:23,542 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:23,576 [    INFO] FrankaCubeStacking: Env 8: Neue Episode gestartet (verbleibend: 37, in Arbeit: 10, Versuche: 19/150)
+2026-01-30 10:43:23,601 [    INFO] MinDataLogger: Episode 3 gestartet
+2026-01-30 10:43:24,442 [    INFO] MinDataLogger: Episode 3 beendet: 152 Timesteps (152 .h5 Dateien), obses.pth + property_params.pkl gespeichert
+2026-01-30 10:43:24,443 [    INFO] FrankaCubeStacking: ✅ CSV-Eintrag geschrieben für Episode 3
+2026-01-30 10:43:24,443 [    INFO] FrankaCubeStacking: ✅ Env 9: Episode 4 erfolgreich (152 steps, Seed 9111)
+2026-01-30 10:43:24,465 [    INFO] FrankaCubeStacking: Start Randomization
+2026-01-30 10:43:24,507 [    INFO] FrankaCubeStacking: Env 9: Neue Episode gestartet (verbleibend: 36, in Arbeit: 10, Versuche: 20/150)

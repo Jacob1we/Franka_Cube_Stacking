@@ -186,7 +186,8 @@ Z_MIN_HEIGHT = CFG["validation"]["z_min_height"]
 Z_STACK_TOLERANCE = CFG["validation"]["z_stack_tolerance"]
 #endregion
 
-DATASET_NAME = f"{datetime.now().strftime('%Y_%m_%d_%H%M')}_fcs_dset"
+# DATASET_NAME = f"{datetime.now().strftime('%Y_%m_%d_%H%M')}_fcs_dset"
+DATASET_NAME = f"NEps{CFG['dataset']['num_episodes']}_ActInt{CFG['dataset']['action_interval']}_RobOpac{int(CFG['camera']['robot_opacity_for_capture']*10)}_NCams1_NCube{CFG['cubes']['count']}"
 
 class Franka_Cube_Stack():
     """
@@ -344,8 +345,8 @@ class Franka_Cube_Stack():
             prim_path=cam_prim_path,
             frequency=CAM_FREQUENCY,
             resolution=CAM_RESOLUTION,
-            horizontal_aperture=aperture_value,
-            vertical_aperture=aperture_value,  # Gleicher Wert für quadratische Pixel
+            # horizontal_aperture=aperture_value,
+            # vertical_aperture=aperture_value,  # Gleicher Wert für quadratische Pixel
         )
         return cam
     
@@ -772,7 +773,8 @@ def main():
     log.info(f"  Anzahl Umgebungen: {NUM_ENVS}")
     log.info(f"  Episoden gesamt: {NUM_EPISODES}")
     if NUM_ENVS > 1:
-        log.info(f"  Episoden pro Env: {NUM_EPISODES // NUM_ENVS}")
+        log.info(f"  Modus: DYNAMISCHER TASK-POOL (Work-Stealing)")
+        log.info(f"  -> Freie Envs übernehmen verbleibende Episoden automatisch")
     log.info("=" * 60)
     
     # ================================================================
@@ -894,7 +896,22 @@ def main():
     global_episode_id = 0  # Nächste freie Episode-ID
     total_successful = 0
     
-    # Episoden pro Env berechnen
+    # ================================================================
+    # DYNAMISCHER TASK-POOL (Work-Stealing Ansatz)
+    # ================================================================
+    # Statt fester Zuteilung: Zentrale Warteschlange
+    # Jede Env holt sich die nächste Episode, wenn sie fertig ist
+    remaining_episodes_to_start = NUM_EPISODES  # Wie viele Episoden noch zu starten sind
+    episodes_in_progress = 0  # Aktuell laufende Episoden
+    
+    # Maximale Versuche: 3x Ziel-Episoden (Sicherheit bei hoher Fehlerrate)
+    MAX_TOTAL_ATTEMPTS = NUM_EPISODES * 3
+    total_attempts = 0  # Zähler für alle gestarteten Episoden (inkl. Fehlschläge)
+    
+    log.info(f"Task-Pool initialisiert: {remaining_episodes_to_start} Episoden zu verteilen")
+    log.info(f"  Max. Versuche bei Fehlschlägen: {MAX_TOTAL_ATTEMPTS}")
+    
+    # Legacy-Variable für Kompatibilität (wird nicht mehr für Abbruch verwendet)
     episodes_per_env = NUM_EPISODES // NUM_ENVS
     
     # ================================================================
@@ -905,6 +922,16 @@ def main():
     
     # Initial: Domain Randomization und Episode starten für alle Envs
     for i in range(NUM_ENVS):
+        # Prüfe ob noch Episoden zu starten sind
+        if remaining_episodes_to_start <= 0:
+            env_done[i] = True
+            log.info(f"Env {i}: Keine Episoden mehr zu starten")
+            continue
+            
+        remaining_episodes_to_start -= 1
+        episodes_in_progress += 1
+        total_attempts += 1  # Zähle gestartete Episode
+        
         cube_pos, target_pos = envs[i].domain_randomization(seeds[i])
         target_positions[i] = target_pos
         cube_positions_list[i] = cube_pos
@@ -929,6 +956,8 @@ def main():
         }
         global_episode_id += 1
     
+    log.info(f"Initial gestartet: {episodes_in_progress} Episoden, verbleibend: {remaining_episodes_to_start}")
+    
     # Warte ein paar Frames, damit Kameras initialisiert werden können
     log.info("Warte auf Kamera-Initialisierung...")
     for _ in range(10):
@@ -937,6 +966,11 @@ def main():
     log.info("Kamera-Initialisierung abgeschlossen")
     
     while simulation_app.is_running() and total_successful < NUM_EPISODES:
+        # Zusätzliche Abbruchbedingung: Keine Episoden mehr in Arbeit und keine mehr zu starten
+        if episodes_in_progress == 0 and remaining_episodes_to_start == 0:
+            log.info("Alle Episoden abgeschlossen (Task-Pool leer)")
+            break
+            
         simulation_app.update()
         
         # Beobachtungen für alle Envs sammeln
@@ -1138,6 +1172,14 @@ def main():
                     failed_seeds.append(seeds[i])
                     log.warning(f"❌ Env {i}: Episode verworfen (Seed {seeds[i]}): {reason}")
                     
+                    # WICHTIG: Bei Fehlschlag den Pool nachfüllen, damit wir das Ziel erreichen
+                    # Aber nur wenn wir unter dem Max-Limit sind
+                    if total_attempts < MAX_TOTAL_ATTEMPTS:
+                        remaining_episodes_to_start += 1
+                        log.info(f"   -> Pool nachgefüllt (verbleibend: {remaining_episodes_to_start})")
+                    else:
+                        log.warning(f"   -> Max. Versuche erreicht, kein Nachfüllen")
+                    
                     # Schreibe auch fehlgeschlagene Episode in CSV (für Tracking)
                     try:
                         # Controller-Parameter aus globalen Konstanten (nicht vom Controller-Objekt)
@@ -1180,9 +1222,18 @@ def main():
                 total_episodes += 1
                 step_counts[i] = 0
                 seeds[i] += 1
+                episodes_in_progress -= 1  # Episode abgeschlossen
                 
-                # Weitere Episoden?
-                if successful_counts[i] < episodes_per_env and total_successful < NUM_EPISODES:
+                # ============================================================
+                # DYNAMISCHE EPISODE-ZUWEISUNG (Work-Stealing)
+                # ============================================================
+                # Prüfe ob noch Episoden zu starten sind UND Ziel noch nicht erreicht
+                # UND wir unter dem Max-Versuchs-Limit sind
+                if remaining_episodes_to_start > 0 and total_successful < NUM_EPISODES and total_attempts < MAX_TOTAL_ATTEMPTS:
+                    remaining_episodes_to_start -= 1
+                    episodes_in_progress += 1
+                    total_attempts += 1  # Zähle gestartete Episode
+                    
                     controller.reset()
                     cube_pos, target_pos = env.domain_randomization(seeds[i])
                     target_positions[i] = target_pos
@@ -1207,9 +1258,13 @@ def main():
                         }
                     }
                     global_episode_id += 1
+                    log.info(f"Env {i}: Neue Episode gestartet (verbleibend: {remaining_episodes_to_start}, in Arbeit: {episodes_in_progress}, Versuche: {total_attempts}/{MAX_TOTAL_ATTEMPTS})")
                 else:
                     env_done[i] = True
-                    log.info(f"Env {i}: Fertig ({successful_counts[i]} erfolgreiche Episoden)")
+                    if total_attempts >= MAX_TOTAL_ATTEMPTS:
+                        log.warning(f"Env {i}: Gestoppt - Max. Versuche erreicht ({total_attempts}/{MAX_TOTAL_ATTEMPTS})")
+                    else:
+                        log.info(f"Env {i}: Fertig ({successful_counts[i]} erfolgreiche Episoden, keine weiteren Episoden verfügbar)")
         
         # World Step
         shared_world.step()
@@ -1222,6 +1277,8 @@ def main():
     # FINALES SPEICHERN - Ein zentraler Datensatz
     # ================================================================
     # Speichere Kamera-Kalibrierung (wird am Ende gespeichert)
+    average_step_count = sum(step_counts) / NUM_ENVS if NUM_ENVS > 0 else 0
+    logger.dataset_path = logger.dataset_path + f"__Steps{int(average_step_count)}"
     logger.save_camera_calibration()
     log.info(f"Zentraler Datensatz gespeichert: {logger.dataset_path}/")
     log.info(f"  Episoden: {total_successful}")
@@ -1242,8 +1299,10 @@ def main():
     
     log.info("=" * 60)
     log.info(f"Datensammlung abgeschlossen!")
+    log.info(f"  Modus: DYNAMISCHER TASK-POOL (Work-Stealing)")
     log.info(f"  Zentraler Datensatz: {DATASET_NAME}")
-    log.info(f"  Erfolgreiche Episoden: {total_successful}")
+    log.info(f"  Erfolgreiche Episoden: {total_successful} / {NUM_EPISODES} (Ziel)")
+    log.info(f"  Gesamte Versuche: {total_attempts} (inkl. Fehlschläge)")
     log.info(f"  Episoden pro Env: {successful_counts}")
     log.info(f"  Fehlgeschlagene Seeds: {len(failed_seeds)}")
     if total_episodes > 0:
